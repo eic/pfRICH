@@ -179,18 +179,18 @@ void Materials::DefineMaterials( void )
       auto name = xercesc::XMLString::transcode(xmlch);
 	
       auto dens = mat->FindFirstTag("density");
-      printf("%s -> %7.4f [g/cm^3]\n", name, atof(dens->GetFirstString()));
+      //printf("%s -> %7.4f [g/cm^3]\n", name, atof(dens->GetFirstString()));
       
       auto comp = mat->FindFirstTag("Components");
       auto elems = comp->FindTags("Element");
-      printf("   %d\n", (int)elems.size());
+      //printf("   %d\n", (int)elems.size());
       
       auto aerogel = new G4RadiatorMaterial(name, atof(dens->GetFirstString())*g/cm3, elems.size());
       
       for(auto elem: elems) {
 	const XMLCh* xmlch = elem->GetAttribute("fraction");
 	auto fraction = xercesc::XMLString::transcode(xmlch);
-	//rintf("%7.4f: %s\n", atof(fraction), elem->GetFirstString());
+	//printf("%7.4f: %s\n", atof(fraction), elem->GetFirstString());
 	char buffer[128];
 	strcpy(buffer, elem->GetFirstString());
 	//printf("%d\n", strlen(buffer));
@@ -199,7 +199,7 @@ void Materials::DefineMaterials( void )
 	    buffer[iq] = 0;
 	//printf("%2d ", buffer[iq]);
 	//printf("\n");
-	printf("%7.4f: %s\n", atof(fraction), buffer);
+	//printf("%7.4f: %s\n", atof(fraction), buffer);
 	
 	auto ptr = manager->FindOrBuildElement(buffer, false); assert(ptr);
 	aerogel->AddElement(ptr, atof(fraction)*100*perCent);
@@ -211,7 +211,7 @@ void Materials::DefineMaterials( void )
       for(auto prop: properties) {
 	const XMLCh* xmlch = prop->GetAttribute("name");
 	auto name = xercesc::XMLString::transcode(xmlch);
-	printf("%s (%d)\n", name, strlen(name));
+	//printf("%s (%d)\n", name, strlen(name));
 	
 #ifdef _DISABLE_ABSORPTION_
 	if (!strcmp(name, "ABSLENGTH")) continue;
@@ -222,13 +222,13 @@ void Materials::DefineMaterials( void )
 
 	auto values = prop->FindTags("value");
 	unsigned dim = values.size();
-	printf("%d\n", values.size());
+	//printf("%d\n", values.size());
 	std::map<double, double> entries;
 	
 	for(auto value: values) {
 	  const XMLCh* xmlch = value->GetAttribute("energy");
 	  auto energy = xercesc::XMLString::transcode(xmlch);
-	  printf("%7.2f [eV] -> %8.3f\n", atof(energy), atof(value->GetFirstString()));
+	  //printf("%7.2f [eV] -> %8.3f\n", atof(energy), atof(value->GetFirstString()));
 	  entries[atof(energy)] = atof(value->GetFirstString());
 	} //for value
 	
@@ -237,7 +237,7 @@ void Materials::DefineMaterials( void )
 	unsigned counter = 0;
 	double e[dim], v[dim];
 	for(auto entry: entries) {
-	  printf("%2d -> %f (%10.7f vs %10.7f .. %10.7f)\n", counter, entry.first, entry.first*eV, _NU_MIN_, _NU_MAX_);
+	  //printf("%2d -> %f (%10.7f vs %10.7f .. %10.7f)\n", counter, entry.first, entry.first*eV, _NU_MIN_, _NU_MAX_);
 	  
 	  if (entry.first*eV >= _NU_MIN_ && entry.first*eV <= _NU_MAX_) {
 	    e[counter  ] = entry.first  * eV;
