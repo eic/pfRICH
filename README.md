@@ -1,7 +1,7 @@
 # pfRICH
 Standalone ePIC pfRICH GEANT4 simulation codes
 
-  It is assumed that thisroot.sh and geant.sh were sourced. In the following 
+  It is assumed that thisroot.sh and geant4.sh were sourced. In the following 
 installation under /tmp is assumed. Change the commands accordingly if installing 
 in a different directory. Make sure 'cmake' is 3.0 or higher.
 
