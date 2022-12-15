@@ -237,10 +237,10 @@ void e_eval(const char *dfname, const char *cfname = 0)
 	      wtsum += wt;
 	      {
 		double m = _MASS_, pp = photon->GetVertexParentMomentum().Mag();
-		double thp = acos(sqrt(pp*pp + m*m)/(photon->GetVertexRefractiveIndex()*pp));
+		double thp = acos(sqrt(pp*pp + m*m)/(radiator->m_AverageRefractiveIndex*pp));
 		dtheta += wt*photon->_m_PDF[aerogel].GetAverage(thp - dth, thp + dth) - thp;
 		for(auto member: photon->_m_PDF[aerogel].GetMembers())
-		  qh->Fill(1000*(member->GetAverage() - thp));
+		  qh->Fill(1000*(member->GetAverage() - thp), member->GetWeight());
 
 		double len = (photon->GetDetectionPosition() - mid).Mag();
 		double beta = 1/sqrt(1.0 + pow(m/pp, 2)), lspeed = 299.792458, velocity = beta*lspeed;
