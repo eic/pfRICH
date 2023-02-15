@@ -13,6 +13,8 @@ public:
   DetectorConstruction(CherenkovDetectorCollection *geometry);
   virtual ~DetectorConstruction() {};
 
+  void ConstructSDandField();
+
   G4VPhysicalVolume* Construct( void );
 
 private:

@@ -17,14 +17,16 @@
 
 #include <XmlTree.h>
 
+// Does not make sense to spoil tuning.h with this number;
+#define _ACRYLIC_DENSITY_                     (1.18*g/cm3)
+
 // -------------------------------------------------------------------------------------
 
 Materials::Materials( void ): CherenkovWaveLengthRange(_WLDIM_, _NU_MIN_, _NU_STEP_)
 {
-  m_N = m_O = m_C = m_Si = m_H = m_K = m_Na = m_Sb = 0; 
+  m_N = m_O = m_C = m_Si = m_H = m_K = m_Na = m_Sb = m_Al = m_Ca = 0; 
 
-  m_Air = m_Absorber = m_Bialkali = 0;
-  //m_Aerogel[0] = /*m_Aerogel[1] = 
+  m_Air = m_Absorber = m_Bialkali = m_Aluminum = m_CarbonFiber = m_Ceramic = m_Silver = 0;
   m_Acrylic = m_Nitrogen = m_FusedSilica = 0;
 } // Materials::Materials()
 
@@ -40,6 +42,8 @@ void Materials::DefineElements( void )
   m_O  = manager->FindOrBuildElement("O",  false); assert(m_O);
   m_N  = manager->FindOrBuildElement("N",  false); assert(m_N);
   m_Si = manager->FindOrBuildElement("Si", false); assert(m_Si);
+  m_Al = manager->FindOrBuildElement("Al", false); assert(m_Al);
+  m_Ca = manager->FindOrBuildElement("Ca", false); assert(m_Ca);
 
   m_Na = manager->FindOrBuildElement("Na", false); assert(m_Na);
   m_K  = manager->FindOrBuildElement("K",  false); assert(m_K);
@@ -50,6 +54,13 @@ void Materials::DefineElements( void )
 
 void Materials::DefineMaterials( void )
 {
+  {
+    G4NistManager *manager = G4NistManager::Instance();
+
+    m_Aluminum = manager->FindOrBuildMaterial("G4_Al"); assert(m_Aluminum);
+    m_Silver   = manager->FindOrBuildMaterial("G4_Ag"); assert(m_Silver);
+  }  
+
   // Air;
   {
     // This will be air without optical properties; looks the easiest way to 
@@ -258,9 +269,9 @@ void Materials::DefineMaterials( void )
 #ifdef _ACRYLIC_THICKNESS_
   {
 #ifdef _ACRYLIC_REFRACTIVE_INDEX_ 
-    m_Acrylic = new G4RadiatorMaterial("Acrylic",_ACRYLIC_DENSITY_ * g/cm3, 3, _ACRYLIC_REFRACTIVE_INDEX_);
+    m_Acrylic = new G4RadiatorMaterial("Acrylic",_ACRYLIC_DENSITY_, 3, _ACRYLIC_REFRACTIVE_INDEX_);
 #else
-    m_Acrylic = new G4RadiatorMaterial("Acrylic",_ACRYLIC_DENSITY_ * g/cm3, 3);
+    m_Acrylic = new G4RadiatorMaterial("Acrylic",_ACRYLIC_DENSITY_, 3);
 #endif
     
     m_Acrylic->AddElement(m_C , 5);
@@ -304,6 +315,26 @@ void Materials::DefineMaterials( void )
     bialkaliMPT->AddProperty("RINDEX", GetPhotonEnergies(), refractiveIndex, _WLDIM_);
     
     m_Bialkali->SetMaterialPropertiesTable(bialkaliMPT);
+  }
+
+  // A fake carbon fiber with a resonable density;
+  {
+    m_CarbonFiber = new G4Material("CarbonFiber", 1.90*g/cm3, 1);
+    
+    m_CarbonFiber->AddElement(m_C, 1);
+  }
+
+  // Ceramic imitation; assume DuPont 951 variety; chemical composition is unknown;
+  // it is a "mixture of Al2O3, CaZr03 and glass" at 3.10 g/cm^3; take CeramTape GC 
+  // (density 2.87 g/cm^2) as a reference;
+  {
+    m_Ceramic = new G4Material("Ceramic", 3.10*g/cm3, 4);
+    
+    // Ignore inner traces;
+    m_Ceramic->AddElement(m_O,  54.85*perCent);
+    m_Ceramic->AddElement(m_Al, 30.09*perCent);
+    m_Ceramic->AddElement(m_Si,  8.86*perCent);
+    m_Ceramic->AddElement(m_Ca,  6.20*perCent);
   }
 
   // A fake absorber material (without optical properties);

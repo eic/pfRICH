@@ -126,6 +126,11 @@ int main(int argc, char** argv)
   {
      G4UIExecutive * ui = new G4UIExecutive(argc,argv,session);
      UImanager->ApplyCommand("/control/execute ./macro/vis.mac");
+
+#ifdef _GEOMETRY_CHECK_
+     UImanager->ApplyCommand("/geometry/test/run");
+#endif
+
      ui->SessionStart();
      delete ui;
   }

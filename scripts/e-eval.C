@@ -5,8 +5,16 @@
 //#define _PDG_         321
 
 //#define _AEROGEL_ ("Aerogel110")
-//#define _AEROGEL_ ("Aerogel225")
-#define _AEROGEL_ ("BelleIIAerogel1")
+#define _AEROGEL_ ("Aerogel225")
+//#define _AEROGEL_ ("BelleIIAerogel1")
+
+// Kind of digitization; of course only one of the two must be used;
+//#define _GAUSSIAN_SMEARING_            1.0
+#define _DISCRETE_PIXEL_PITCH_         4.0
+
+// [rad] & [mm];
+#define _PHOTON_DETECTION_WINDOW_    0.012
+#define _AVERAGE_ATTENUATION_LENGTH_   8.4
 
 void e_eval(const char *dfname, const char *cfname = 0)
 {
@@ -25,16 +33,12 @@ void e_eval(const char *dfname, const char *cfname = 0)
   auto wl = new TH1D("wl", "Wave Length",             200, 150.0,  800.0);
   auto tt = new TH2D("tt", "Cherenkov angle vs time",  50,  -0.2, 0.6, 50, -100,  100);
   auto z0 = new TH1D("z0", "True emission point",     100,   -30,     30);
-  auto al = new TH1D("al", "True attenuation length", 100,     0,    200);
+  auto al = new TH1D("al", "True attenuation length", 100,     0,    100);
 
   int nEvents = t->GetEntries();
 
   auto rich = geometry->GetDetector("pfRICH");
-  //#ifdef _USE_AEROGEL_110_
-  auto aerogel = rich->GetRadiator(_AEROGEL_);//"Aerogel110");
-  //#else
-  //auto aerogel = rich->GetRadiator("Aerogel225");
-  //#endif
+  auto aerogel = rich->GetRadiator(_AEROGEL_);
 
   // First calculate average refractive index and theta for all detected photons
   // for every radiator;
@@ -82,35 +86,9 @@ void e_eval(const char *dfname, const char *cfname = 0)
   }
 
   aerogel->SetTrajectoryBinCount(10);
-  aerogel->SetUniformSmearing(0.012);
-  //aerogel->SetUniformSmearing(0.020);
-  //#ifdef _USE_AEROGEL_1_
-  //aerogel->SetReferenceRefractiveIndex(1.044);
-  //aerogel->SetReferenceRefractiveIndex(1.0451);
-  //aerogel->SetReferenceAttenuationLength(17.0);
-
-  //aerogel->SetReferenceRefractiveIndex(1.0195);
-
-
-  aerogel->SetReferenceRefractiveIndex(1.0462);
-  //aerogel->SetReferenceRefractiveIndex(1.0474);
-  aerogel->SetReferenceAttenuationLength(15.0);
-  //aerogel->SetReferenceRefractiveIndex(1.0436);
-  //aerogel->SetReferenceAttenuationLength(12.0);
-
-
-  //aerogel->SetReferenceAttenuationLength(25.0);
-  //aerogel->SetReferenceAttenuationLength(18.0);
-  //#else
-  //aerogel->SetReferenceRefractiveIndex(1.0190);
-  //aerogel->SetReferenceAttenuationLength(48.0);
-  //aerogel->SetReferenceRefractiveIndex(1.0195);
-  //aerogel->SetReferenceRefractiveIndex(1.0209);
-  //aerogel->SetReferenceAttenuationLength(25.0);
-  //aerogel->SetReferenceRefractiveIndex(1.055);
-  //aerogel->SetReferenceAttenuationLength(18.0);
-  //aerogel->SetReferenceAttenuationLength(23);//38.0*0.40);
-  //#endif
+  aerogel->SetUniformSmearing(_PHOTON_DETECTION_WINDOW_);
+  //aerogel->SetReferenceRefractiveIndex(_AVERAGE_REFRACTIVE_INDEX_);
+  aerogel->SetReferenceAttenuationLength(_AVERAGE_ATTENUATION_LENGTH_);
 
   unsigned false_assignment_stat = 0;
 
@@ -191,6 +169,20 @@ void e_eval(const char *dfname, const char *cfname = 0)
       pid.AddMassHypothesis(0.140);
       pid.AddMassHypothesis(0.494);
       
+      for(auto rhistory: particle->GetRadiatorHistory()) 
+	for(auto photon: particle->GetHistory(rhistory)->Photons()) {
+	  TVector3 phx = photon->GetDetectionPosition();
+
+#ifdef _GAUSSIAN_SMEARING_
+	  phx += TVector3(gRandom->Gaus(0.0, _GAUSSIAN_SMEARING_), gRandom->Gaus(0.0, _GAUSSIAN_SMEARING_), 0.0);
+#endif
+#ifdef _DISCRETE_PIXEL_PITCH_
+	  double pitch = _DISCRETE_PIXEL_PITCH_;
+	  phx = TVector3(pitch*rint(phx.X()/pitch), pitch*rint(phx.Y()/pitch), phx.Z());
+#endif
+	  photon->SetDetectionPosition(phx);
+	} //for rhistory..photon
+      
       // FIXME: use true photon 3D direction at birth; otherwise conical mirror case 
       // is problematic; do it better later;
       particle->PIDReconstruction(pid, true);
@@ -256,7 +248,7 @@ void e_eval(const char *dfname, const char *cfname = 0)
 	      wl->Fill(1239.8/(photon->GetVertexMomentum().Mag()));
 
 	      //printf("%f\n", photon->GetVertexPosition().Z());
-	      z0->Fill(photon->GetVertexPosition().Z() - 1199.0);
+	      z0->Fill(photon->GetVertexPosition().Z() - 1187.0);
 	      //if (1239.8/(photon->GetVertexMomentum().Mag()) > 400)
 	      alsum += photon->GetVertexAttenuationLength();
 	    } //if
@@ -286,6 +278,6 @@ void e_eval(const char *dfname, const char *cfname = 0)
   cv->cd(4); th->Fit("gaus");
   cv->cd(5); ri->Draw();
   cv->cd(6); wl->Draw();//tt->Draw("COLZ");
-  cv->cd(7); qh->Draw();
+  cv->cd(7); qh->Fit("gaus");//Draw();
   cv->cd(8); al->Draw();
 } // e_eval()

@@ -9,6 +9,13 @@
 
 class G4Event;
 
+#include <tuning.h>
+
+#if defined(HEPMC3) && defined(_USE_HEPMC3_INPUT_)
+#include "HepMC3/ReaderAscii.h"
+//class HepMC3::ReaderAscii;
+#endif
+
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
   public:
@@ -19,6 +26,10 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
   private:
     G4ParticleGun* fParticleGun;
+
+#if defined(HEPMC3) && defined(_USE_HEPMC3_INPUT_)
+    HepMC3::ReaderAscii *m_hepmc_input;
+#endif
 
   double UniformRand(double from, double to) {
     return from + (to-from)*G4UniformRand();

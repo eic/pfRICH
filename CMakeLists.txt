@@ -40,6 +40,8 @@ include_directories(
   ${ROOT_INCLUDE_DIRS}	
 
   ${IRT}/include/IRT 
+  ${BMF}/include 
+  ${HEPMC3}/include 
 
   ${PROJECT_SOURCE_DIR}/include 
   ${PROJECT_SOURCE_DIR}/g4irt/include 
@@ -61,6 +63,7 @@ SET( G4IRT_SRC
 
 SET( sources
    ${PROJECT_SOURCE_DIR}/source/TofPetMultiColumn.cc
+   ${PROJECT_SOURCE_DIR}/source/MagneticField.cc
    ${PROJECT_SOURCE_DIR}/source/Materials.cc
    ${PROJECT_SOURCE_DIR}/source/DetectorConstruction.cc
    ${PROJECT_SOURCE_DIR}/source/PrimaryGeneratorAction.cc
@@ -78,6 +81,14 @@ TARGET_LINK_LIBRARIES(${G4IRT_LIB} ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} -L${IRT
 
 add_executable(${PFRICH_EXE} pfRICH.cc ${sources} ${headers})
 target_link_libraries(${PFRICH_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB}) 
+if(DEFINED BMF)
+  SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBMF")
+  target_link_libraries(${PFRICH_EXE} ${LIBNAME} -L${BMF}/lib bmf)
+endif()
+if(DEFINED HEPMC3)
+  SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHEPMC3")
+  target_link_libraries(${PFRICH_EXE} ${LIBNAME} -L${HepMC3}/lib64 HepMC3)
+endif()
 
 #----------------------------------------------------------------------------
 
