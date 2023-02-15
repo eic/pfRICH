@@ -40,7 +40,7 @@ HepMC3 installation (optional)
 cd /tmp 
 git clone https://gitlab.cern.ch/hepmc/HepMC3.git
 cd HepMC3 && mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=/home/ayk/eic -DHEPMC3_ENABLE_ROOTIO=ON -DHEPMC3_ENABLE_PYTHON=OFF ..
+cmake -DCMAKE_INSTALL_PREFIX=. -DHEPMC3_ENABLE_ROOTIO=ON -DHEPMC3_ENABLE_PYTHON=OFF ..
 make -j8 install
 
 export LD_LIBRARY_PATH=/tmp/HepMC3/build/lib:${LD_LIBRARY_PATH}
