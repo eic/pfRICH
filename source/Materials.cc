@@ -119,7 +119,7 @@ void Materials::DefineMaterials( void )
 
   // CLAS12 aerogel; two options for now; obviously can add more the same way
   {
-    unsigned density[2] = {_AEROGEL_CLAS12_DENSITY_110_MG_CM3_, _AEROGEL_CLAS12_DENSITY_225_MG_CM3_};
+    unsigned density[2] = {_AEROGEL_CLAS12_DENSITY_155_MG_CM3_, _AEROGEL_CLAS12_DENSITY_225_MG_CM3_};
 
     for(unsigned il=0; il<2; il++) {
       //if (!density[il]) continue;

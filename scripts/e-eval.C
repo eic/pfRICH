@@ -4,7 +4,7 @@
 //#define _MASS_       (0.494)
 //#define _PDG_         321
 
-//#define _AEROGEL_ ("Aerogel110")
+//#define _AEROGEL_ ("Aerogel155")
 #define _AEROGEL_ ("Aerogel225")
 //#define _AEROGEL_ ("BelleIIAerogel1")
 
@@ -32,7 +32,7 @@ void e_eval(const char *dfname, const char *cfname = 0)
   auto nq = new TH1D("nq", "Photon count (radiator)",  50,     0,     50);
   auto wl = new TH1D("wl", "Wave Length",             200, 150.0,  800.0);
   auto tt = new TH2D("tt", "Cherenkov angle vs time",  50,  -0.2, 0.6, 50, -100,  100);
-  auto z0 = new TH1D("z0", "True emission point",     100,   -30,     30);
+  auto z0 = new TH1D("z0", "True emission point",      80,   -40,     40);
   auto al = new TH1D("al", "True attenuation length", 100,     0,    100);
 
   int nEvents = t->GetEntries();

@@ -47,7 +47,7 @@
 #define _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_ 0
 #define _AEROGEL_BELLE_II_LARGE_REFRACTIVE_INDEX_ 1
 // FIXME: this does not look nice, but suffices;
-#define _AEROGEL_CLAS12_DENSITY_110_MG_CM3_     110
+#define _AEROGEL_CLAS12_DENSITY_155_MG_CM3_     155
 #define _AEROGEL_CLAS12_DENSITY_225_MG_CM3_     225
 
 // If _AEROGEL_1_ is undefined, this layer will be skipped;
