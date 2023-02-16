@@ -28,7 +28,7 @@ if(HAVE_FLAG_STD_CXX17)
 else()
   check_cxx_compiler_flag(-std=c++11 HAVE_FLAG_STD_CXX11)
   if(HAVE_FLAG_STD_CXX11)
-    # Have -std=c++17, use it;	
+    # Have -std=c++11, use it;	
     SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
   endif()
 endif()

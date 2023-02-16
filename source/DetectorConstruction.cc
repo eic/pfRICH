@@ -134,7 +134,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
   auto *vessel_tube = new G4Tubs("Vessel", 0.0, _VESSEL_OUTER_RADIUS_, _VESSEL_LENGTH_/2, 0*degree, 360*degree);
   auto *vessel_shape = new G4SubtractionSolid("Vessel", vessel_tube, FlangeCut(_FLANGE_CLEARANCE_), 
 					      0, G4ThreeVector(0.0, 0.0, 0.0));
-  auto *vessel_log = new G4LogicalVolume(vessel_shape, m_Aluminum,  "Vessel", 0, 0, 0);
+  auto *vessel_log = new G4LogicalVolume(vessel_shape, _VESSEL_MATERIAL_,  "Vessel", 0, 0, 0);
   new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, _VESSEL_OFFSET_), vessel_log, 
 		    "Vessel", expHall_phys->GetLogicalVolume(), false, 0);
 

@@ -96,10 +96,11 @@
 #define _FLANGE_CLEARANCE_                  (5.0*mm)
 
 // Tune them later to something more reasonable, from a construction point of view;
-#define _VESSEL_FRONT_SIDE_THICKNESS_       (1.0*mm)
+#define _VESSEL_FRONT_SIDE_THICKNESS_       (5.0*mm)
 #define _VESSEL_REAR_SIDE_THICKNESS_        (5.0*mm)
-#define _VESSEL_INNER_WALL_THICKNESS_       (1.0*mm)
-#define _VESSEL_OUTER_WALL_THICKNESS_       (3.0*mm)
+#define _VESSEL_INNER_WALL_THICKNESS_       (2.0*mm)
+#define _VESSEL_OUTER_WALL_THICKNESS_       (5.0*mm)
+#define _VESSEL_MATERIAL_            (m_CarbonFiber)
 
 // Some moderately optimistic number for aerogel-to-aerogel, aerogel-to-acrylic, 
 // acrylic-to-mirror and such spacing;
@@ -113,6 +114,11 @@
 
 // Because of the beam pipe flange; 
 #define _HRPPD_CENTRAL_ROW_OFFSET_         (40.0*mm)
+
+// Gap between tiles at the sensor plane; as of 2023/02/15, assume a "windowed grid" 
+// support plate on the upstream sensor plane end + individual pockets with 
+// ~1mm thick walls for each HRPPD (<10mm high?); insertion from the downstream side;
+#define _HRPPD_INSTALLATION_GAP_          (  1.5*mm)
 
 // Well, a fake material for now;
 #define _MIRROR_MATERIAL_            (m_CarbonFiber)
@@ -155,9 +161,6 @@
 // Area covered by the photocathode in the geometry description; should be a good 
 // enough description of a fully efficient pixellated surface of the real sensors;
 #define _HRPPD_ACTIVE_AREA_SIZE_          (108.0*mm)
-
-// Gap between tiles at the sensor plane;
-#define _HRPPD_INSTALLATION_GAP_          (  0.5*mm)
 
 // These are some random numbers to the moment; are only important for time-of-flight;
 #define _HRPPD_METALLIZATION_REFLECTIVITY_    (0.80)
