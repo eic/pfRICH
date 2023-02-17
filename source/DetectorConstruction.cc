@@ -154,15 +154,16 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
   {
     // FIXME: Z-location does not really matter here, right?;
     auto boundary = new FlatSurface(TVector3(0,0,0), TVector3(1,0,0), TVector3(0,-1,0));
-    auto radiator = m_Geometry->SetContainerVolume(det, "GasVolume", 0, gas_log, m_Nitrogen, boundary);
 #ifdef _DISABLE_GAS_VOLUME_PHOTONS_
+    auto radiator = m_Geometry->SetContainerVolume(det, "GasVolume", 0, gas_log, m_Nitrogen, boundary);
     radiator->DisableOpticalPhotonGeneration();
+#else
+    m_Geometry->SetContainerVolume(det, "GasVolume", 0, gas_log, m_Nitrogen, boundary);
 #endif
   }
 
   auto flange = FlangeCut(_FLANGE_CLEARANCE_ + _VESSEL_INNER_WALL_THICKNESS_ + _BUILDING_BLOCK_CLEARANCE_);
   {
-    //double  agthick[2] = {_AEROGEL_THICKNESS_1_, _AEROGEL_THICKNESS_2_};
     // A running variable;
     double zOffset = -gas_volume_length/2 + _BUILDING_BLOCK_CLEARANCE_;
 
@@ -176,7 +177,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
     {
       // FIXME: yes, for now hardcoded;
       const unsigned adim[_AEROGEL_BAND_COUNT_] = {8, 14, 20};
-      double rheight = (r0max - r0min - (_AEROGEL_BAND_COUNT_+1)*_AEROGEL_FRAME_WALL_THICKNESS_) / _AEROGEL_BAND_COUNT_;
+      //double rheight = (r0max - r0min - (_AEROGEL_BAND_COUNT_+1)*_AEROGEL_FRAME_WALL_THICKNESS_) / _AEROGEL_BAND_COUNT_;
+      double rheight = (r0max - r0min - (_AEROGEL_BAND_COUNT_-1)*_AEROGEL_SEPARATOR_WALL_THICKNESS_ - 
+			_AEROGEL_INNER_WALL_THICKNESS_ - _AEROGEL_OUTER_WALL_THICKNESS_) / _AEROGEL_BAND_COUNT_;
 
       // Up to two aerogel layers;
       for(unsigned il=0; il<2; il++) {
@@ -207,13 +210,15 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	  for(unsigned ir=0; ir<_AEROGEL_BAND_COUNT_; ir++) {
 	    int counter = ir ? -1 : 0;
 	    double apitch = 360*degree / adim[ir];
-	    double r0 = r0min + (ir+1)*_AEROGEL_FRAME_WALL_THICKNESS_ + ir*rheight, r1 = r0 + rheight, rm = (r0+r1)/2;
+	    //double r0 = r0min + (ir+1)*_AEROGEL_FRAME_WALL_THICKNESS_ + ir*rheight, r1 = r0 + rheight, rm = (r0+r1)/2;
+	    double r0 = r0min + _AEROGEL_INNER_WALL_THICKNESS_ + ir*(_AEROGEL_SEPARATOR_WALL_THICKNESS_ + rheight);
+	    double r1 = r0 + rheight, rm = (r0+r1)/2;
 
 	    // Calculate angular space occupied by the spacers and by the tiles; no gas gaps for now;
 	    // assume that a wegde shape is good enough (GEANT visualization does not like boolean objects), 
 	    // rather than creating constant thicjkess azimuthal spacers; just assume that spacer thickness is 
 	    // _AEROGEL_FRAME_WALL_THICKNESS_ at r=rm;
-	    double l0 = 2*M_PI*rm/adim[ir], l1 = _AEROGEL_FRAME_WALL_THICKNESS_, lsum = l0 + l1;
+	    double l0 = 2*M_PI*rm/adim[ir], l1 = _AEROGEL_SEPARATOR_WALL_THICKNESS_, lsum = l0 + l1;
 
 	    // FIXME: names overlap in several places!;
 	    double wd0 = (l0/lsum)*(360*degree / adim[ir]), wd1 = (l1/lsum)*(360*degree / adim[ir]);
@@ -259,25 +264,34 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	    } //for ia
 	  } //for ir
 
-	  // Then radial spacers; FIXME: figure out how to define #0 correctly;
-	  for(unsigned ir=0; ir<_AEROGEL_BAND_COUNT_+1; ir++) {
-	    double r0 = r0min + ir*(rheight + _AEROGEL_FRAME_WALL_THICKNESS_), r1 = r0 + _AEROGEL_FRAME_WALL_THICKNESS_;
+	  // Then the radial spacers; 
+	  {
+	    double accu = r0min;
 
-	    TString sp_name = "Tmp"; if (ir) sp_name.Form("R-Spacer--%d-00", ir);
+	    for(unsigned ir=0; ir<_AEROGEL_BAND_COUNT_+1; ir++) {
+	      double thickness = ir ? (ir == _AEROGEL_BAND_COUNT_ ? _AEROGEL_OUTER_WALL_THICKNESS_ : 
+				       _AEROGEL_SEPARATOR_WALL_THICKNESS_) : _AEROGEL_INNER_WALL_THICKNESS_;
+	      //double r0 = r0min + ir*(rheight + _AEROGEL_FRAME_WALL_THICKNESS_), r1 = r0 + _AEROGEL_FRAME_WALL_THICKNESS_;
+	      double r0 = accu, r1 = r0 + thickness;
+	      
+	      TString sp_name = "Tmp"; if (ir) sp_name.Form("R-Spacer--%d-00", ir);
+	      
+	      G4Tubs *sp_tube  = new G4Tubs(sp_name.Data(), r0, r1, agthick/2, 0*degree, 360*degree);
+	      
+	      G4LogicalVolume *sp_log = 0;
+	      if (ir) 
+		sp_log = new G4LogicalVolume(sp_tube, _AEROGEL_SPACER_MATERIAL_, sp_name.Data(), 0, 0, 0);
+	      else {
+		sp_name.Form("R-Spacer--%d-00", ir);
+		auto sp_shape = new G4SubtractionSolid(sp_name.Data(), sp_tube, flange, 0, G4ThreeVector(0.0, 0.0, 0.0));
+		sp_log = new G4LogicalVolume(sp_shape, _AEROGEL_SPACER_MATERIAL_, sp_name.Data(),   0, 0, 0);
+	      } //if
+	      
+	      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, zOffset), sp_log, sp_name.Data(), gas_log, false, 0);
 
-	    G4Tubs *sp_tube  = new G4Tubs(sp_name.Data(), r0, r1, agthick/2, 0*degree, 360*degree);
-
-	    G4LogicalVolume *sp_log = 0;
-	    if (ir) 
-	      sp_log = new G4LogicalVolume(sp_tube, _AEROGEL_SPACER_MATERIAL_, sp_name.Data(), 0, 0, 0);
-	    else {
-	      sp_name.Form("R-Spacer--%d-00", ir);
-	      auto sp_shape = new G4SubtractionSolid(sp_name.Data(), sp_tube, flange, 0, G4ThreeVector(0.0, 0.0, 0.0));
-	      sp_log = new G4LogicalVolume(sp_shape, _AEROGEL_SPACER_MATERIAL_, sp_name.Data(),   0, 0, 0);
-	    } //if
-
-	    new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, zOffset), sp_log, sp_name.Data(), gas_log, false, 0);
-	  } //for ir
+	      accu += thickness + rheight;
+	    } //for ir
+	  }	    
 
 	  // FIXME: not really needed that big between the two layers?;
 	  zOffset += agthick/2 + _BUILDING_BLOCK_CLEARANCE_;
@@ -320,11 +334,14 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
       double mlen = gas_volume_length/2 - zOffset - _SENSOR_AREA_LENGTH_ - _BUILDING_BLOCK_CLEARANCE_;
 #ifdef _USE_PYRAMIDS_
       mlen -= _BUILDING_BLOCK_CLEARANCE_ + _PYRAMID_MIRROR_HEIGHT_;
+#else
+      mlen -= _BUILDING_BLOCK_CLEARANCE_ + _HRPPD_SUPPORT_GRID_BAR_HEIGHT_;
 #endif
-      double mpos = zOffset + mlen/2, thickness = _MIRROR_THICKNESS_;
+      double mpos = zOffset + mlen/2;
       double r0[2] = {r0min, r0max}, r1[2] = {_CONICAL_MIRROR_INNER_RADIUS_, _CONICAL_MIRROR_OUTER_RADIUS_};
 
       for(unsigned im=0; im<2; im++) {
+	double thickness = im ? _OUTER_MIRROR_THICKNESS_ : _INNER_MIRROR_THICKNESS_;
 	//auto mgroup = new CherenkovMirrorGroup();
 	
 	{
@@ -338,7 +355,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	    solid_log = new G4LogicalVolume(solid, _MIRROR_MATERIAL_, names[im], 0, 0, 0);
 
 	    // FIXME: duplicate code;
-	    G4VisAttributes* visAtt = new G4VisAttributes(G4Colour(0, 0, 1, 0.5));// : G4Colour(0, 1, 1, 0.5));
+	    G4VisAttributes* visAtt = new G4VisAttributes(G4Colour(0, 0, 1, 0.5));
 	    visAtt->SetVisibility(true);
 	    visAtt->SetForceSolid(true);
 	    
@@ -358,7 +375,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 						      mirror->GetSolid()->GetName(), 
 						      gas_phys->GetLogicalVolume(), false, 0);//m_Copies.size());
 	  mirror->AddCopy(mirror->CreateCopy(phys));
-	  //#if 0
 	  {
 	    auto msurface = mirror->GetMirrorSurface();
 	    
@@ -366,8 +382,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	      // Do I really need them separately?;
 	      //char buffer[128]; snprintf(buffer, 128-1, "SphericalMirror");//Surface");//%2d%02d", io, iq);
 	      new G4LogicalBorderSurface(mirror->GetSolid()->GetName(), gas_phys, phys, msurface);
-	  }
-	  //#endif	  
+	  } 
 
 	  auto mcopy = dynamic_cast<SurfaceCopy*>(mirror->GetCopy(0));//m_Copies[iq]);
 	  mcopy->m_Surface = dynamic_cast<ParametricSurface*>(mirror)->_Clone(0.0, TVector3(0,0,1));
@@ -400,10 +415,13 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	
 	// A single entry; this assumes of course that all the windows are at the same Z, and parallel to each other;
 	auto surface = new FlatSurface((1/mm)*TVector3(0,0,_VESSEL_OFFSET_ + gas_volume_offset + zwnd), nx, ny);
+#ifdef _DISABLE_HRPPD_WINDOW_PHOTONS_
 	auto radiator = m_Geometry->AddFlatRadiator(det, "QuartzWindow", CherenkovDetector::Downstream, 
 						    0, wnd_log, m_FusedSilica, surface, wndthick/mm);
-#ifdef _DISABLE_HRPPD_WINDOW_PHOTONS_
 	radiator->DisableOpticalPhotonGeneration();
+#else
+	m_Geometry->AddFlatRadiator(det, "QuartzWindow", CherenkovDetector::Downstream, 
+				    0, wnd_log, m_FusedSilica, surface, wndthick/mm);
 #endif
       }	
 
@@ -438,7 +456,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 #ifdef _USE_PYRAMIDS_
       G4Box *pyra_box = new G4Box("Dummy", pitch/2, pitch/2, _PYRAMID_MIRROR_HEIGHT_/2);
       G4Trd *pyra_cut = new G4Trd("Dummy", pitch/2, xyactive/2, pitch/2, xyactive/2, _PYRAMID_MIRROR_HEIGHT_/2 + 0.01*mm);
-      auto pyra_shape = new G4SubtractionSolid("MirrorPyramid", pyra_box, pyra_cut);
+      auto *pyra_shape = new G4SubtractionSolid("MirrorPyramid", pyra_box, pyra_cut);
       
       // NB: geometry will be saved in [mm] throughout the code;
       auto pyramid = new CherenkovMirror(pyra_shape, m_Absorber);
@@ -449,6 +467,20 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
       // Mimic the essential part of the mirror->PlaceWedgeCopies() call;
       pyramid->DefineLogicalVolume();
       m_Geometry->AddMirrorLookupEntry(pyramid->GetLogicalVolume(), pyramid);
+#else
+      G4Box *grid_box = new G4Box("Dummy", pitch/2, pitch/2, _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2);
+      double value = pitch - _HRPPD_SUPPORT_GRID_BAR_WIDTH_;
+      G4Box *grid_cut = new G4Box("Dummy", value/2, value/2, _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2 + 0.01*mm);
+      auto *grid_shape = new G4SubtractionSolid("SupportGridBar", grid_box, grid_cut);
+      auto *grid_log = new G4LogicalVolume(grid_shape, m_CarbonFiber, "SupportGridBar", 0, 0, 0);
+      // FIXME: duplicate code;
+      {
+	G4VisAttributes* visAtt = new G4VisAttributes(G4Colour(1, 1, 1, 0.3));
+	visAtt->SetVisibility(true);
+	visAtt->SetForceSolid(true);
+	
+	grid_log->SetVisAttributes(visAtt);
+      }
 #endif
 
       {
@@ -539,6 +571,10 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 
 	      new G4LogicalBorderSurface(pyramid->GetSolid()->GetName(), gas_phys, pyra_phys, pyramid->GetMirrorSurface());
 	    }
+#else
+	    new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zOffset - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2), 
+			      grid_log, "SupportGridBar", gas_log, false, counter);
+	    
 #endif
 
 	    {

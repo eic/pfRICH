@@ -262,7 +262,6 @@ void Materials::DefineMaterials( void )
       aerogel->SetMaterialPropertiesTable(mpt);
       _m_Aerogel[id[im]] = aerogel;
     } //for mat
-    //assert(0);
     //printf("%s\n", mat->GetName());
   }
 
@@ -324,9 +323,9 @@ void Materials::DefineMaterials( void )
     m_CarbonFiber->AddElement(m_C, 1);
   }
 
-  // Ceramic imitation; assume DuPont 951 variety; chemical composition is unknown;
-  // it is a "mixture of Al2O3, CaZr03 and glass" at 3.10 g/cm^3; take CeramTape GC 
-  // (density 2.87 g/cm^2) as a reference;
+  // Ceramic imitation; assume DuPont 951 variety for both the HRPPD anode base plate and the 
+  // walls; chemical composition is unknown; it is a "mixture of Al2O3, CaZr03 and glass" at 
+  // 3.10 g/cm^3; take CeramTape GC (density 2.87 g/cm^2) as a closest known reference;
   {
     m_Ceramic = new G4Material("Ceramic", 3.10*g/cm3, 4);
     

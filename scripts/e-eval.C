@@ -248,7 +248,7 @@ void e_eval(const char *dfname, const char *cfname = 0)
 	      wl->Fill(1239.8/(photon->GetVertexMomentum().Mag()));
 
 	      //printf("%f\n", photon->GetVertexPosition().Z());
-	      z0->Fill(photon->GetVertexPosition().Z() - 1187.0);
+	      z0->Fill(photon->GetVertexPosition().Z() - 1185.5);
 	      //if (1239.8/(photon->GetVertexMomentum().Mag()) > 400)
 	      alsum += photon->GetVertexAttenuationLength();
 	    } //if
