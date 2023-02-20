@@ -32,7 +32,12 @@
 //
 
 // HepMC3 input; overrides other settings in this section;
-//#define _USE_HEPMC3_INPUT_ "./out.hepmc"
+//#define _USE_HEPMC3_INPUT_ "./scripts/two-particles.hepmc"
+//#define _USE_HEPMC3_INPUT_ "./scripts/single-pion.hepmc"
+//#define _USE_HEPMC3_INPUT_ "./scripts/two-pions-apart.hepmc"
+//#define _USE_HEPMC3_INPUT_ "./scripts/two-pions-close.hepmc"
+//#define _USE_HEPMC3_INPUT_ "./scripts/pion-kaon-close.hepmc"
+#define _USE_HEPMC3_INPUT_ "./scripts/pion-kaon-close-edge.hepmc"
 
 #define _PRIMARY_PARTICLE_TYPE_              ("pi+")
 // Will toggle between the two types if defined;
@@ -45,7 +50,7 @@
 
 // Optional smearing of primary vertices along the beam line; 
 // 10cm (proton bunch size) is a reasonable value;
-//#define _PRIMARY_VERTEX_SIGMA_               (10*cm)
+#define _PRIMARY_VERTEX_SIGMA_               (10*cm)
 // --------------------------------------------------------------------------------------------
 
 // -- Aerogel ---------------------------------------------------------------------------------
@@ -57,7 +62,7 @@
 #define _AEROGEL_SPACER_MATERIAL_       (m_Absorber)
 
 // If uncommented: fixed refractive index, no attenuation (single-layer CLAS12 config only);
-//#define _AEROGEL_REFRACTIVE_INDEX_           (1.046)
+//#define _AEROGEL_REFRACTIVE_INDEX_           (1.044)
 // --------------------------------------------------------------------------------------------
 
 // -- Acrylic filter --------------------------------------------------------------------------
@@ -100,7 +105,7 @@
 #define _CONICAL_MIRROR_OUTER_RADIUS_     (540.0*mm)
 
 // May still want to disable the conical mirror optics in IRT;
-//#define _USE_CONICAL_MIRROR_OPTICS_
+#define _USE_CONICAL_MIRROR_OPTICS_
 // --------------------------------------------------------------------------------------------
 
 #endif

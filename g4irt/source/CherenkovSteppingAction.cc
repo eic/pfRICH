@@ -119,7 +119,7 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 	    
 	    auto position = (1/mm) *TVector3(x.x(), x.y(), x.z());
 	    auto momentum = (1/GeV)*TVector3(p.x(), p.y(), p.z()); 
-	    auto trace = new ChargedParticleStep(position, momentum);//, step->GetStepLength()/mm);
+	    auto trace = new ChargedParticleStep(position, momentum, point->GetGlobalTime()/ns);//, step->GetStepLength()/mm);
 	    history->AddStep(trace);
 	  } 
 	} //for fb

@@ -16,14 +16,14 @@ void pfrich(const char *dfname, const char *cfname = 0)
 
   int nEvents = t->GetEntries();
 
-  auto hxy = new TH2D("hxy", "", 700, -350., 350., 700, 0.0, 700.);
+  auto hxy = new TH2D("hxy", "", 650, -650., 650., 650, -650.0, 650.);
 
   for(unsigned ev=0; ev<nEvents; ev++) {
     t->GetEntry(ev);
 
     //printf("@@@ %2lu\n", event->ChargedParticles().size());
     for(auto particle: event->ChargedParticles()) {
-      if (particle->GetPDG() != 211) continue;
+      //if (particle->GetPDG() != 211) continue;
 
       for(auto rhistory: particle->GetRadiatorHistory()) {
 	auto history  = particle->GetHistory (rhistory);

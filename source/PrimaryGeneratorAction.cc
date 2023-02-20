@@ -80,11 +80,15 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  
 	  fParticleGun->SetParticleMomentum(pp*GeV);
 
+	  fParticleGun->GeneratePrimaryVertex(anEvent);
+
 	  // FIXME: for now assume a single particle;
-	  break;
+	  //break;
 	} //if
       } //for part
     }
+
+    //fParticleGun->GeneratePrimaryVertex(anEvent);
   }
 #else
   double theta =  2*atan(exp(-_PRIMARY_PARTICLE_ETA_));
@@ -109,9 +113,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     // Re-define every time new even if a single particle type was defined;
     fParticleGun->SetParticleDefinition((toggle++)%2 ? kaon : pion);
   }
-#endif
 
   fParticleGun->GeneratePrimaryVertex(anEvent);
+#endif
 } // PrimaryGeneratorAction::GeneratePrimaries()
 
 // -------------------------------------------------------------------------------------

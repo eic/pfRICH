@@ -87,7 +87,7 @@ if(DEFINED BMF)
 endif()
 if(DEFINED HEPMC3)
   SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHEPMC3")
-  target_link_libraries(${PFRICH_EXE} ${LIBNAME} -L${HepMC3}/lib64 HepMC3)
+  target_link_libraries(${PFRICH_EXE} ${LIBNAME} -L${HEPMC3}/lib -L${HEPMC3}/lib64 HepMC3)
 endif()
 
 #----------------------------------------------------------------------------
