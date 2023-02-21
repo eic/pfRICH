@@ -203,14 +203,15 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 	      
 	      photon->SetDetectionTime(xto->GetGlobalTime()/ns);
 	      
-	      {
-		//double e = track->GetTotalEnergy();
-		
-		if (GetQE(pd, track->GetTotalEnergy()) > G4UniformRand() && 
-		    pd->GetGeometricEfficiency() > G4UniformRand()) {
+	      // The logic behind this multiplication and division by the same number is 
+	      // to select calibration photons, which originate from the same QE(lambda) 
+	      // parent distribution, but do not pass the overall efficiency test;
+	      if (GetQE(pd, track->GetTotalEnergy())*pd->GetScaleFactor() > G4UniformRand()) { 
+		if (pd->GetGeometricEfficiency()/pd->GetScaleFactor() > G4UniformRand())
 		  photon->SetDetected(true);
-		} //if
-	      }
+		else
+		  photon->SetCalibrationFlag();
+	      } //if
 
 	      // For now assume that the photodetector volume absorbs all photons; FIXME: make optional;
 	      track->SetTrackStatus(fStopAndKill);
@@ -257,6 +258,7 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 	    {
 	      G4ThreeVector pparent = xto->GetMomentum();
 	      
+	      photon->SetVertexTime(xto->GetGlobalTime()/ns);
 	      photon->SetVertexParentMomentum((1/GeV)*TVector3(pparent.x(), pparent.y(), pparent.z()));
 	    }
 	    

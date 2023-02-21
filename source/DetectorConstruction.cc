@@ -451,6 +451,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
       auto pd = new CherenkovPhotonDetector(pd_box, m_Bialkali);
       pd->DefineLogicalVolume();
       pd->SetColor(G4Colour(1, 0, 0, 1.0));
+      // Cannot access GEANT shapes in the reconstruction code -> store this value;
+      pd->SetActiveAreaSize(xyactive);
 
       // 'pitch': yes, want them installed without gaps;
 #ifdef _USE_PYRAMIDS_
@@ -498,14 +500,19 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	double QE[qeEntries] = {0.25, 0.26, 0.27, 0.30, 0.32, 0.35, 0.36, 0.36, 0.36, 0.36, 0.37, 0.35, 0.30, 0.27, 0.24, 0.20, 0.18, 0.15, 0.13, 0.11, 0.10, 0.09, 0.08, 0.07, 0.05, 0.05};
 #endif     
 	
+	double qemax = 0.0;
 	G4double qePhotonEnergy[qeEntries], qeData[qeEntries];
 	for(int iq=0; iq<qeEntries; iq++) {
 	  qePhotonEnergy[iq] = eV * _MAGIC_CFF_ / (WL[qeEntries - iq - 1] + 0.0);
 	  qeData        [iq] =                     QE[qeEntries - iq - 1];
+	  
+	  if (qeData[iq] > qemax) qemax = qeData[iq];
 	} //for iq
 	
 	pd->SetQE(eV * _MAGIC_CFF_ / WL[qeEntries-1], eV * _MAGIC_CFF_ / WL[0], 
-		  new G4DataInterpolation(qePhotonEnergy, qeData, qeEntries, 0.0, 0.0));
+		  // NB: last argument: want a built-in selection of unused photons, which follow the QE(lambda);
+		  // see CherenkovSteppingAction::UserSteppingAction() for a usage case;
+		  new G4DataInterpolation(qePhotonEnergy, qeData, qeEntries, 0.0, 0.0), qemax ? 1.0/qemax : 1.0);
 	pd->SetGeometricEfficiency(_SENSOR_PLANE_GEOMETRIC_EFFICIENCY_ * _SAFETY_FACTOR_);
       }
 
