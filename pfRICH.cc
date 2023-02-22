@@ -117,15 +117,14 @@ int main(int argc, char** argv)
   //
   G4UImanager* UImanager = G4UImanager::GetUIpointer(); 
    
+  // As of 2023/02/22 "-m" is used for interactive mode; in batch mode pfrich.mac
+  // is ignored; it really makes no sense to hardcode everything in tuning.h, and
+  // then leave the requested statistics parameter alone in the macro;
   if ( macro.size() ) {
-     // Batch mode
-     G4String command = "/control/execute ";
-     UImanager->ApplyCommand(command+macro);
-  }
-  else // Define UI session for interactive mode
-  {
-     G4UIExecutive * ui = new G4UIExecutive(argc,argv,session);
-     UImanager->ApplyCommand("/control/execute ./macro/vis.mac");
+    // Presumably interactive mode with macro/vis.mac;
+    G4UIExecutive * ui = new G4UIExecutive(argc,argv,session);
+    G4String command = "/control/execute ";
+    UImanager->ApplyCommand(command+macro);
 
 #ifdef _GEOMETRY_CHECK_
      UImanager->ApplyCommand("/geometry/test/run");
@@ -133,6 +132,10 @@ int main(int argc, char** argv)
 
      ui->SessionStart();
      delete ui;
+  } else {
+    // Batch mode;
+    TString cmd; cmd.Form("/run/beamOn %d", _STATISTICS_);
+    UImanager->ApplyCommand(cmd.Data());
   }
 
   // Job termination

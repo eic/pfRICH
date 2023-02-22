@@ -10,7 +10,7 @@ void multi_eval(const char *dfname, const char *cfname = 0)
   //reco->RemoveAmbiguousHits();
   // Sensor active area pixelated will be pixellated NxN in digitization;
   //reco->SetSensorActiveAreaPixellation(24);
-  // [rad] (shoudl match SPE sigma) & [ns];
+  // [rad] (should match SPE sigma) & [ns];
   reco->SetThetaGaussianSmearing(0.0040);
   //reco->SetSinglePhotonTimingResolution(0.030);
   //reco->SetQuietMode();
@@ -18,7 +18,7 @@ void multi_eval(const char *dfname, const char *cfname = 0)
   reco->AddHypothesis(321);
 
   auto hmatch = new TH1D("hmatch", "PID evaluation correctness",       2,    0,      2);
-  auto hthtr  = new TH1D("thtr",   "Cherenkov angle (track)",         80,  280,    300);
+  auto hthtr  = new TH1D("thtr",   "Cherenkov angle (track)",         60,  270,    300);
 
   // This call is mandatory;
   reco->PerformCalibration();
@@ -28,23 +28,13 @@ void multi_eval(const char *dfname, const char *cfname = 0)
     // Event loop;
     while((event = reco->GetNextEvent())) {
       for(auto mcparticle: event->ChargedParticles()) {
-	if (abs(mcparticle->GetPDG()) == abs(mcparticle->GetRecoPdgCode())) {
+	if (mcparticle->GetPDG() == mcparticle->GetRecoPdgCode()) {
 	  hmatch->Fill(0.5);
 	} else {
 	  hmatch->Fill(1.5);
 	} //if	  
 
-	{
-	  double sum = 0.0;
-	  for(auto hit: mcparticle->m_Hits) {
-	    auto solution = hit->m_Best;
-	    
-	    sum += solution->GetTheta();
-	  } //for hit
-
-	  if (mcparticle->m_Hits.size()) sum /= mcparticle->m_Hits.size();
-	  hthtr->Fill(1000*sum);
-	}
+	hthtr->Fill(1000*mcparticle->GetRecoCherenkovAverageTheta());
       } //for mcparticle
     } //while
   }

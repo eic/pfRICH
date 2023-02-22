@@ -28,8 +28,11 @@
 //#define _GEOMETRY_CHECK_
 // --------------------------------------------------------------------------------------------
 
-// -- Primary particle ------------------------------------------------------------------------
+// -- Primary particle(s) ---------------------------------------------------------------------
 //
+
+// Ignore pfrich.mac altogether;
+#define _STATISTICS_ 1000
 
 // HepMC3 input; overrides other settings in this section;
 //#define _USE_HEPMC3_INPUT_ "./scripts/two-particles.hepmc"
