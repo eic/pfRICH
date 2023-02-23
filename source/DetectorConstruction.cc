@@ -135,7 +135,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
   auto *vessel_shape = new G4SubtractionSolid("Vessel", vessel_tube, FlangeCut(_FLANGE_CLEARANCE_), 
 					      0, G4ThreeVector(0.0, 0.0, 0.0));
   auto *vessel_log = new G4LogicalVolume(vessel_shape, _VESSEL_MATERIAL_,  "Vessel", 0, 0, 0);
-  new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, _VESSEL_OFFSET_), vessel_log, 
+  G4RotationMatrix *rY = new G4RotationMatrix(CLHEP::HepRotationY(flip ? 180*degree : 0));
+  new G4PVPlacement(rY, G4ThreeVector(0.0, 0.0, sign*_VESSEL_OFFSET_), vessel_log, 
 		    "Vessel", expHall_phys->GetLogicalVolume(), false, 0);
 
   // Gas container volume;
@@ -153,7 +154,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 
   {
     // FIXME: Z-location does not really matter here, right?;
-    auto boundary = new FlatSurface(TVector3(0,0,0), TVector3(1,0,0), TVector3(0,-1,0));
+    auto boundary = new FlatSurface(TVector3(0,0,0), sign*TVector3(1,0,0), TVector3(0,-1,0));
 #ifdef _DISABLE_GAS_VOLUME_PHOTONS_
     auto radiator = m_Geometry->SetContainerVolume(det, "GasVolume", 0, gas_log, m_Nitrogen, boundary);
     radiator->DisableOpticalPhotonGeneration();
@@ -249,9 +250,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 		sp_log = new G4LogicalVolume(sp_shape, _AEROGEL_SPACER_MATERIAL_, sp_name.Data(),   0, 0, 0);
 	      } //if
 	      if (!ir && !ia) {
-		TVector3 nx(1,0,0), ny(0,-1,0);
+		TVector3 nx(1*sign,0,0), ny(0,-1,0);
 		
-		auto surface = new FlatSurface((1/mm)*TVector3(0,0,_VESSEL_OFFSET_ + gas_volume_offset + zOffset), nx, ny);
+		auto surface = new FlatSurface(sign*(1/mm)*TVector3(0,0,_VESSEL_OFFSET_ + gas_volume_offset + zOffset), nx, ny);
 		radiator = m_Geometry->AddFlatRadiator(det, aerogel->GetName(), CherenkovDetector::Upstream, 
 						       0, ag_log, aerogel, surface, agthick/mm);
 	      }
@@ -309,9 +310,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
       auto ac_shape = new G4SubtractionSolid("Acrylic", ac_tube, flange, 0, G4ThreeVector(0.0, 0.0, 0.0));
       G4LogicalVolume* ac_log = new G4LogicalVolume(ac_shape, m_Acrylic,  "Acrylic", 0, 0, 0);
       {
-	TVector3 nx(1,0,0), ny(0,-1,0);
+	TVector3 nx(1*sign,0,0), ny(0,-1,0);
 	
-	auto surface = new FlatSurface((1/mm)*TVector3(0,0,_VESSEL_OFFSET_ + gas_volume_offset + zOffset), nx, ny);
+	auto surface = new FlatSurface(sign*(1/mm)*TVector3(0,0,_VESSEL_OFFSET_ + gas_volume_offset + zOffset), nx, ny);
 	auto radiator = m_Geometry->AddFlatRadiator(det, "Acrylic", CherenkovDetector::Upstream, 
 						    0, ac_log, m_Acrylic, surface, acthick/mm);
 #ifdef _DISABLE_ACRYLIC_PHOTONS_
@@ -363,8 +364,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	  } //if
 
 	  // NB: geometry will be saved in [mm] throughout the code;
-	  auto mirror = new ConicalMirror(mshape, _MIRROR_MATERIAL_, (1/mm)*TVector3(0.0, 0.0, _VESSEL_OFFSET_ + gas_volume_offset + mpos),
-					  TVector3(0,0,1), r0[im]/mm, r1[im]/mm, mlen/mm);
+	  auto mirror = new ConicalMirror(mshape, _MIRROR_MATERIAL_, sign*(1/mm)*TVector3(0.0, 0.0, _VESSEL_OFFSET_ + gas_volume_offset + mpos),
+					  sign*TVector3(0,0,1), r0[im]/mm, r1[im]/mm, mlen/mm);
 	  
 	  mirror->SetColor(G4Colour(0, 0, 1, 0.5));
 	  mirror->SetReflectivity(_MIRROR_REFLECTIVITY_, this);
@@ -411,10 +412,10 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
       G4Box *wnd_box  = new G4Box("QuartzWindow", xysize/2, xysize/2, wndthick/2);
       G4LogicalVolume* wnd_log = new G4LogicalVolume(wnd_box, m_FusedSilica,  "QuartzWindow", 0, 0, 0);
       {	
-	TVector3 nx(1,0,0), ny(0,-1,0);
+	TVector3 nx(1*sign,0,0), ny(0,-1,0);
 	
 	// A single entry; this assumes of course that all the windows are at the same Z, and parallel to each other;
-	auto surface = new FlatSurface((1/mm)*TVector3(0,0,_VESSEL_OFFSET_ + gas_volume_offset + zwnd), nx, ny);
+	auto surface = new FlatSurface(sign*(1/mm)*TVector3(0,0,_VESSEL_OFFSET_ + gas_volume_offset + zwnd), nx, ny);
 #ifdef _DISABLE_HRPPD_WINDOW_PHOTONS_
 	auto radiator = m_Geometry->AddFlatRadiator(det, "QuartzWindow", CherenkovDetector::Downstream, 
 						    0, wnd_log, m_FusedSilica, surface, wndthick/mm);
@@ -496,8 +497,10 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	const G4int qeEntries = 26;
 	
 	// Create LAPPD QE table; use LAPPD126 from Alexey's March 2022 LAPPD Workshop presentation;
-	double WL[qeEntries] = { 160,  180,  200,  220,  240,  260,  280,  300,  320,  340,  360,  380,  400,  420,  440,  460,  480,  500,  520,  540,  560,  580,  600,  620,  640,  660};
-	double QE[qeEntries] = {0.25, 0.26, 0.27, 0.30, 0.32, 0.35, 0.36, 0.36, 0.36, 0.36, 0.37, 0.35, 0.30, 0.27, 0.24, 0.20, 0.18, 0.15, 0.13, 0.11, 0.10, 0.09, 0.08, 0.07, 0.05, 0.05};
+	double WL[qeEntries] = { 160,  180,  200,  220,  240,  260,  280,  300,  320,  340,  360,  380,  400,  
+				 420,  440,  460,  480,  500,  520,  540,  560,  580,  600,  620,  640,  660};
+	double QE[qeEntries] = {0.25, 0.26, 0.27, 0.30, 0.32, 0.35, 0.36, 0.36, 0.36, 0.36, 0.37, 0.35, 0.30, 
+				0.27, 0.24, 0.20, 0.18, 0.15, 0.13, 0.11, 0.10, 0.09, 0.08, 0.07, 0.05, 0.05};
 #endif     
 	
 	double qemax = 0.0;
@@ -568,7 +571,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	    }
 
 	    new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zpdc), pd->GetLogicalVolume(), "PhotoDetector", gas_log, false, counter);
-	    auto surface = new FlatSurface((1/mm)*TVector3(xy.X(), xy.Y(),_VESSEL_OFFSET_ + gas_volume_offset + zpdc), TVector3(1,0,0), TVector3(0,-1,0));
+	    auto surface = new FlatSurface(sign*(1/mm)*TVector3(xy.X(), xy.Y(),_VESSEL_OFFSET_ + gas_volume_offset + zpdc), 
+					   TVector3(1*sign,0,0), TVector3(0,-1,0));
 	    
 #ifdef _USE_PYRAMIDS_
 	    {
@@ -597,13 +601,18 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 		  // Reflection off one of the four pyramid mirrors;
 		  {		  
 		    double vx = (pitch - xyactive)/2, vy = _PYRAMID_MIRROR_HEIGHT_, norm = sqrt(vx*vx+vy*vy);
-		    double z0 = gas_volume_offset + zOffset - _PYRAMID_MIRROR_HEIGHT_/2;
+		    double z0 = _VESSEL_OFFSET_ + gas_volume_offset + zOffset - _PYRAMID_MIRROR_HEIGHT_/2;
 		    
-		    TVector3 nx( vx/norm, 0, -vy/norm), ny(0,-1,0), nz(0,0,1);
+		    TVector3 nx( vx/norm, 0, -vy/norm), ny(0,-1,0), nz(0,0,1), nv(0,1,0);
 		    nx.Rotate(iq*M_PI/2, nz); ny.Rotate(iq*M_PI/2, nz);
 		    
 		    TVector3 center((pitch + xyactive)/4, 0.0, z0); 
 		    center.Rotate(iq*M_PI/2, nz); center += TVector3(xy.X(), xy.Y(), 0.0);
+		    if (flip) {
+		      center.Rotate(M_PI, nv);
+		      nx.Rotate(M_PI, nv);
+		      ny.Rotate(M_PI, nv);
+		    } //if
 		    auto qsurface = new FlatSurface((1/mm)*center, nx, ny);
 		    
 		    auto boundary = new OpticalBoundary(m_Geometry->FindRadiator(gas_log), qsurface, false);
