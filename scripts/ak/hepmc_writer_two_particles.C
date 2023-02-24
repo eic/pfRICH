@@ -47,7 +47,7 @@ void hepmc_writer_two_particles(const char* out_fname, int n_events)
     v1->add_particle_in(p2);
 
     for(unsigned iq=0; iq</*2*/2; iq++) {
-      Double_t eta   = rdmn_gen->Uniform(2.00, 2.01);
+      Double_t eta   = rdmn_gen->Uniform(-2.01, -2.00);
       Double_t th    = 2*std::atan(exp(-eta));
       Double_t p     = rdmn_gen->Uniform(7.0, 7.1);
       Double_t phi   = iq%2 ? 0.*M_PI/180. : 10.*M_PI/180.;

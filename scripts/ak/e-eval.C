@@ -13,7 +13,8 @@
 #define _DISCRETE_PIXEL_PITCH_         4.0
 
 // [rad] & [mm];
-#define _PHOTON_DETECTION_WINDOW_    0.012
+//#define _PHOTON_DETECTION_WINDOW_    0.012
+#define _PHOTON_DETECTION_WINDOW_    0.004
 #define _AVERAGE_ATTENUATION_LENGTH_   8.4
 
 void e_eval(const char *dfname, const char *cfname = 0)
@@ -86,7 +87,8 @@ void e_eval(const char *dfname, const char *cfname = 0)
   }
 
   aerogel->SetTrajectoryBinCount(10);
-  aerogel->SetUniformSmearing(_PHOTON_DETECTION_WINDOW_);
+  //aerogel->SetUniformSmearing(_PHOTON_DETECTION_WINDOW_);
+  aerogel->SetGaussianSmearing(_PHOTON_DETECTION_WINDOW_);
   //aerogel->SetReferenceRefractiveIndex(_AVERAGE_REFRACTIVE_INDEX_);
   aerogel->SetReferenceAttenuationLength(_AVERAGE_ATTENUATION_LENGTH_);
 
@@ -226,13 +228,25 @@ void e_eval(const char *dfname, const char *cfname = 0)
 	    if (selected) {
 	      npe++;
 	      double wt = 1.0;//photon->_m_PDF[aerogel].GetWeight();//1.0;//fabs(sin(photon->m_Phi[radiator]));
-	      wtsum += wt;
+	      //+wtsum += wt;
+	      wtsum += 1.0;
 	      {
 		double m = _MASS_, pp = photon->GetVertexParentMomentum().Mag();
 		double thp = acos(sqrt(pp*pp + m*m)/(radiator->m_AverageRefractiveIndex*pp));
-		dtheta += wt*photon->_m_PDF[aerogel].GetAverage(thp - dth, thp + dth) - thp;
-		for(auto member: photon->_m_PDF[aerogel].GetMembers())
-		  qh->Fill(1000*(member->GetAverage() - thp), member->GetWeight());
+		//+dtheta += wt*photon->_m_PDF[aerogel].GetAverage(thp - 3*dth, thp + 3*dth) - thp;
+		{
+		  double qwtsum = 0.0, qthavg = 0.0;
+
+		  for(auto member: photon->_m_PDF[aerogel].GetMembers()) {
+		    qwtsum += member->GetWeight();
+		    qthavg += member->GetWeight()*member->GetAverage();
+		  } // for member
+		  
+		  qthavg /= qwtsum;
+		  dtheta += qthavg - thp;
+		  qh->Fill(1000*(qthavg - thp));//(member->GetAverage() - thp), member->GetWeight());
+		  //qh->Fill(1000*(member->GetAverage() - thp), member->GetWeight());
+		}
 
 		double len = (photon->GetDetectionPosition() - mid).Mag();
 		double beta = 1/sqrt(1.0 + pow(m/pp, 2)), lspeed = 299.792458, velocity = beta*lspeed;

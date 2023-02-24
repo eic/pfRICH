@@ -78,6 +78,13 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
     auto particle = new ChargedParticle(tdef->GetPDGEncoding());
     info = AttachUserInfo(track, particle, 0);
 
+    // Assume first step is from the vertex?;
+    const auto &vtx = step->GetPreStepPoint();
+    const auto &x = vtx->GetPosition(), &p = vtx->GetMomentum(); 
+    particle->SetVertexPosition((1/mm) *TVector3(x.x(), x.y(), x.z()));
+    particle->SetVertexMomentum((1/GeV)*TVector3(p.x(), p.y(), p.z()));
+    particle->SetVertexTime(vtx->GetGlobalTime()/ns);
+
     m_EventPtr->AddChargedParticle(particle);
   } //if
 

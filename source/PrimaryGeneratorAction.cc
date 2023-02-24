@@ -4,26 +4,36 @@
 #include "G4Event.hh"
 #include "G4ParticleTable.hh"
 
-#if defined(HEPMC3) && defined(_USE_HEPMC3_INPUT_)
+#if defined(HEPMC3)
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/Data/GenEventData.h"
 
 using namespace HepMC3;
-#else
+#endif
+
 // May be pion and electron as well, see tuning.h;
 static G4ParticleDefinition *pion, *kaon;
-#endif
 
 // -------------------------------------------------------------------------------------
 
-PrimaryGeneratorAction::PrimaryGeneratorAction()
+PrimaryGeneratorAction::PrimaryGeneratorAction(const char *hepmc)
   : G4VUserPrimaryGeneratorAction()
 {
   fParticleGun = new G4ParticleGun(1);
 
-#if defined(HEPMC3) && defined(_USE_HEPMC3_INPUT_)
-  m_hepmc_input = new ReaderAscii(_USE_HEPMC3_INPUT_);
-#else
+  // FIXME: well, this should depend on the vertex position along the beam line?;
+  fParticleGun->SetParticleTime(0.0*ns);
+
+#if defined(HEPMC3)
+  if (hepmc) {
+    // FIXME: exception;
+    m_hepmc_input = new ReaderAscii(hepmc);
+    return;
+  } 
+  else
+    m_hepmc_input = 0;
+#endif
+
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
 
   pion = particleTable->FindParticle(_PRIMARY_PARTICLE_TYPE_);
@@ -33,9 +43,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   kaon = pion;
 #endif
   fParticleGun->SetParticleMomentum(_PRIMARY_PARTICLE_MOMENTUM_);
-#endif
 
-  fParticleGun->SetParticleTime(0.0*ns);
 } // PrimaryGeneratorAction::PrimaryGeneratorAction()
 
 // -------------------------------------------------------------------------------------
@@ -49,8 +57,8 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 { 
-#if defined(HEPMC3) && defined(_USE_HEPMC3_INPUT_)
-  {
+#if defined(HEPMC3)
+  if (m_hepmc_input) {
     GenEvent evt(Units::GEV,Units::MM);
     
     m_hepmc_input->read_event(evt);
@@ -81,41 +89,40 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  fParticleGun->SetParticleMomentum(pp*GeV);
 
 	  fParticleGun->GeneratePrimaryVertex(anEvent);
-
-	  // FIXME: for now assume a single particle;
-	  //break;
 	} //if
       } //for part
     }
 
-    //fParticleGun->GeneratePrimaryVertex(anEvent);
-  }
-#else
-  double theta =  2*atan(exp(-_PRIMARY_PARTICLE_ETA_));
-#ifdef _PRIMARY_PARTICLE_PHI_
-  double phi = _PRIMARY_PARTICLE_PHI_;
-#else
-  double phi = UniformRand(0.0, 360.0*degree);
-#endif
-  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(sin(theta)*cos(phi), 
-							   sin(theta)*sin(phi), 
-							   cos(theta)));
-
-#ifdef _PRIMARY_VERTEX_SIGMA_ 
-  fParticleGun->SetParticlePosition(G4ThreeVector(0.0*cm, 0.0*cm, G4RandGauss::shoot(0.0, _PRIMARY_VERTEX_SIGMA_)));
-#else
-  fParticleGun->SetParticlePosition(G4ThreeVector(0.0*cm, 0.0*cm, 0.0*cm));
+    return;
+  } //if
 #endif
 
   {
-    static unsigned toggle;
-
-    // Re-define every time new even if a single particle type was defined;
-    fParticleGun->SetParticleDefinition((toggle++)%2 ? kaon : pion);
-  }
-
-  fParticleGun->GeneratePrimaryVertex(anEvent);
+    double theta =  2*atan(exp(-_PRIMARY_PARTICLE_ETA_));
+#ifdef _PRIMARY_PARTICLE_PHI_
+    double phi = _PRIMARY_PARTICLE_PHI_;
+#else
+    double phi = UniformRand(0.0, 360.0*degree);
 #endif
+    fParticleGun->SetParticleMomentumDirection(G4ThreeVector(sin(theta)*cos(phi), 
+							     sin(theta)*sin(phi), 
+							     cos(theta)));
+    
+#ifdef _PRIMARY_VERTEX_SIGMA_ 
+    fParticleGun->SetParticlePosition(G4ThreeVector(0.0*cm, 0.0*cm, G4RandGauss::shoot(0.0, _PRIMARY_VERTEX_SIGMA_)));
+#else
+    fParticleGun->SetParticlePosition(G4ThreeVector(0.0*cm, 0.0*cm, 0.0*cm));
+#endif
+    
+    {
+      static unsigned toggle;
+      
+      // Re-define every time new even if a single particle type was defined;
+      fParticleGun->SetParticleDefinition((toggle++)%2 ? kaon : pion);
+    }
+    
+    fParticleGun->GeneratePrimaryVertex(anEvent);
+  }
 } // PrimaryGeneratorAction::GeneratePrimaries()
 
 // -------------------------------------------------------------------------------------

@@ -38,14 +38,6 @@ namespace {
 
 int main(int argc, char** argv)
 {
-  auto outputFile = TFile::Open("pfrich.root", "RECREATE");
-
-  auto geometry = new CherenkovDetectorCollection();
-  auto event    = new CherenkovEvent();
-
-  auto TT = new TTree("t", "My tree");
-  TT->Branch("e", "CherenkovEvent", &event, 16000, 2);
-
   // At most 1+4*2 command line arguments;
   if ( argc > 9 ) {
     PrintUsage();
@@ -56,16 +48,35 @@ int main(int argc, char** argv)
   G4String macro;
   G4String session;
 
+  // Default is to use tuning.h hardcoded values;
+  const char *infile = 0;
+  // These two may have default values;
+  unsigned stat = _STATISTICS_DEFAULT_;
+  G4String outfile = "pfrich.root";
+
   G4long myseed = 345354;
   for ( G4int i=1; i<argc; i=i+2 ) {
-     if      ( G4String(argv[i]) == "-m" ) macro   = argv[i+1];
-     else if ( G4String(argv[i]) == "-u" ) session = argv[i+1];
-     else if ( G4String(argv[i]) == "-r" ) myseed  = atoi(argv[i+1]);
+    if      ( G4String(argv[i]) == "-m" ) macro   =      argv[i+1];
+    else if ( G4String(argv[i]) == "-u" ) session =      argv[i+1];
+#if defined(HEPMC3) 
+    else if ( G4String(argv[i]) == "-i" ) infile  =      argv[i+1];
+#endif
+    else if ( G4String(argv[i]) == "-o" ) outfile =      argv[i+1];
+    else if ( G4String(argv[i]) == "-r" ) myseed  = atoi(argv[i+1]);
+    else if ( G4String(argv[i]) == "-s" ) stat    = atoi(argv[i+1]);
     else {
       PrintUsage();
       return 1;
-    }
+    } //if
   }
+
+  auto outputFile = TFile::Open(outfile, "RECREATE");
+
+  auto geometry = new CherenkovDetectorCollection();
+  auto event    = new CherenkovEvent();
+
+  auto TT = new TTree("t", "My tree");
+  TT->Branch("e", "CherenkovEvent", &event, 16000, 2);
 
   // Choose the Random engine
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
@@ -95,7 +106,7 @@ int main(int argc, char** argv)
   }
 
   // User action initialization
-  runManager->SetUserAction(new PrimaryGeneratorAction());
+  runManager->SetUserAction(new PrimaryGeneratorAction(infile));
   runManager->SetUserAction(new RunAction());
   {
     auto stepping = new CherenkovSteppingAction(geometry, event);
@@ -134,7 +145,7 @@ int main(int argc, char** argv)
      delete ui;
   } else {
     // Batch mode;
-    TString cmd; cmd.Form("/run/beamOn %d", _STATISTICS_);
+    TString cmd; cmd.Form("/run/beamOn %d", stat);
     UImanager->ApplyCommand(cmd.Data());
   }
 

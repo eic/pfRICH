@@ -11,15 +11,14 @@ class G4Event;
 
 #include <tuning.h>
 
-#if defined(HEPMC3) && defined(_USE_HEPMC3_INPUT_)
+#if defined(HEPMC3) 
 #include "HepMC3/ReaderAscii.h"
-//class HepMC3::ReaderAscii;
 #endif
 
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
   public:
-    PrimaryGeneratorAction();
+    PrimaryGeneratorAction(const char *hepmc);
     ~PrimaryGeneratorAction();
 
     void GeneratePrimaries(G4Event*);
@@ -27,7 +26,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
   private:
     G4ParticleGun* fParticleGun;
 
-#if defined(HEPMC3) && defined(_USE_HEPMC3_INPUT_)
+#if defined(HEPMC3) 
     HepMC3::ReaderAscii *m_hepmc_input;
 #endif
 
