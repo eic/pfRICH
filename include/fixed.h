@@ -7,6 +7,8 @@
 #ifndef _PFRICH_FIXED_
 #define _PFRICH_FIXED_
 
+#define _INCH_                             (25.4*mm)
+
 // -- Vessel geometry -------------------------------------------------------------------------
 //
 #define _VESSEL_OUTER_RADIUS_             (643.0*mm)
@@ -24,11 +26,15 @@
 // during the installation procedure;
 #define _FLANGE_CLEARANCE_                  (5.0*mm)
 
-// Tune them later to something more reasonable, from a construction point of view;
-#define _VESSEL_FRONT_SIDE_THICKNESS_       (3.5*mm)
-#define _VESSEL_REAR_SIDE_THICKNESS_        (5.0*mm)
-#define _VESSEL_INNER_WALL_THICKNESS_       (2.0*mm)
-#define _VESSEL_OUTER_WALL_THICKNESS_       (5.0*mm)
+// 10mil CF + 1/4" HC + 10mil CF;
+#define _VESSEL_FRONT_SIDE_THICKNESS_       (0.27*_INCH_)//3.5*mm)
+// Something fake; for now assume there is no rear wall;
+#define _VESSEL_REAR_SIDE_THICKNESS_        (0.1*mm)//5.0*mm)
+// 10mil CF + 1/4" HC + 10mil CF;
+#define _VESSEL_INNER_WALL_THICKNESS_       (0.27*_INCH_)//2.0*mm)
+// 10mil CF + 1/2" HC + 10mil CF;
+#define _VESSEL_OUTER_WALL_THICKNESS_       (0.52*_INCH_)//5.0*mm)
+// FIXME: introduce two HC materials with equivalent density matching 1/4" and 1/2" sandwich;
 #define _VESSEL_MATERIAL_            (m_CarbonFiber)
 
 // Some moderately optimistic number for aerogel-to-aerogel, aerogel-to-acrylic, 
@@ -105,8 +111,9 @@
 #define _AEROGEL_BAND_COUNT_                     (3)
 
 // Inner and outer radial walls are thicker;
-#define _AEROGEL_INNER_WALL_THICKNESS_      (2.0*mm)
-#define _AEROGEL_OUTER_WALL_THICKNESS_      (5.0*mm)
+#define _AEROGEL_INNER_WALL_THICKNESS_      (1.0*mm)//2.0*mm)
+// No need in a thick wall here, since aluminum rings embedded in honeycomb edges will be used;
+#define _AEROGEL_OUTER_WALL_THICKNESS_      (1.0*mm)//5.0*mm)
 // All other separators are thin; FIXME: there are no gaps between aerogel tiles and separators;
 #define _AEROGEL_SEPARATOR_WALL_THICKNESS_  (0.5*mm)
 // --------------------------------------------------------------------------------------------
