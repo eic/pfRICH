@@ -2,7 +2,7 @@
 // ? export LD_LIBRARY_PATH=/home/ayk/eic/EicSandbox/build/lib:${LD_LIBRARY_PATH}
 //   export LD_LIBRARY_PATH=/home/ayk/eic/irt/build/lib:${LD_LIBRARY_PATH}
 //
-//   root -l './pfrich.C("rich.root")'
+//   root -l './pfrich.C("pfrich.root")'
 //
 
 void pfrich(const char *dfname, const char *cfname = 0)
@@ -21,15 +21,12 @@ void pfrich(const char *dfname, const char *cfname = 0)
   for(unsigned ev=0; ev<nEvents; ev++) {
     t->GetEntry(ev);
 
-    //printf("@@@ %2lu\n", event->ChargedParticles().size());
     for(auto particle: event->ChargedParticles()) {
-      //if (particle->GetPDG() != 211) continue;
 
       for(auto rhistory: particle->GetRadiatorHistory()) {
 	auto history  = particle->GetHistory (rhistory);
 
 	for(auto photon: history->Photons()) {
-	  //printf("Here! %d\n", photon->WasDetected());
 	  if (!photon->WasDetected() ) continue;
 
 	  TVector3 phx = photon->GetDetectionPosition();
@@ -37,6 +34,7 @@ void pfrich(const char *dfname, const char *cfname = 0)
 	} //for photon
       } //for rhistory
     } //for particle
+    //#endif
   } //for ev
 
   gStyle->SetOptStat(0);

@@ -19,9 +19,9 @@ static const double sign = flip ? -1.0 : 1.0;
 #define _USE_MAGNETIC_FIELD_ "./database/MARCO_v.6.4.1.1.3_2T_Magnetic_Field_Map_2022_11_14_rad_coords_cm_T.txt"
 
 // May want to disable parasitic sources of photons;
-#define _DISABLE_GAS_VOLUME_PHOTONS_
+//#define _DISABLE_GAS_VOLUME_PHOTONS_
 //#define _DISABLE_ACRYLIC_PHOTONS_
-#define _DISABLE_HRPPD_WINDOW_PHOTONS_
+//#define _DISABLE_HRPPD_WINDOW_PHOTONS_
 
 // May want to disable Rayleight scattering and / or absorption by hand; 
 //#define _DISABLE_RAYLEIGH_SCATTERING_
@@ -47,9 +47,10 @@ static const double sign = flip ? -1.0 : 1.0;
 // Will toggle between the two types if defined;
 //#define _ALTERNATIVE_PARTICLE_TYPE_        ("kaon+")
 
+//#define _PRIMARY_PARTICLE_ETA_            (sign*2.07)
 #define _PRIMARY_PARTICLE_ETA_            (sign*2.5)
 // Uniform phi, if undefined;
-//#define _PRIMARY_PARTICLE_PHI_         (95.0*degree)
+//#define _PRIMARY_PARTICLE_PHI_         (110.0*degree)
 #define _PRIMARY_PARTICLE_MOMENTUM_        (7.0*GeV)
 // --------------------------------------------------------------------------------------------
 
@@ -58,8 +59,8 @@ static const double sign = flip ? -1.0 : 1.0;
 #define _AEROGEL_1_ _AEROGEL_CLAS12_DENSITY_225_MG_CM3_
 //#define _AEROGEL_1_ _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_
 #define _AEROGEL_THICKNESS_1_               (2.0*cm)
-#define _AEROGEL_2_ _AEROGEL_CLAS12_DENSITY_155_MG_CM3_
-#define _AEROGEL_THICKNESS_2_               (2.0*cm)
+//#define _AEROGEL_2_ _AEROGEL_CLAS12_DENSITY_155_MG_CM3_
+//#define _AEROGEL_THICKNESS_2_               (2.0*cm)
 
 // Set to m_Nitrogen and something like <100um thickness, for "clean" studies only;
 #define _AEROGEL_SPACER_MATERIAL_       (m_Absorber)
