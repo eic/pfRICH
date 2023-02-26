@@ -77,3 +77,8 @@ root -l 'scripts/pfrich.C("pfrich.root")'
 root -l 'scripts/e-eval.C("pfrich.root")'
 
 ```
+Automation
+----------
+Inside pfRICH directory run
+bash ./scripts/cc/AutomatedSimulationChain.sh
+It will display all the features with an example.
