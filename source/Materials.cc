@@ -28,6 +28,8 @@ Materials::Materials( void ): CherenkovWaveLengthRange(_WLDIM_, _NU_MIN_, _NU_ST
 
   m_Air = m_Absorber = m_Bialkali = m_Aluminum = m_CarbonFiber = m_Ceramic = m_Silver = 0;
   m_Acrylic = m_Nitrogen = m_FusedSilica = 0;
+
+  m_FakeCarbon_1_g_cm3 = m_HalfInch_CF_HoneyComb = m_QuarterInch_CF_HoneyComb;  
 } // Materials::Materials()
 
 // -------------------------------------------------------------------------------------
@@ -316,13 +318,6 @@ void Materials::DefineMaterials( void )
     m_Bialkali->SetMaterialPropertiesTable(bialkaliMPT);
   }
 
-  // A fake carbon fiber with a resonable density;
-  {
-    m_CarbonFiber = new G4Material("CarbonFiber", 1.90*g/cm3, 1);
-    
-    m_CarbonFiber->AddElement(m_C, 1);
-  }
-
   // Ceramic imitation; assume DuPont 951 variety for both the HRPPD anode base plate and the 
   // walls; chemical composition is unknown; it is a "mixture of Al2O3, CaZr03 and glass" at 
   // 3.10 g/cm^3; take CeramTape GC (density 2.87 g/cm^2) as a closest known reference;
@@ -341,6 +336,46 @@ void Materials::DefineMaterials( void )
     m_Absorber = new G4Material("Absorber", 1.00*g/cm3, 1);
     
     m_Absorber->AddElement(m_C, 1);
+  }
+
+  // A fake carbon with 1g/cm^3 density;
+  {
+    m_FakeCarbon_1_g_cm3 = new G4Material("FakeCarbon", 1.00*g/cm3, 1);
+    
+    m_FakeCarbon_1_g_cm3->AddElement(m_C, 1);
+  }
+
+  double fake_carbon_rad_length = m_FakeCarbon_1_g_cm3->GetRadlen();
+
+  // 1/2" and 1/4" thick honecomb "materials" of effective density;
+  {    
+    double core_thickness[2] = {_INCH_/4, _INCH_/2};
+    const char *names[2] = {"QuarterInchHoneycomb", "HalfInchHoneyconb"};
+    for(unsigned iq=0; iq<2; iq++) {
+      auto mptr = iq ? &m_HalfInch_CF_HoneyComb : &m_QuarterInch_CF_HoneyComb;
+
+      // Full thickness;
+      double thickness = 2*_CF_THICKNESS_ + 2*_EG_THICKNESS_ + core_thickness[iq];
+      // Full radiation length in abs. units;
+      double radlen = 2*_CF_THICKNESS_/_CF_RAD_LENGTH_ + 2*_EG_THICKNESS_/_EG_RAD_LENGTH_ + 
+	core_thickness[iq]/_HC_RAD_LENGTH_;
+      //printf("@@@ %d %f %f %f\n", iq, thickness/mm, radlen/mm, (thickness/radlen)/mm);
+
+      // So, need to adjust carbon density to end up at "thickness/radlen" rad.length value; 
+      *mptr = new G4Material(names[iq], (1.00*fake_carbon_rad_length/((thickness/radlen)))*g/cm3, 1);
+
+      (*mptr)->AddElement(m_C, 1);
+      //printf("@@@ %f\n", (*mptr)->GetRadlen()/mm);
+    }  //for iq
+  }
+
+  // A fake carbon fiber with a resonable density to match Prakhar's numbers, see Materials.h;
+  {
+    m_CarbonFiber = new G4Material("CarbonFiber", (1.00*fake_carbon_rad_length/_CF_RAD_LENGTH_)*g/cm3, 1);
+    //m_CarbonFiber = new G4Material("CarbonFiber", 1.90*mg/cm3, 1);
+    
+    m_CarbonFiber->AddElement(m_C, 1);
+    //printf("@@@ %f\n", m_CarbonFiber->GetRadlen()/mm);
   }
 } // Materials::DefineMaterials()
 

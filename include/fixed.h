@@ -8,6 +8,7 @@
 #define _PFRICH_FIXED_
 
 #define _INCH_                             (25.4*mm)
+#define _MIL_                          (_INCH_/1000)
 
 // -- Vessel geometry -------------------------------------------------------------------------
 //
@@ -26,16 +27,17 @@
 // during the installation procedure;
 #define _FLANGE_CLEARANCE_                  (5.0*mm)
 
-// 10mil CF + 1/4" HC + 10mil CF;
-#define _VESSEL_FRONT_SIDE_THICKNESS_       (0.27*_INCH_)//3.5*mm)
-// Something fake; for now assume there is no rear wall;
-#define _VESSEL_REAR_SIDE_THICKNESS_        (0.1*mm)//5.0*mm)
-// 10mil CF + 1/4" HC + 10mil CF;
-#define _VESSEL_INNER_WALL_THICKNESS_       (0.27*_INCH_)//2.0*mm)
-// 10mil CF + 1/2" HC + 10mil CF;
-#define _VESSEL_OUTER_WALL_THICKNESS_       (0.52*_INCH_)//5.0*mm)
-// FIXME: introduce two HC materials with equivalent density matching 1/4" and 1/2" sandwich;
-#define _VESSEL_MATERIAL_            (m_CarbonFiber)
+// 2*10mil CF + 1/4" HC + 2*10mil CF;
+#define _VESSEL_FRONT_SIDE_THICKNESS_       (0.29*_INCH_)
+// Something fake; for now assume there is essentially no rear wall;
+#define _VESSEL_REAR_SIDE_THICKNESS_        (0.01*mm)
+// 2*10mil CF + 1/4" HC + 2*10mil CF;
+#define _VESSEL_INNER_WALL_THICKNESS_       (0.29*_INCH_)
+// 2*10mil CF + 1/2" HC + 2*10mil CF;
+#define _VESSEL_OUTER_WALL_THICKNESS_       (0.54*_INCH_)
+// FIXME: describe each wall individually; at present choose 1/4" equivalent material
+// which is obviously more dense;
+#define _VESSEL_MATERIAL_    (m_QuarterInch_CF_HoneyComb)
 
 // Some moderately optimistic number for aerogel-to-aerogel, aerogel-to-acrylic, 
 // acrylic-to-mirror and such spacing;
@@ -86,7 +88,12 @@
 // -- Wavelength range ------------------------------------------------------------------------
 //
 // "Nominal" wavelength at which average refractive index will be calculated; FIXME: remove;
-#define _LAMBDA_NOMINAL_                     (470.0)
+// should rather store a fine step n(nu) lookup table in the CherenkovRadiator structure
+// after the GEANT pass; the problem is that n(<lambda>) is needed not only for the active 
+// radiator, where calibration photons are readily available, but also for say quartz to 
+// calculate the optical path correctly (and photon generation in the window may be suppressed); 
+//#define _LAMBDA_NOMINAL_                     (470.0)
+#define _LAMBDA_NOMINAL_                     (365.0)
 #define _MAGIC_CFF_                         (1239.8)
 
 // Consider full range from 175um (fused silica "cutoff") to 800um, at most; 

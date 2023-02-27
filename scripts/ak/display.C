@@ -5,9 +5,9 @@ void display(const char *dfname, const char *cfname = 0)
 
   // [rad] (should match SPE sigma) & [ns];
   auto *a1 = reco->UseRadiator("Aerogel225", 0.0041);
-  reco->AddHypothesis("mu+");
-  //reco->AddHypothesis("pi+");
-  reco->AddHypothesis(321);
+  //reco->AddHypothesis("mu+");
+  reco->AddHypothesis("pi+");
+  //reco->AddHypothesis(321);
 
   // Mark all pads hit by "calibration" (above the QE curve) photons as "useless";
   reco->AddBlackoutRadiator("QuartzWindow");
@@ -29,6 +29,7 @@ void display(const char *dfname, const char *cfname = 0)
 	  auto history  = mcparticle->GetHistory (rhistory);
 	  
 	  for(auto photon: history->Photons()) {
+	    //printf("%d %d\n", photon->WasDetected(), photon->IsMarkedAsBlackout());
 	    if (!photon->WasDetected() ) continue;
 	    //if (!photon->IsUsefulForCalibration()) continue;
 	    

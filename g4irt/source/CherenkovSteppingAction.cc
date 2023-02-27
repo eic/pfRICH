@@ -51,7 +51,7 @@ double CherenkovSteppingAction::GetRefractiveIndex(const CherenkovRadiator *radi
 // -------------------------------------------------------------------------------------
 
 TransientTrackInformation *CherenkovSteppingAction::AttachUserInfo(G4Track* track, TransientParticle *myself, 
-							     TransientParticle *parent)
+								   TransientParticle *parent)
 {
   auto info = new TransientTrackInformation(myself, parent);
   track->SetUserInformation(info);
@@ -250,6 +250,17 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 	if (m_SeconadriesDisabled && particleDef != opticalphoton) {
 	  strack->SetTrackStatus(fStopAndKill);
 	  continue;
+	} //if
+
+	if (xfrom && xfrom->GetProcessDefinedStep()) {
+	  TransientParticle *pptr = info->Myself();
+	  auto particle = dynamic_cast<ChargedParticle*>(pptr);
+	  if (particle && xfrom && xfrom->GetProcessDefinedStep()->GetProcessType() == 2) 
+	    particle->m_HadronicInteractionOccured = true;
+
+	  //printf("%3d -> %5d (%3d) --> %s\n", iq, xfrom->GetProcessDefinedStep()->GetProcessType(),
+	  //	 xfrom->GetProcessDefinedStep()->GetProcessSubType(),
+	  //	 xfrom->GetProcessDefinedStep()->GetProcessName().c_str());
 	} //if
 
 	// Keep track of charged particles (if secondaries are enabled) and of the optical photons;

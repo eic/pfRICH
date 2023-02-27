@@ -141,7 +141,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 
   // Gas container volume;
   double gas_volume_length = _VESSEL_LENGTH_ - _VESSEL_FRONT_SIDE_THICKNESS_ - _VESSEL_REAR_SIDE_THICKNESS_;
-  double gas_volume_offset = (_VESSEL_REAR_SIDE_THICKNESS_ - _VESSEL_FRONT_SIDE_THICKNESS_)/2;
+  double gas_volume_offset = -(_VESSEL_REAR_SIDE_THICKNESS_ - _VESSEL_FRONT_SIDE_THICKNESS_)/2;
   double gas_volume_radius = _VESSEL_OUTER_RADIUS_ - _VESSEL_OUTER_WALL_THICKNESS_;
   auto *gas_tube = new G4Tubs("GasVolume", 0.0, gas_volume_radius, gas_volume_length/2, 0*degree, 360*degree);
   auto *gas_shape = new G4SubtractionSolid("GasVolume", gas_tube, 
@@ -166,7 +166,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
   auto flange = FlangeCut(_FLANGE_CLEARANCE_ + _VESSEL_INNER_WALL_THICKNESS_ + _BUILDING_BLOCK_CLEARANCE_);
   {
     // A running variable;
-    double zOffset = -gas_volume_length/2 + _BUILDING_BLOCK_CLEARANCE_;
+    double zOffset = -gas_volume_length/2 + _BUILDING_BLOCK_CLEARANCE_;// + 1.0;
 
     // min/max radii available for aerogel, mirrors and such; r0min can be an estimate, since a flange
     // cut will be applied at the end to all these shapes anyway;
@@ -471,6 +471,22 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
       pyramid->DefineLogicalVolume();
       m_Geometry->AddMirrorLookupEntry(pyramid->GetLogicalVolume(), pyramid);
 #else
+#if 0
+      // Have to make two separate plates, otherwise boolean operations get choked;
+      auto *alu_tube1 = new G4Tubs("AluFrame1", 0.0, gas_volume_radius, (_INCH_/2-3.0*mm)/2, 0*degree, 360*degree);
+      //auto *alu_tube2 = new G4Tubs("AluFrame2", 0.0, gas_volume_radius, (       3.0*mm)/2, 0*degree, 360*degree);
+      auto *alu_shape1 = new G4SubtractionSolid("AluFrame1", alu_tube1, 
+	// Yes, account for vessel inner wall thickness;
+	FlangeCut(_FLANGE_CLEARANCE_ + _VESSEL_INNER_WALL_THICKNESS_), 
+	0, G4ThreeVector(0.0, 0.0, 0.0));
+      //auto *alu_shape2 = new G4SubtractionSolid("AluFrame2", alu_tube2, 
+	// Yes, account for vessel inner wall thickness;
+	//FlangeCut(_FLANGE_CLEARANCE_ + _VESSEL_INNER_WALL_THICKNESS_), 
+	//0, G4ThreeVector(0.0, 0.0, 0.0));
+      double alu_cut_size1 = xysize + 0.5*mm;//, alu_cut_size2 = pitch - _HRPPD_SUPPORT_GRID_BAR_WIDTH_;
+      auto *alu_cut1 = new G4Box("AluWndCut1", alu_cut_size1/2, alu_cut_size1/2, (_INCH_/2-3.0*mm)/2 + 1.1*mm);
+      //auto *alu_cut2 = new G4Box("AluWndCut2", alu_cut_size2/2, alu_cut_size2/2,  _INCH_        /2 + 0.1*mm);
+#endif
       G4Box *grid_box = new G4Box("Dummy", pitch/2, pitch/2, _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2);
       double value = pitch - _HRPPD_SUPPORT_GRID_BAR_WIDTH_;
       G4Box *grid_cut = new G4Box("Dummy", value/2, value/2, _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2 + 0.01*mm);
@@ -478,7 +494,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
       auto *grid_log = new G4LogicalVolume(grid_shape, m_CarbonFiber, "SupportGridBar", 0, 0, 0);
       // FIXME: duplicate code;
       {
-	G4VisAttributes* visAtt = new G4VisAttributes(G4Colour(1, 1, 1, 0.3));
+	G4VisAttributes* visAtt = new G4VisAttributes(G4Colour(0, 1, 1, 0.5));
 	visAtt->SetVisibility(true);
 	visAtt->SetForceSolid(true);
 	
@@ -570,6 +586,16 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	      new G4LogicalBorderSurface("WindowMetallization", wnd_phys, cer_phys, opWindowMetallization);
 	    }
 
+	    // Cut in the aluminum plate;
+	    {
+	      //static unsigned counter;
+
+	      //if (counter++ < 20) {
+	      //alu_shape1 = new G4SubtractionSolid("AluFrame1", alu_shape1, alu_cut1, 0, G4ThreeVector(xy.X(), xy.Y(), 0.0)); 
+	      //alu_shape2 = new G4SubtractionSolid("AluFrame2", alu_shape2, alu_cut2, 0, G4ThreeVector(xy.X(), xy.Y(), 0.0));//3.0*mm));
+	      //}
+	    }
+
 	    new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zpdc), pd->GetLogicalVolume(), "PhotoDetector", gas_log, false, counter);
 	    auto surface = new FlatSurface(sign*(1/mm)*TVector3(xy.X(), xy.Y(),_VESSEL_OFFSET_ + gas_volume_offset + zpdc), 
 					   TVector3(1*sign,0,0), TVector3(0,-1,0));
@@ -584,7 +610,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	    }
 #else
 	    new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zOffset - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2), 
-			      grid_log, "SupportGridBar", gas_log, false, counter);
+	    		      grid_log, "SupportGridBar", gas_log, false, counter);
 	    
 #endif
 
@@ -692,6 +718,22 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	  } //for xy
 	} 
       }
+
+#if 0
+      auto *alu_log1 = new G4LogicalVolume(alu_shape1, m_Aluminum,  "AluFrame1", 0, 0, 0);
+//auto *alu_log2 = new G4LogicalVolume(alu_shape2, m_Aluminum,  "AluFrame2", 0, 0, 0);
+      // FIXME: duplicate code;
+      {
+	G4VisAttributes* visAtt = new G4VisAttributes(G4Colour(0, 1, 1, 0.5));
+	visAtt->SetVisibility(true);
+	visAtt->SetForceSolid(true);
+	
+	alu_log1->SetVisAttributes(visAtt);
+	//alu_log2->SetVisAttributes(visAtt);
+      }
+      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gas_volume_length/2 - 20*mm), 
+	alu_log1, "AluFrame1", gas_log, false, 0);
+#endif
     }
     
     for(unsigned im=0; im<2; im++)
