@@ -111,10 +111,10 @@ static G4UnionSolid *FlangeCut(double length, double clearance)
   double pDz = length/2, pTheta = 0.0, pPhi = 0.0, pDy1 = (a - b - c)/2, pDy2 = pDy1; 
   double pDx1 = sqrt(r0*r0 - b*b), pDx2 = pDx1*r1/r0, pDx3 = pDx1, pDx4 = pDx2, pAlp1 = 0.0, pAlp2 = 0.0;
   auto *wedge = new G4Trap("FlangeWedge", pDz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2);
-  G4RotationMatrix *rZ = new G4RotationMatrix(CLHEP::HepRotationZ(90*degree));
-  auto *flange_shape = new G4UnionSolid("Tmp", eflange, hflange, 0, G4ThreeVector(_FLANGE_HPIPE_OFFSET_, 0.0, 0.0));
+  G4RotationMatrix *rZ = new G4RotationMatrix(CLHEP::HepRotationZ(-90*degree));
+  auto *flange_shape = new G4UnionSolid("Tmp", eflange, hflange, 0, G4ThreeVector(-_FLANGE_HPIPE_OFFSET_, 0.0, 0.0));
 
-  return new G4UnionSolid("Tmp", flange_shape, wedge, rZ, G4ThreeVector(b + pDy1, 0.0, 0.0));
+  return new G4UnionSolid("Tmp", flange_shape, wedge, rZ, G4ThreeVector(-b - pDy1, 0.0, 0.0));
 } // FlangeCut()
 
 // -------------------------------------------------------------------------------------
@@ -240,8 +240,11 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
   // All volumes are defined assuming EIC h-going endcap orientation (dRICH case was developed this way 
   // for ATHENA); therefore need to rotate by 180 degrees around Y axis;
   G4RotationMatrix *rY = new G4RotationMatrix(CLHEP::HepRotationY(flip ? 180*degree : 0));
-  auto *fiducial_volume_phys = new G4PVPlacement(rY, G4ThreeVector(0.0, 0.0, sign*_FIDUCIAL_VOLUME_OFFSET_), m_fiducial_volume_log, 
-						 "PFRICH", expHall_phys->GetLogicalVolume(), false, 0);
+#ifdef _GENERATE_GDML_OUTPUT_
+  auto *fiducial_volume_phys = 
+#endif
+    new G4PVPlacement(rY, G4ThreeVector(0.0, 0.0, sign*_FIDUCIAL_VOLUME_OFFSET_), m_fiducial_volume_log, 
+		      "PFRICH", expHall_phys->GetLogicalVolume(), false, 0);
 
   // Gas container volume;
   m_gas_volume_length = _FIDUCIAL_VOLUME_LENGTH_ - _VESSEL_FRONT_SIDE_THICKNESS_ - _SENSOR_AREA_LENGTH_;
@@ -421,8 +424,11 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	TVector3 nx(1*sign,0,0), ny(0,-1,0);
 	
 	auto surface = new FlatSurface(sign*(1/mm)*TVector3(0,0,_FIDUCIAL_VOLUME_OFFSET_ + _gas_volume_offset + gzOffset), nx, ny);
-	auto radiator = m_Geometry->AddFlatRadiator(det, "Acrylic", CherenkovDetector::Upstream, 
-						    0, ac_log, m_Acrylic, surface, acthick/mm);
+#ifdef _DISABLE_ACRYLIC_PHOTONS_
+	auto radiator = 
+#endif
+	  m_Geometry->AddFlatRadiator(det, "Acrylic", CherenkovDetector::Upstream, 
+				      0, ac_log, m_Acrylic, surface, acthick/mm);
 #ifdef _DISABLE_ACRYLIC_PHOTONS_
 	radiator->DisableOpticalPhotonGeneration();
 #endif
@@ -548,7 +554,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 
       double pitch = xysize + _HRPPD_INSTALLATION_GAP_, xyactive = _HRPPD_ACTIVE_AREA_SIZE_;
       double xyopen = _HRPPD_OPEN_AREA_SIZE_;
-      double certhick = _HRPPD_CERAMIC_BODY_THICKNESS_, zcer = azOffset + wndthick + certhick/2;
+      double certhick = _HRPPD_CERAMIC_BODY_THICKNESS_;//, zcer = azOffset + wndthick + certhick/2;
 
       // HRPPD body imitation; ignore MCPs (small fraction compared to the ceramic body);
       G4Box *cer_box  = new G4Box("CeramicBox", xysize/2, xysize/2, certhick/2);
@@ -567,7 +573,16 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
       G4Box *plating  = new G4Box("Plating", xyopen/2, xyopen/2, _HRPPD_PLATING_LAYER_THICKNESS_/2);
       G4LogicalVolume* plating_log = new G4LogicalVolume(plating, m_Silver,  "Plating", 0, 0, 0);
 
-      //{
+      double pdthick = 0.01*mm, zpdc = azOffset + wndthick + pdthick/2;
+      G4Box *pd_box  = new G4Box("PhotoDetector", xyactive/2, xyactive/2, pdthick/2);
+      auto pd = new CherenkovPhotonDetector(pd_box, m_Bialkali);
+      pd->SetCopyIdentifierLevel(1);
+      pd->DefineLogicalVolume();
+      pd->SetColor(G4Colour(1, 0, 0, 1.0));
+      // Cannot access GEANT shapes in the reconstruction code -> store this value;
+      pd->SetActiveAreaSize(xyactive);
+
+      {
 	double accu = -hrppd_container_volume_thickness/2;
 
 	// Window layer;
@@ -581,23 +596,18 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	// Place plating layer in the middle;
 	new G4PVPlacement(                0, G4ThreeVector(0.0, 0.0, accu + certhick/2), plating_log, 
 					  "Plating",     hrppd_log, false, 0);
-	//accu += certhick;
 
 	// Rough reflective optical border between them;
 	G4OpticalSurface* opWindowMetallization = 
 	  CreateLambertianMirrorSurface("WindowMetallization", _HRPPD_METALLIZATION_REFLECTIVITY_, _HRPPD_METALLIZATION_ROUGHNESS_);
 	new G4LogicalBorderSurface("WindowMetallization", wnd_phys, cer_phys, opWindowMetallization);
-	//}
-      double pdthick = 0.01*mm, zpdc = azOffset + wndthick + pdthick/2;
-      G4Box *pd_box  = new G4Box("PhotoDetector", xyactive/2, xyactive/2, pdthick/2);
-      auto pd = new CherenkovPhotonDetector(pd_box, m_Bialkali);
-      pd->SetCopyIdentifierLevel(1);
-      pd->DefineLogicalVolume();
-      pd->SetColor(G4Colour(1, 0, 0, 1.0));
-      // Cannot access GEANT shapes in the reconstruction code -> store this value;
-      pd->SetActiveAreaSize(xyactive);
-      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, accu + pdthick/2), pd->GetLogicalVolume(), "PhotoDetector", 
-			hrppd_log, false, 0);
+
+	// Photodector layer (photocathode);
+	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, accu + pdthick/2), pd->GetLogicalVolume(), "PhotoDetector", 
+			  hrppd_log, false, 0);
+
+	accu += certhick;// + pdthick;	
+      }
       //accu += pdthick;
 
 #if 0
@@ -639,8 +649,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
       pyramid->DefineLogicalVolume();
       m_Geometry->AddMirrorLookupEntry(pyramid->GetLogicalVolume(), pyramid);
 #else
-#if 0
-      double alu_thickness = _INCH_/2 - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_;//3.0*mm;
+      double alu_thickness = _INCH_/2 - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_;
       auto *alu_tube = new G4Tubs("AluFrame", 0.0, _VESSEL_OUTER_RADIUS_, alu_thickness/2, 0*degree, 360*degree);
       auto *alu_shape = new G4SubtractionSolid("AluFrame", alu_tube, 
 					       FlangeCut(alu_thickness + 1*mm, _FLANGE_CLEARANCE_), 0, G4ThreeVector(0.0, 0.0, 0.0));
@@ -649,8 +658,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
       // Cut the central area by hand;
       alu_shape = new G4SubtractionSolid("AluFrame", alu_shape, alu_cut, 0, G4ThreeVector(                       0.0, 0.0, 0.0));
       alu_shape = new G4SubtractionSolid("AluFrame", alu_shape, alu_cut, 0, G4ThreeVector(_HRPPD_CENTRAL_ROW_OFFSET_, 0.0, 0.0));
-#endif
-#if 1
+
       G4Box *grid_box = new G4Box("Dummy", pitch/2, pitch/2, _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2);
       double value = pitch - _HRPPD_SUPPORT_GRID_BAR_WIDTH_;
       G4Box *grid_cut = new G4Box("Dummy", value/2, value/2, _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2 + 0.01*mm);
@@ -664,7 +672,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	
 	grid_log->SetVisAttributes(visAtt);
       }
-#endif
 #endif
 
       {
@@ -713,7 +720,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	  
 	  unsigned xdim = qpop[0];
 	  for(unsigned ix=0; ix<xdim; ix++) {
-	    double xOffset = pitch*(ix - (xdim-1)/2.) + (ix <= 3 ? 0.0 : _HRPPD_CENTRAL_ROW_OFFSET_);
+      //double xOffset = pitch*(ix - (xdim-1)/2.) + (ix <= 3 ? 0.0 : _HRPPD_CENTRAL_ROW_OFFSET_);
+	    double xOffset = pitch*(ix - (xdim-1)/2.) + (ix >= 5 ? 0.0 : -_HRPPD_CENTRAL_ROW_OFFSET_);
 	    	    
 	    if (ix == 4) continue;
 
@@ -738,21 +746,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 
 	  for(auto xy: coord) {
 	    {
-#if 1
 	      new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zcont), hrppd_log, "HRPPD", m_fiducial_volume_log, false, counter);
-#else
-	      // Window layer;
-	      auto wnd_phys = new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zwnd), wnd_log,     "QuartzWindow", m_fiducial_volume_log, false, counter);
-	      // Ceramic pictureframe body behind it;
-	      auto cer_phys = new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zcer), cer_log,     "CeramicBody",  m_fiducial_volume_log, false, counter);
-	      // Place plating layer in the middle;
-	      new G4PVPlacement(                0, G4ThreeVector(xy.X(), xy.Y(), zcer), plating_log, "Plating",      m_fiducial_volume_log, false, counter);
-#endif
-
-	      // Rough reflective optical border between them;
-	      //+G4OpticalSurface* opWindowMetallization = 
-	      //+CreateLambertianMirrorSurface("WindowMetallization", _HRPPD_METALLIZATION_REFLECTIVITY_, _HRPPD_METALLIZATION_ROUGHNESS_);
-	      //+new G4LogicalBorderSurface("WindowMetallization", wnd_phys, cer_phys, opWindowMetallization);
 
 	      // Dead material layers;
 #if 0
@@ -760,7 +754,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 		double accu = zcer + 10*mm;
 
 		for(unsigned iq=0; iq<ddim; iq++) {
-		  new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), accu + dthicks[iq]/2), dlogs[iq], dnames[iq], m_fiducial_volume_log, false, counter);
+		  new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), accu + dthicks[iq]/2), dlogs[iq], dnames[iq], 
+				    m_fiducial_volume_log, false, counter);
 		  accu += dthicks[iq];
 		} //for iq
 	      }
@@ -771,14 +766,11 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	    {
 	      //static unsigned counter;
 	      //if (counter++ < 100 && fabs(sqrt(xy.X()*xy.X()+xy.Y()*xy.Y())) < 150.0)
-	      //+alu_shape = new G4SubtractionSolid("AluFrame", alu_shape, alu_cut, 0, G4ThreeVector(xy.X(), xy.Y(), 0.0)); 
+	      alu_shape = new G4SubtractionSolid("AluFrame", alu_shape, alu_cut, 0, G4ThreeVector(xy.X(), xy.Y(), 0.0)); 
 	    }
 
-	    //new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zpdc), pd->GetLogicalVolume(), "PhotoDetector", m_fiducial_volume_log, false, counter);
 	    auto surface = new FlatSurface((1/mm)*TVector3(sign*xy.X(), xy.Y(),sign*(_FIDUCIAL_VOLUME_OFFSET_ /*+ gas_volume_offset*/ + zpdc)), 
 					   TVector3(1*sign,0,0), TVector3(0,-1,0));
-	    //auto surface = new FlatSurface((1/mm)*TVector3(sign*xy.X(), xy.Y(),sign*_FIDUCIAL_VOLUME_OFFSET_ /*+ gas_volume_offset*/ + zpdc), 
-	    //				   TVector3(1*sign,0,0), TVector3(0,-1,0));
 	    
 #ifdef _USE_PYRAMIDS_
 	    {
@@ -903,7 +895,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	} 
       }
 
-#if 0
+#if 1
       auto *alu_log = new G4LogicalVolume(alu_shape, m_Aluminum,  "AluFrame", 0, 0, 0);
       // FIXME: duplicate code;
       {
@@ -922,7 +914,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
     for(unsigned im=0; im<2; im++)
       // FIXME: they are not really upstream (just need to store them);
       det->AddOpticalBoundary(CherenkovDetector::Upstream, 0, mboundaries[im]);
-    //#endif
   }
 
   for(auto radiator: det->Radiators())
