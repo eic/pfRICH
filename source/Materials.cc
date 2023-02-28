@@ -29,7 +29,8 @@ Materials::Materials( void ): CherenkovWaveLengthRange(_WLDIM_, _NU_MIN_, _NU_ST
   m_Air = m_Absorber = m_Bialkali = m_Aluminum = m_CarbonFiber = m_Ceramic = m_Silver = 0;
   m_Acrylic = m_Nitrogen = m_FusedSilica = 0;
 
-  m_FakeCarbon_1_g_cm3 = m_HalfInch_CF_HoneyComb = m_QuarterInch_CF_HoneyComb;  
+  m_FakeCarbon_1_g_cm3 = m_HalfInch_CF_HoneyComb = m_QuarterInch_CF_HoneyComb = 0;  
+  m_FR4 = m_Water = m_Copper = 0;
 } // Materials::Materials()
 
 // -------------------------------------------------------------------------------------
@@ -59,8 +60,10 @@ void Materials::DefineMaterials( void )
   {
     G4NistManager *manager = G4NistManager::Instance();
 
-    m_Aluminum = manager->FindOrBuildMaterial("G4_Al"); assert(m_Aluminum);
-    m_Silver   = manager->FindOrBuildMaterial("G4_Ag"); assert(m_Silver);
+    m_Aluminum = manager->FindOrBuildMaterial("G4_Al");    assert(m_Aluminum);
+    m_Silver   = manager->FindOrBuildMaterial("G4_Ag");    assert(m_Silver);
+    m_Copper   = manager->FindOrBuildMaterial("G4_Cu");    assert(m_Copper);
+    m_Water    = manager->FindOrBuildMaterial("G4_WATER"); assert(m_Water);
   }  
 
   // Air;
@@ -377,6 +380,19 @@ void Materials::DefineMaterials( void )
     m_CarbonFiber->AddElement(m_C, 1);
     //printf("@@@ %f\n", m_CarbonFiber->GetRadlen()/mm);
   }
+
+  // A fake FR4 with a resonable density to match PDG number, see Materials.h;
+  {
+    m_FR4 = new G4Material("FR4", (1.00*fake_carbon_rad_length/_FR4_RAD_LENGTH_)*g/cm3, 1);
+    
+    m_FR4->AddElement(m_C, 1);
+  }
+
+  printf("Copper      : %f\n", m_Copper->GetRadlen()/mm);
+  printf("Water       : %f\n", m_Water->GetRadlen()/mm);
+  printf("Ceramic     : %f\n", m_Ceramic->GetRadlen()/mm);
+  printf("FR4         : %f\n", m_FR4->GetRadlen()/mm);
+  printf("Fused silica: %f\n", m_FusedSilica->GetRadlen()/mm);
 } // Materials::DefineMaterials()
 
 // -------------------------------------------------------------------------------------

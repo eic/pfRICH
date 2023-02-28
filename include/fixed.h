@@ -15,8 +15,8 @@
 #define _VESSEL_OUTER_RADIUS_             (643.0*mm)
 
 // Given by the project;
-#define _VESSEL_LENGTH_                   (541.5*mm)
-#define _VESSEL_OFFSET_ (1185.5*mm + _VESSEL_LENGTH_/2)
+#define _FIDUCIAL_VOLUME_LENGTH_          (541.5*mm)
+#define _FIDUCIAL_VOLUME_OFFSET_ (1185.5*mm + _FIDUCIAL_VOLUME_LENGTH_/2)
 
 // Taken from Alex's drawing; 
 #define _FLANGE_EPIPE_DIAMETER_           (105.3*mm)
@@ -30,14 +30,14 @@
 // 2*10mil CF + 1/4" HC + 2*10mil CF;
 #define _VESSEL_FRONT_SIDE_THICKNESS_       (0.29*_INCH_)
 // Something fake; for now assume there is essentially no rear wall;
-#define _VESSEL_REAR_SIDE_THICKNESS_        (0.01*mm)
+//#define _VESSEL_REAR_SIDE_THICKNESS_        (0.29*_INCH_)//0.01*mm)
 // 2*10mil CF + 1/4" HC + 2*10mil CF;
 #define _VESSEL_INNER_WALL_THICKNESS_       (0.29*_INCH_)
 // 2*10mil CF + 1/2" HC + 2*10mil CF;
 #define _VESSEL_OUTER_WALL_THICKNESS_       (0.54*_INCH_)
 // FIXME: describe each wall individually; at present choose 1/4" equivalent material
 // which is obviously more dense;
-#define _VESSEL_MATERIAL_    (m_QuarterInch_CF_HoneyComb)
+//#define _VESSEL_MATERIAL_    (m_QuarterInch_CF_HoneyComb)
 
 // Some moderately optimistic number for aerogel-to-aerogel, aerogel-to-acrylic, 
 // acrylic-to-mirror and such spacing;
@@ -55,9 +55,11 @@
 #define _HRPPD_INSTALLATION_GAP_          (  1.5*mm)
 
 // Well, a fake material for now;
-#define _MIRROR_MATERIAL_            (m_CarbonFiber)
-#define _INNER_MIRROR_THICKNESS_            (1.0*mm)
-#define _OUTER_MIRROR_THICKNESS_            (2.0*mm)
+//#define _MIRROR_MATERIAL_            (m_QuarterInch_CF_HoneyComb)//m_CarbonFiber)
+// 2*10mil CF + 1/4" HC + 2*10mil CF;
+#define _INNER_MIRROR_THICKNESS_            (0.29*_INCH_)//1.0*mm)
+// 2*10mil CF + 1/2" HC + 2*10mil CF;
+#define _OUTER_MIRROR_THICKNESS_            (0.54*_INCH_)//2.0*mm)
 
 #define _HRPPD_SUPPORT_GRID_BAR_HEIGHT_     (3.0*mm)
 #define _HRPPD_SUPPORT_GRID_BAR_WIDTH_     (12.0*mm)
@@ -133,6 +135,20 @@
 // This number is 1.00 for HRPPDs (no SiPM-like fill factor or such); keep in place 
 // for historical reasons;
 #define _SENSOR_PLANE_GEOMETRIC_EFFICIENCY_   (1.00)
+// --------------------------------------------------------------------------------------------
+
+// -- Materials behind the sensor plane -------------------------------------------------------
+
+#define _READOUT_PCB_THICKNESS_             (2.0*mm)
+
+// The numbers below will be smeared over 120mm x 120mm area;
+//#define _EFFECTIVE_SURFACE_AREA_ (_HRPPD_TILE_SIZE_ * _HRPPD_TILE_SIZE_)
+
+// A very rough estimate: assume ~6mm diameter Cu pipe with ~0.5mm thick walls; 
+#define _EFFECTIVE_WATER_VOLUME_ (_HRPPD_TILE_SIZE_ * M_PI * 2.5*mm * 2.5*mm)
+// ~1mm thick ASIC & FPGA cold plates; a single pipe; ignore thermal bridges surface;
+#define _EFFECTIVE_COPPER_VOLUME_ (1.0*mm * (3*cm * 3*cm + 4 * 2*cm * 2*cm) + _HRPPD_TILE_SIZE_ * 0.5*mm * M_PI * 5.5*mm)
+
 // --------------------------------------------------------------------------------------------
 
 #endif

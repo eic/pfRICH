@@ -203,7 +203,15 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 	    if (pd) {
 	      photon->SetPhotonDetector(pd);
 	      
-	      photon->SetVolumeCopy(vto->GetCopyNo());
+	      //photon->SetVolumeCopy(vto->GetCopyNo());
+	      //>GetTouchable()
+	      //printf("%2d %2d %2d %2d\n", vto->GetCopyNo(), 
+	      //     xto->GetTouchable()->GetCopyNumber(), 
+	      //     xto->GetTouchable()->GetCopyNumber(0), 
+	      //     xto->GetTouchable()->GetCopyNumber(1));
+	      // !!! FIXME: 
+	      //printf("%d\n", pd->GetCopyIdentifierLevel());
+	      photon->SetVolumeCopy(xto->GetTouchable()->GetCopyNumber(pd->GetCopyIdentifierLevel()));
 	      
 	      G4ThreeVector xx = xto->GetPosition();
 	      photon->SetDetectionPosition((1/mm)*TVector3(xx.x(), xx.y(), xx.z()));

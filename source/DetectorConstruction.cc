@@ -10,6 +10,8 @@
 #include <G4LogicalBorderSurface.hh>
 #include <G4UnionSolid.hh>
 #include <G4SubtractionSolid.hh>
+#include <G4IntersectionSolid.hh>
+#include <G4GDMLParser.hh>
 
 #define _GEANT_SOURCE_CODE_
 #include <G4Object.h>
@@ -34,7 +36,9 @@
 // -------------------------------------------------------------------------------------
 
 DetectorConstruction::DetectorConstruction(CherenkovDetectorCollection *geometry): 
-  G4VUserDetectorConstruction(), m_Geometry(geometry)
+G4VUserDetectorConstruction(), 
+m_Geometry(geometry), m_gas_volume_length(0.0), m_gas_volume_radius(0.0), 
+m_fiducial_volume_log(0), m_gas_volume_log(0)
 {
 } // DetectorConstruction::DetectorConstruction()
 
@@ -93,18 +97,18 @@ G4OpticalSurface *DetectorConstruction::CreateLambertianMirrorSurface(const char
 
 // -------------------------------------------------------------------------------------
 
-static G4UnionSolid *FlangeCut(double clearance)
+static G4UnionSolid *FlangeCut(double length, double clearance)
 {
   // FIXME: do I really care about re-using the same names for these shapes?;
   auto *eflange = new G4Tubs("FlangeEpipe", 0.0, _FLANGE_EPIPE_DIAMETER_/2 + clearance, 
-			     _VESSEL_LENGTH_/2 + 1.0*mm, 0*degree, 360*degree);
+			     length/2, 0*degree, 360*degree);
   auto *hflange = new G4Tubs("FlangeHpipe", 0.0, _FLANGE_HPIPE_DIAMETER_/2 + clearance, 
-			     _VESSEL_LENGTH_/2 + 1.0*mm, 0*degree, 360*degree);
+			     length/2, 0*degree, 360*degree);
   // A wedge bridging two cylinders;
   double r0 = _FLANGE_EPIPE_DIAMETER_/2 + clearance, r1 = _FLANGE_HPIPE_DIAMETER_/2 + clearance;
   double L = _FLANGE_HPIPE_OFFSET_, a = r0*L/(r0-r1), b = r0*r0/a, c = r1*(a-b)/r0;
   // GEANT variables to define G4Trap;
-  double pDz = _VESSEL_LENGTH_/2 + 1.0*mm, pTheta = 0.0, pPhi = 0.0, pDy1 = (a - b - c)/2, pDy2 = pDy1; 
+  double pDz = length/2, pTheta = 0.0, pPhi = 0.0, pDy1 = (a - b - c)/2, pDy2 = pDy1; 
   double pDx1 = sqrt(r0*r0 - b*b), pDx2 = pDx1*r1/r0, pDx3 = pDx1, pDx4 = pDx2, pAlp1 = 0.0, pAlp2 = 0.0;
   auto *wedge = new G4Trap("FlangeWedge", pDz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2);
   G4RotationMatrix *rZ = new G4RotationMatrix(CLHEP::HepRotationZ(90*degree));
@@ -112,6 +116,102 @@ static G4UnionSolid *FlangeCut(double clearance)
 
   return new G4UnionSolid("Tmp", flange_shape, wedge, rZ, G4ThreeVector(b + pDy1, 0.0, 0.0));
 } // FlangeCut()
+
+// -------------------------------------------------------------------------------------
+
+//
+// FIXME: a lot of duplicate code and a lot of hardcoded numbers;
+//
+
+void DetectorConstruction::BuildVesselWalls( void )
+{
+  // Inner vessel wall; it is part of the gas volume;
+  {
+    // FIXME: pyramid case, please;
+    double wlength = m_gas_volume_length - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_;
+    auto outer = FlangeCut(wlength, _FLANGE_CLEARANCE_ + _VESSEL_INNER_WALL_THICKNESS_);
+    auto *wall_shape = new G4SubtractionSolid("InnerWall", outer, 
+					      FlangeCut(wlength + 1*mm, _FLANGE_CLEARANCE_),
+					      0, G4ThreeVector(0.0, 0.0, 0.0));
+    auto *wall_log = new G4LogicalVolume(wall_shape, m_QuarterInch_CF_HoneyComb,  "InnerWall", 0, 0, 0);
+    new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, -_HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2), wall_log, "InnerWall", 
+		      m_gas_volume_log, false, 0);
+
+    // Add a pair of aluminum reinforcement rings; full radial thickness (a bit more material);
+    {
+      double rlength = _INCH_/2;
+
+      auto qouter = FlangeCut(rlength, _FLANGE_CLEARANCE_ + _VESSEL_INNER_WALL_THICKNESS_);
+      auto *ring_shape = new G4SubtractionSolid("InnerWallAluRing", qouter, 
+						FlangeCut(rlength + 1*mm, _FLANGE_CLEARANCE_),
+						0, G4ThreeVector(0.0, 0.0, 0.0));
+      auto *ring_log = new G4LogicalVolume(ring_shape, m_Aluminum,  "InnerWallAluRing", 0, 0, 0);
+      for(unsigned iq=0; iq<2; iq++) {
+	double zOffset = (iq ? 1.0 : -1.0)*(wlength/2 - rlength/2);
+
+	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, zOffset), ring_log, "InnerWallAluRing", wall_log, false, iq);
+      } //for iq
+    }
+  }
+  // Front vessel wall; it is part of the fiducial volume;
+  {
+    auto *wall_tube = new G4Tubs("FrontWall", 0.0, _VESSEL_OUTER_RADIUS_, _VESSEL_FRONT_SIDE_THICKNESS_/2, 
+				 0*degree, 360*degree);
+    auto *wall_shape = new G4SubtractionSolid("FrontWall", wall_tube, 
+					      FlangeCut(_VESSEL_FRONT_SIDE_THICKNESS_ + 1*mm, _FLANGE_CLEARANCE_),
+					      0, G4ThreeVector(0.0, 0.0, 0.0));
+    auto *wall_log = new G4LogicalVolume(wall_shape, m_QuarterInch_CF_HoneyComb,  "FrontWall", 0, 0, 0);
+    new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, -_FIDUCIAL_VOLUME_LENGTH_/2 + _VESSEL_FRONT_SIDE_THICKNESS_/2), 
+		      wall_log, "FrontWall", m_fiducial_volume_log, false, 0);
+
+    // Add inner reinforcement ring;
+    {
+      double rlength = _VESSEL_FRONT_SIDE_THICKNESS_;
+
+      auto qouter = FlangeCut(rlength, _FLANGE_CLEARANCE_ + _INCH_/2);
+      auto *ring_shape = new G4SubtractionSolid("FrontWallAluRing1", qouter, 
+						FlangeCut(rlength + 1*mm, _FLANGE_CLEARANCE_),
+						0, G4ThreeVector(0.0, 0.0, 0.0));
+      auto *ring_log = new G4LogicalVolume(ring_shape, m_Aluminum,  "FrontWallAluRing1", 0, 0, 0);
+      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, 0.0), ring_log, "FrontWallAluRing1", wall_log, false, 0);
+    }
+    // Add outer reinforcement ring;
+    {
+      double rlength = _VESSEL_FRONT_SIDE_THICKNESS_;
+
+      auto *ring_tube = new G4Tubs("FrontWallAluRing2", _VESSEL_OUTER_RADIUS_ - _INCH_/2, _VESSEL_OUTER_RADIUS_, 
+				   rlength/2, 0*degree, 360*degree);
+
+      auto *ring_log = new G4LogicalVolume(ring_tube, m_Aluminum,  "FrontWallAluRing2", 0, 0, 0);
+      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, 0.0), ring_log, "FrontWallAluRing2", wall_log, false, 0);
+    }
+  }
+  // Outer vessel wall; it is part of the fiducial volume;
+  {
+    double wlength = m_gas_volume_length;
+    auto *wall_tube = new G4Tubs("OuterWall", m_gas_volume_radius, _VESSEL_OUTER_RADIUS_, 
+				 wlength/2, 0*degree, 360*degree);
+    auto *wall_log = new G4LogicalVolume(wall_tube, m_HalfInch_CF_HoneyComb,  "OuterWall", 0, 0, 0);
+    new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, -_FIDUCIAL_VOLUME_LENGTH_/2 + _VESSEL_FRONT_SIDE_THICKNESS_ + 
+				       wlength/2), 
+		      wall_log, "OuterWall", m_fiducial_volume_log, false, 0);
+
+    // Add a pair of aluminum reinforcement rings; full radial thickness (a bit more material);
+    {
+      double rlength = _INCH_/2;
+
+      auto *ring_tube = new G4Tubs("OuterWallAluRing", m_gas_volume_radius, _VESSEL_OUTER_RADIUS_, 
+				   rlength/2, 0*degree, 360*degree);
+
+      auto *ring_log = new G4LogicalVolume(ring_tube, m_Aluminum,  "OuterWallAluRing", 0, 0, 0);
+      for(unsigned iq=0; iq<2; iq++) {
+	double zOffset = (iq ? 1.0 : -1.0)*(wlength/2 - rlength/2);
+
+	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, zOffset), ring_log, "OuterWallAluRing", wall_log, false, iq);
+      } //for iq
+    }
+  }
+} // DetectorConstruction::BuildVesselWalls()
 
 // -------------------------------------------------------------------------------------
 
@@ -130,49 +230,57 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
   //det->SetReadoutCellMask(~0x0);
   det->SetReadoutCellMask(0xFFFFFFFFFFFFFFFF);
 
-  // Vessel volume; let it be made of aluminum for the time being;
-  auto *vessel_tube = new G4Tubs("Vessel", 0.0, _VESSEL_OUTER_RADIUS_, _VESSEL_LENGTH_/2, 0*degree, 360*degree);
-  auto *vessel_shape = new G4SubtractionSolid("Vessel", vessel_tube, FlangeCut(_FLANGE_CLEARANCE_), 
-					      0, G4ThreeVector(0.0, 0.0, 0.0));
-  auto *vessel_log = new G4LogicalVolume(vessel_shape, _VESSEL_MATERIAL_,  "Vessel", 0, 0, 0);
+  // Fiducial volume (air); has to be called "PFRICH";
+  auto *fiducial_folume_tube = new G4Tubs("PFRICH", 0.0, _VESSEL_OUTER_RADIUS_, _FIDUCIAL_VOLUME_LENGTH_/2, 
+				 0*degree, 360*degree);
+  auto *fiducial_volume_shape = new G4SubtractionSolid("PFRICH", fiducial_folume_tube, 
+						       FlangeCut(_FIDUCIAL_VOLUME_LENGTH_ + 1*mm, _FLANGE_CLEARANCE_), 
+						       0, G4ThreeVector(0.0, 0.0, 0.0));
+  m_fiducial_volume_log = new G4LogicalVolume(fiducial_volume_shape, m_Air,  "PFRICH", 0, 0, 0);
+  // All volumes are defined assuming EIC h-going endcap orientation (dRICH case was developed this way 
+  // for ATHENA); therefore need to rotate by 180 degrees around Y axis;
   G4RotationMatrix *rY = new G4RotationMatrix(CLHEP::HepRotationY(flip ? 180*degree : 0));
-  new G4PVPlacement(rY, G4ThreeVector(0.0, 0.0, sign*_VESSEL_OFFSET_), vessel_log, 
-		    "Vessel", expHall_phys->GetLogicalVolume(), false, 0);
+  auto *fiducial_volume_phys = new G4PVPlacement(rY, G4ThreeVector(0.0, 0.0, sign*_FIDUCIAL_VOLUME_OFFSET_), m_fiducial_volume_log, 
+						 "PFRICH", expHall_phys->GetLogicalVolume(), false, 0);
 
   // Gas container volume;
-  double gas_volume_length = _VESSEL_LENGTH_ - _VESSEL_FRONT_SIDE_THICKNESS_ - _VESSEL_REAR_SIDE_THICKNESS_;
-  double gas_volume_offset = -(_VESSEL_REAR_SIDE_THICKNESS_ - _VESSEL_FRONT_SIDE_THICKNESS_)/2;
-  double gas_volume_radius = _VESSEL_OUTER_RADIUS_ - _VESSEL_OUTER_WALL_THICKNESS_;
-  auto *gas_tube = new G4Tubs("GasVolume", 0.0, gas_volume_radius, gas_volume_length/2, 0*degree, 360*degree);
+  m_gas_volume_length = _FIDUCIAL_VOLUME_LENGTH_ - _VESSEL_FRONT_SIDE_THICKNESS_ - _SENSOR_AREA_LENGTH_;
+  double _gas_volume_offset = -(_SENSOR_AREA_LENGTH_ - _VESSEL_FRONT_SIDE_THICKNESS_)/2;
+  m_gas_volume_radius = _VESSEL_OUTER_RADIUS_ - _VESSEL_OUTER_WALL_THICKNESS_;
+  auto *gas_tube = new G4Tubs("GasVolume", 0.0, m_gas_volume_radius, m_gas_volume_length/2, 0*degree, 360*degree);
   auto *gas_shape = new G4SubtractionSolid("GasVolume", gas_tube, 
 					   // Yes, account for vessel inner wall thickness;
-					   FlangeCut(_FLANGE_CLEARANCE_ + _VESSEL_INNER_WALL_THICKNESS_), 
+					   FlangeCut(m_gas_volume_length + 1*mm, _FLANGE_CLEARANCE_),
 					   0, G4ThreeVector(0.0, 0.0, 0.0));
-  auto *gas_log = new G4LogicalVolume(gas_shape, m_Nitrogen,  "GasVolume", 0, 0, 0);
-  auto *gas_phys = new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gas_volume_offset), 
-				     gas_log, "GasVolume", vessel_log, false, 0);
+  m_gas_volume_log = new G4LogicalVolume(gas_shape, m_Nitrogen,  "GasVolume", 0, 0, 0);
+  auto *gas_phys = new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, _gas_volume_offset), 
+				     m_gas_volume_log, "GasVolume", m_fiducial_volume_log, false, 0);
+
+  BuildVesselWalls();
 
   {
     // FIXME: Z-location does not really matter here, right?;
     auto boundary = new FlatSurface(TVector3(0,0,0), sign*TVector3(1,0,0), TVector3(0,-1,0));
 #ifdef _DISABLE_GAS_VOLUME_PHOTONS_
-    auto radiator = m_Geometry->SetContainerVolume(det, "GasVolume", 0, gas_log, m_Nitrogen, boundary);
+    auto radiator = m_Geometry->SetContainerVolume(det, "GasVolume", 0, m_gas_volume_log, m_Nitrogen, boundary);
     radiator->DisableOpticalPhotonGeneration();
 #else
-    m_Geometry->SetContainerVolume(det, "GasVolume", 0, gas_log, m_Nitrogen, boundary);
+    m_Geometry->SetContainerVolume(det, "GasVolume", 0, m_gas_volume_log, m_Nitrogen, boundary);
 #endif
   }
 
-  auto flange = FlangeCut(_FLANGE_CLEARANCE_ + _VESSEL_INNER_WALL_THICKNESS_ + _BUILDING_BLOCK_CLEARANCE_);
+  // To be used in boolean operations in several places;
+  auto _flange = FlangeCut(m_gas_volume_length + 1*mm, _FLANGE_CLEARANCE_ + _VESSEL_INNER_WALL_THICKNESS_ + 
+			   _BUILDING_BLOCK_CLEARANCE_);
   {
     // A running variable;
-    double zOffset = -gas_volume_length/2 + _BUILDING_BLOCK_CLEARANCE_;// + 1.0;
+    double gzOffset = -m_gas_volume_length/2 + _BUILDING_BLOCK_CLEARANCE_;
 
     // min/max radii available for aerogel, mirrors and such; r0min can be an estimate, since a flange
     // cut will be applied at the end to all these shapes anyway;
     double r0min = _FLANGE_EPIPE_DIAMETER_/2 + _FLANGE_CLEARANCE_ + 
       _VESSEL_INNER_WALL_THICKNESS_ + _BUILDING_BLOCK_CLEARANCE_;
-    double r0max = gas_volume_radius - _BUILDING_BLOCK_CLEARANCE_;
+    double r0max = m_gas_volume_radius - _BUILDING_BLOCK_CLEARANCE_;
 
     // Aerogel;
     {
@@ -204,7 +312,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 #endif
 	
 	{
-	  zOffset += agthick/2;
+	  gzOffset += agthick/2;
 	  
 	  // First aerogel sectors and azimuthal spacers;
 	  CherenkovRadiator *radiator = 0;
@@ -240,19 +348,19 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 		counter++;
 	      } else {
 		ag_name.Form("%s-%d-%02d", aerogel->GetName().c_str(), ir, ia);
-		auto ag_shape = new G4SubtractionSolid(ag_name.Data(), ag_tube, flange, 
+		auto ag_shape = new G4SubtractionSolid(ag_name.Data(), ag_tube, _flange, 
 						       rZinv, G4ThreeVector(0.0, 0.0, 0.0));
 		ag_log = new G4LogicalVolume(ag_shape, aerogel, ag_name.Data(),   0, 0, 0);
 
 		sp_name.Form("A-Spacer--%d-%02d",                      ir, ia);
-		auto sp_shape = new G4SubtractionSolid(sp_name.Data(), sp_tube, flange, 
+		auto sp_shape = new G4SubtractionSolid(sp_name.Data(), sp_tube, _flange, 
 						       rZinv, G4ThreeVector(0.0, 0.0, 0.0));
 		sp_log = new G4LogicalVolume(sp_shape, _AEROGEL_SPACER_MATERIAL_, sp_name.Data(),   0, 0, 0);
 	      } //if
 	      if (!ir && !ia) {
 		TVector3 nx(1*sign,0,0), ny(0,-1,0);
 		
-		auto surface = new FlatSurface(sign*(1/mm)*TVector3(0,0,_VESSEL_OFFSET_ + gas_volume_offset + zOffset), nx, ny);
+		auto surface = new FlatSurface(sign*(1/mm)*TVector3(0,0,_FIDUCIAL_VOLUME_OFFSET_ + _gas_volume_offset + gzOffset), nx, ny);
 		radiator = m_Geometry->AddFlatRadiator(det, aerogel->GetName(), CherenkovDetector::Upstream, 
 						       0, ag_log, aerogel, surface, agthick/mm);
 	      }
@@ -260,8 +368,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 		// This of course assumes that optical surfaces are the same (no relative tilts between bands, etc);
 		m_Geometry->AddRadiatorLogicalVolume(radiator, ag_log);
 
-	      new G4PVPlacement(rZ, G4ThreeVector(0.0, 0.0, zOffset), ag_log, ag_name.Data(), gas_log, false, counter);
-	      new G4PVPlacement(rZ, G4ThreeVector(0.0, 0.0, zOffset), sp_log, sp_name.Data(), gas_log, false, counter);
+	      new G4PVPlacement(rZ, G4ThreeVector(0.0, 0.0, gzOffset), ag_log, ag_name.Data(), m_gas_volume_log, false, counter);
+	      new G4PVPlacement(rZ, G4ThreeVector(0.0, 0.0, gzOffset), sp_log, sp_name.Data(), m_gas_volume_log, false, counter);
 	    } //for ia
 	  } //for ir
 
@@ -284,18 +392,18 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 		sp_log = new G4LogicalVolume(sp_tube, _AEROGEL_SPACER_MATERIAL_, sp_name.Data(), 0, 0, 0);
 	      else {
 		sp_name.Form("R-Spacer--%d-00", ir);
-		auto sp_shape = new G4SubtractionSolid(sp_name.Data(), sp_tube, flange, 0, G4ThreeVector(0.0, 0.0, 0.0));
+		auto sp_shape = new G4SubtractionSolid(sp_name.Data(), sp_tube, _flange, 0, G4ThreeVector(0.0, 0.0, 0.0));
 		sp_log = new G4LogicalVolume(sp_shape, _AEROGEL_SPACER_MATERIAL_, sp_name.Data(),   0, 0, 0);
 	      } //if
 	      
-	      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, zOffset), sp_log, sp_name.Data(), gas_log, false, 0);
+	      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gzOffset), sp_log, sp_name.Data(), m_gas_volume_log, false, 0);
 
 	      accu += thickness + rheight;
 	    } //for ir
 	  }	    
 
 	  // FIXME: not really needed that big between the two layers?;
-	  zOffset += agthick/2 + _BUILDING_BLOCK_CLEARANCE_;
+	  gzOffset += agthick/2 + _BUILDING_BLOCK_CLEARANCE_;
 	}
       } //for il
     }
@@ -304,15 +412,15 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 #ifdef _ACRYLIC_THICKNESS_
     {
       double acthick = _ACRYLIC_THICKNESS_;
-      zOffset += acthick/2;
+      gzOffset += acthick/2;
 
       G4Tubs *ac_tube  = new G4Tubs("Tmp", r0min, r0max, acthick/2, 0*degree, 360*degree);
-      auto ac_shape = new G4SubtractionSolid("Acrylic", ac_tube, flange, 0, G4ThreeVector(0.0, 0.0, 0.0));
+      auto ac_shape = new G4SubtractionSolid("Acrylic", ac_tube, _flange, 0, G4ThreeVector(0.0, 0.0, 0.0));
       G4LogicalVolume* ac_log = new G4LogicalVolume(ac_shape, m_Acrylic,  "Acrylic", 0, 0, 0);
       {
 	TVector3 nx(1*sign,0,0), ny(0,-1,0);
 	
-	auto surface = new FlatSurface(sign*(1/mm)*TVector3(0,0,_VESSEL_OFFSET_ + gas_volume_offset + zOffset), nx, ny);
+	auto surface = new FlatSurface(sign*(1/mm)*TVector3(0,0,_FIDUCIAL_VOLUME_OFFSET_ + _gas_volume_offset + gzOffset), nx, ny);
 	auto radiator = m_Geometry->AddFlatRadiator(det, "Acrylic", CherenkovDetector::Upstream, 
 						    0, ac_log, m_Acrylic, surface, acthick/mm);
 #ifdef _DISABLE_ACRYLIC_PHOTONS_
@@ -320,9 +428,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 #endif
       }
       
-      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, zOffset), ac_log, "Acrylic", gas_log, false, 0);
+      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gzOffset), ac_log, "Acrylic", m_gas_volume_log, false, 0);
 
-      zOffset += acthick/2 + _BUILDING_BLOCK_CLEARANCE_;
+      gzOffset += acthick/2 + _BUILDING_BLOCK_CLEARANCE_;
     }
 #endif
 
@@ -332,39 +440,45 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 
     {
       const char *names[2] = {"InnerMirror", "OuterMirror"};
-      double mlen = gas_volume_length/2 - zOffset - _SENSOR_AREA_LENGTH_ - _BUILDING_BLOCK_CLEARANCE_;
+      double mlen = m_gas_volume_length/2 - gzOffset /*- _SENSOR_AREA_LENGTH_*/ - _BUILDING_BLOCK_CLEARANCE_;
 #ifdef _USE_PYRAMIDS_
       mlen -= _BUILDING_BLOCK_CLEARANCE_ + _PYRAMID_MIRROR_HEIGHT_;
 #else
       mlen -= _BUILDING_BLOCK_CLEARANCE_ + _HRPPD_SUPPORT_GRID_BAR_HEIGHT_;
 #endif
-      double mpos = zOffset + mlen/2;
+      double mpos = gzOffset + mlen/2;
       double r0[2] = {r0min, r0max}, r1[2] = {_CONICAL_MIRROR_INNER_RADIUS_, _CONICAL_MIRROR_OUTER_RADIUS_};
 
       for(unsigned im=0; im<2; im++) {
+	auto material = im ? m_HalfInch_CF_HoneyComb : m_QuarterInch_CF_HoneyComb;
 	double thickness = im ? _OUTER_MIRROR_THICKNESS_ : _INNER_MIRROR_THICKNESS_;
 	//auto mgroup = new CherenkovMirrorGroup();
 	
 	{
-	  auto mshape = im ? new G4Cons(names[im], r0[im] - thickness, r0[im], r1[im] - thickness, r1[im], mlen/2, 0*degree, 360*degree) :
-	    new G4Cons(names[im], r0[im], r0[im] + thickness, r1[im], r1[im] + thickness, mlen/2, 0*degree, 360*degree);
+	  //auto mshape = im ? new G4Cons(names[im], r0[im] - thickness, r0[im], r1[im] - thickness, r1[im], mlen/2, 0*degree, 360*degree) :
+	  auto mshape = im ? new G4Cons(names[im], r0[im], r0[im] + thickness, r1[im], r1[im] + thickness, mlen/2, 0*degree, 360*degree) :
+	    new G4Cons(names[im], r0[im] - thickness, r0[im], r1[im] - thickness, r1[im], mlen/2, 0*degree, 360*degree);
 	  
 	  // There should be a cutaway on the inner mirror because of the beam pipe flange;
 	  G4LogicalVolume *solid_log = 0;
-	  if (!im) {
-	    auto solid = new G4SubtractionSolid(names[im], mshape, flange, 0, G4ThreeVector(0.0, 0.0, 0.0));
-	    solid_log = new G4LogicalVolume(solid, _MIRROR_MATERIAL_, names[im], 0, 0, 0);
-
-	    // FIXME: duplicate code;
-	    G4VisAttributes* visAtt = new G4VisAttributes(G4Colour(0, 0, 1, 0.5));
-	    visAtt->SetVisibility(true);
-	    visAtt->SetForceSolid(true);
-	    
-	    solid_log->SetVisAttributes(visAtt);
+	  if (im) {
+	    auto solid = new G4IntersectionSolid(names[im], mshape, gas_tube, 0, G4ThreeVector(0.0, 0.0, 0.0));
+	    solid_log = new G4LogicalVolume(solid, material, names[im], 0, 0, 0);
+	  } else {
+	    auto solid = new G4SubtractionSolid(names[im], mshape, _flange,  0, G4ThreeVector(0.0, 0.0, 0.0));
+	    solid_log = new G4LogicalVolume(solid, material, names[im], 0, 0, 0);
 	  } //if
+	  
+	  // FIXME: duplicate code;
+	  G4VisAttributes* visAtt = new G4VisAttributes(G4Colour(0, 0, 1, 0.5));
+	  visAtt->SetVisibility(true);
+	  visAtt->SetForceSolid(true);
+	  
+	  solid_log->SetVisAttributes(visAtt);
+	  //} //if
 
 	  // NB: geometry will be saved in [mm] throughout the code;
-	  auto mirror = new ConicalMirror(mshape, _MIRROR_MATERIAL_, sign*(1/mm)*TVector3(0.0, 0.0, _VESSEL_OFFSET_ + gas_volume_offset + mpos),
+	  auto mirror = new ConicalMirror(mshape, material, sign*(1/mm)*TVector3(0.0, 0.0, _FIDUCIAL_VOLUME_OFFSET_ + _gas_volume_offset + mpos),
 					  sign*TVector3(0,0,1), r0[im]/mm, r1[im]/mm, mlen/mm);
 	  
 	  mirror->SetColor(G4Colour(0, 0, 1, 0.5));
@@ -372,7 +486,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	  
 	  // Mimic mirror->PlaceWedgeCopies() call; FIXME: can be vastly simplified for this simple case;
 	  mirror->DefineLogicalVolume();
-	  G4VPhysicalVolume *phys = new G4PVPlacement(/*rZ*/0, G4ThreeVector(0,0,mpos), solid_log ? solid_log : mirror->GetLogicalVolume(), 
+	  G4VPhysicalVolume *phys = new G4PVPlacement(/*rZ*/0, G4ThreeVector(0,0,mpos), solid_log,// ? solid_log : mirror->GetLogicalVolume(), 
 						      mirror->GetSolid()->GetName(), 
 						      gas_phys->GetLogicalVolume(), false, 0);//m_Copies.size());
 	  mirror->AddCopy(mirror->CreateCopy(phys));
@@ -394,7 +508,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	    m_Geometry->AddMirrorLookupEntry(mirror->GetLogicalVolume(), mirror);
 	    
 	    auto surface = dynamic_cast<SurfaceCopy*>(mirror->GetCopy(0))->m_Surface;
-	    mboundaries[im] = new OpticalBoundary(m_Geometry->FindRadiator(gas_log), surface, false);
+	    mboundaries[im] = new OpticalBoundary(m_Geometry->FindRadiator(m_gas_volume_log), surface, false);
 	    
 	    // Complete the radiator volume description; this is the rear side of the container gas volume;
 	    //+? det->GetRadiator("GasVolume")->m_Borders[0].second = surface;
@@ -405,8 +519,14 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 
     // Photon detectors; 
     {
-      zOffset = gas_volume_length/2 - _SENSOR_AREA_LENGTH_;
-      double xysize = _HRPPD_TILE_SIZE_, wndthick = _HRPPD_WINDOW_THICKNESS_, zwnd = zOffset + wndthick/2;
+      //zOffset = gas_volume_length/2 - _SENSOR_AREA_LENGTH_;
+      double azOffset = _FIDUCIAL_VOLUME_LENGTH_/2 - _SENSOR_AREA_LENGTH_;
+      double xysize = _HRPPD_TILE_SIZE_, wndthick = _HRPPD_WINDOW_THICKNESS_, zwnd = azOffset + wndthick/2;
+
+      // HRPPD assembly container volume;
+      double hrppd_container_volume_thickness = 30*mm, zcont = azOffset + hrppd_container_volume_thickness/2;
+      G4Box *hrppd_box  = new G4Box("HRPPD", xysize/2, xysize/2, hrppd_container_volume_thickness/2);
+      G4LogicalVolume* hrppd_log = new G4LogicalVolume(hrppd_box, m_Nitrogen,  "HRPPD", 0, 0, 0);
 
       // Full size quartz window;
       G4Box *wnd_box  = new G4Box("QuartzWindow", xysize/2, xysize/2, wndthick/2);
@@ -415,7 +535,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	TVector3 nx(1*sign,0,0), ny(0,-1,0);
 	
 	// A single entry; this assumes of course that all the windows are at the same Z, and parallel to each other;
-	auto surface = new FlatSurface(sign*(1/mm)*TVector3(0,0,_VESSEL_OFFSET_ + gas_volume_offset + zwnd), nx, ny);
+	auto surface = new FlatSurface(sign*(1/mm)*TVector3(0,0,_FIDUCIAL_VOLUME_OFFSET_ /*+ gas_volume_offset*/ + zwnd), nx, ny);
 #ifdef _DISABLE_HRPPD_WINDOW_PHOTONS_
 	auto radiator = m_Geometry->AddFlatRadiator(det, "QuartzWindow", CherenkovDetector::Downstream, 
 						    0, wnd_log, m_FusedSilica, surface, wndthick/mm);
@@ -428,7 +548,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 
       double pitch = xysize + _HRPPD_INSTALLATION_GAP_, xyactive = _HRPPD_ACTIVE_AREA_SIZE_;
       double xyopen = _HRPPD_OPEN_AREA_SIZE_;
-      double certhick = _HRPPD_CERAMIC_BODY_THICKNESS_, zcer = zOffset + wndthick + certhick/2;
+      double certhick = _HRPPD_CERAMIC_BODY_THICKNESS_, zcer = azOffset + wndthick + certhick/2;
 
       // HRPPD body imitation; ignore MCPs (small fraction compared to the ceramic body);
       G4Box *cer_box  = new G4Box("CeramicBox", xysize/2, xysize/2, certhick/2);
@@ -446,14 +566,62 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
       }
       G4Box *plating  = new G4Box("Plating", xyopen/2, xyopen/2, _HRPPD_PLATING_LAYER_THICKNESS_/2);
       G4LogicalVolume* plating_log = new G4LogicalVolume(plating, m_Silver,  "Plating", 0, 0, 0);
-      
-      double pdthick = 0.01*mm, zpdc = zOffset + wndthick + pdthick/2;
+
+      //{
+	double accu = -hrppd_container_volume_thickness/2;
+
+	// Window layer;
+	auto wnd_phys = new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, accu + wndthick/2), wnd_log, 
+					  "QuartzWindow", hrppd_log, false, 0);
+	accu += wndthick;
+
+	// Ceramic pictureframe body behind it;
+	auto cer_phys = new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, accu + certhick/2), cer_log,
+					  "CeramicBody", hrppd_log, false, 0);
+	// Place plating layer in the middle;
+	new G4PVPlacement(                0, G4ThreeVector(0.0, 0.0, accu + certhick/2), plating_log, 
+					  "Plating",     hrppd_log, false, 0);
+	//accu += certhick;
+
+	// Rough reflective optical border between them;
+	G4OpticalSurface* opWindowMetallization = 
+	  CreateLambertianMirrorSurface("WindowMetallization", _HRPPD_METALLIZATION_REFLECTIVITY_, _HRPPD_METALLIZATION_ROUGHNESS_);
+	new G4LogicalBorderSurface("WindowMetallization", wnd_phys, cer_phys, opWindowMetallization);
+	//}
+      double pdthick = 0.01*mm, zpdc = azOffset + wndthick + pdthick/2;
       G4Box *pd_box  = new G4Box("PhotoDetector", xyactive/2, xyactive/2, pdthick/2);
       auto pd = new CherenkovPhotonDetector(pd_box, m_Bialkali);
+      pd->SetCopyIdentifierLevel(1);
       pd->DefineLogicalVolume();
       pd->SetColor(G4Colour(1, 0, 0, 1.0));
       // Cannot access GEANT shapes in the reconstruction code -> store this value;
       pd->SetActiveAreaSize(xyactive);
+      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, accu + pdthick/2), pd->GetLogicalVolume(), "PhotoDetector", 
+			hrppd_log, false, 0);
+      //accu += pdthick;
+
+#if 0
+      const unsigned ddim = 3;
+      G4LogicalVolume *dlogs[ddim];
+      const char *dnames[ddim] = {"PCB", "Copper", "Water"};
+      G4Material *dmats[ddim]  = {m_FR4, m_Copper, m_Water};
+      double area = xysize*xysize, dthicks[ddim] = {_READOUT_PCB_THICKNESS_, 
+						    _EFFECTIVE_WATER_VOLUME_/area, 
+						    _EFFECTIVE_COPPER_VOLUME_/area}; 
+      // FIXME: duplicate code;
+      {
+	G4VisAttributes* visAtt = new G4VisAttributes(G4Colour(0, 1, 0, 0.5));
+	visAtt->SetVisibility(true);
+	visAtt->SetForceSolid(true);
+      
+	for(unsigned iq=0; iq<ddim; iq++) {
+	  auto box = new G4Box(dnames[iq], xysize/2, xysize/2, dthicks[iq]/2);
+	  dlogs[iq] = new G4LogicalVolume(box, dmats[iq], dnames[iq], 0, 0, 0);
+	  
+	  dlogs[iq]->SetVisAttributes(visAtt);
+	} //for iq      
+      }
+#endif
 
       // 'pitch': yes, want them installed without gaps;
 #ifdef _USE_PYRAMIDS_
@@ -472,21 +640,17 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
       m_Geometry->AddMirrorLookupEntry(pyramid->GetLogicalVolume(), pyramid);
 #else
 #if 0
-      // Have to make two separate plates, otherwise boolean operations get choked;
-      auto *alu_tube1 = new G4Tubs("AluFrame1", 0.0, gas_volume_radius, (_INCH_/2-3.0*mm)/2, 0*degree, 360*degree);
-      //auto *alu_tube2 = new G4Tubs("AluFrame2", 0.0, gas_volume_radius, (       3.0*mm)/2, 0*degree, 360*degree);
-      auto *alu_shape1 = new G4SubtractionSolid("AluFrame1", alu_tube1, 
-	// Yes, account for vessel inner wall thickness;
-	FlangeCut(_FLANGE_CLEARANCE_ + _VESSEL_INNER_WALL_THICKNESS_), 
-	0, G4ThreeVector(0.0, 0.0, 0.0));
-      //auto *alu_shape2 = new G4SubtractionSolid("AluFrame2", alu_tube2, 
-	// Yes, account for vessel inner wall thickness;
-	//FlangeCut(_FLANGE_CLEARANCE_ + _VESSEL_INNER_WALL_THICKNESS_), 
-	//0, G4ThreeVector(0.0, 0.0, 0.0));
-      double alu_cut_size1 = xysize + 0.5*mm;//, alu_cut_size2 = pitch - _HRPPD_SUPPORT_GRID_BAR_WIDTH_;
-      auto *alu_cut1 = new G4Box("AluWndCut1", alu_cut_size1/2, alu_cut_size1/2, (_INCH_/2-3.0*mm)/2 + 1.1*mm);
-      //auto *alu_cut2 = new G4Box("AluWndCut2", alu_cut_size2/2, alu_cut_size2/2,  _INCH_        /2 + 0.1*mm);
+      double alu_thickness = _INCH_/2 - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_;//3.0*mm;
+      auto *alu_tube = new G4Tubs("AluFrame", 0.0, _VESSEL_OUTER_RADIUS_, alu_thickness/2, 0*degree, 360*degree);
+      auto *alu_shape = new G4SubtractionSolid("AluFrame", alu_tube, 
+					       FlangeCut(alu_thickness + 1*mm, _FLANGE_CLEARANCE_), 0, G4ThreeVector(0.0, 0.0, 0.0));
+      double alu_cut_size = xysize + 0.5*mm;
+      auto *alu_cut = new G4Box("AluWndCut", alu_cut_size/2, alu_cut_size/2, alu_thickness/2 + 1*mm);
+      // Cut the central area by hand;
+      alu_shape = new G4SubtractionSolid("AluFrame", alu_shape, alu_cut, 0, G4ThreeVector(                       0.0, 0.0, 0.0));
+      alu_shape = new G4SubtractionSolid("AluFrame", alu_shape, alu_cut, 0, G4ThreeVector(_HRPPD_CENTRAL_ROW_OFFSET_, 0.0, 0.0));
 #endif
+#if 1
       G4Box *grid_box = new G4Box("Dummy", pitch/2, pitch/2, _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2);
       double value = pitch - _HRPPD_SUPPORT_GRID_BAR_WIDTH_;
       G4Box *grid_cut = new G4Box("Dummy", value/2, value/2, _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2 + 0.01*mm);
@@ -500,6 +664,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	
 	grid_log->SetVisAttributes(visAtt);
       }
+#endif
 #endif
 
       {
@@ -557,7 +722,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	} 
 	for(unsigned iy=1; iy<ydim; iy++) {
 	  for(unsigned bt=0; bt<2; bt++) {
-	    double sign = bt ? -1.0 : 1.0, yOffset = sign*pitch*iy;
+	    double qsign = bt ? -1.0 : 1.0, yOffset = qsign*pitch*iy;
 	    
 	    unsigned xdim = qpop[iy];
 	    for(unsigned ix=0; ix<xdim; ix++) {
@@ -573,44 +738,63 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 
 	  for(auto xy: coord) {
 	    {
+#if 1
+	      new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zcont), hrppd_log, "HRPPD", m_fiducial_volume_log, false, counter);
+#else
 	      // Window layer;
-	      auto wnd_phys = new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zwnd), wnd_log,     "QuartzWindow", gas_log, false, counter);
+	      auto wnd_phys = new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zwnd), wnd_log,     "QuartzWindow", m_fiducial_volume_log, false, counter);
 	      // Ceramic pictureframe body behind it;
-	      auto cer_phys = new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zcer), cer_log,     "CeramicBody",  gas_log, false, counter);
+	      auto cer_phys = new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zcer), cer_log,     "CeramicBody",  m_fiducial_volume_log, false, counter);
 	      // Place plating layer in the middle;
-	      new G4PVPlacement(                0, G4ThreeVector(xy.X(), xy.Y(), zcer), plating_log, "Plating",      gas_log, false, counter);
+	      new G4PVPlacement(                0, G4ThreeVector(xy.X(), xy.Y(), zcer), plating_log, "Plating",      m_fiducial_volume_log, false, counter);
+#endif
 
 	      // Rough reflective optical border between them;
-	      G4OpticalSurface* opWindowMetallization = 
-		CreateLambertianMirrorSurface("WindowMetallization", _HRPPD_METALLIZATION_REFLECTIVITY_, _HRPPD_METALLIZATION_ROUGHNESS_);
-	      new G4LogicalBorderSurface("WindowMetallization", wnd_phys, cer_phys, opWindowMetallization);
+	      //+G4OpticalSurface* opWindowMetallization = 
+	      //+CreateLambertianMirrorSurface("WindowMetallization", _HRPPD_METALLIZATION_REFLECTIVITY_, _HRPPD_METALLIZATION_ROUGHNESS_);
+	      //+new G4LogicalBorderSurface("WindowMetallization", wnd_phys, cer_phys, opWindowMetallization);
+
+	      // Dead material layers;
+#if 0
+	      {
+		double accu = zcer + 10*mm;
+
+		for(unsigned iq=0; iq<ddim; iq++) {
+		  new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), accu + dthicks[iq]/2), dlogs[iq], dnames[iq], m_fiducial_volume_log, false, counter);
+		  accu += dthicks[iq];
+		} //for iq
+	      }
+#endif
 	    }
 
 	    // Cut in the aluminum plate;
 	    {
 	      //static unsigned counter;
-
-	      //if (counter++ < 20) {
-	      //alu_shape1 = new G4SubtractionSolid("AluFrame1", alu_shape1, alu_cut1, 0, G4ThreeVector(xy.X(), xy.Y(), 0.0)); 
-	      //alu_shape2 = new G4SubtractionSolid("AluFrame2", alu_shape2, alu_cut2, 0, G4ThreeVector(xy.X(), xy.Y(), 0.0));//3.0*mm));
-	      //}
+	      //if (counter++ < 100 && fabs(sqrt(xy.X()*xy.X()+xy.Y()*xy.Y())) < 150.0)
+	      //+alu_shape = new G4SubtractionSolid("AluFrame", alu_shape, alu_cut, 0, G4ThreeVector(xy.X(), xy.Y(), 0.0)); 
 	    }
 
-	    new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zpdc), pd->GetLogicalVolume(), "PhotoDetector", gas_log, false, counter);
-	    auto surface = new FlatSurface(sign*(1/mm)*TVector3(xy.X(), xy.Y(),_VESSEL_OFFSET_ + gas_volume_offset + zpdc), 
+	    //new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zpdc), pd->GetLogicalVolume(), "PhotoDetector", m_fiducial_volume_log, false, counter);
+	    auto surface = new FlatSurface((1/mm)*TVector3(sign*xy.X(), xy.Y(),sign*(_FIDUCIAL_VOLUME_OFFSET_ /*+ gas_volume_offset*/ + zpdc)), 
 					   TVector3(1*sign,0,0), TVector3(0,-1,0));
+	    //auto surface = new FlatSurface((1/mm)*TVector3(sign*xy.X(), xy.Y(),sign*_FIDUCIAL_VOLUME_OFFSET_ /*+ gas_volume_offset*/ + zpdc), 
+	    //				   TVector3(1*sign,0,0), TVector3(0,-1,0));
 	    
 #ifdef _USE_PYRAMIDS_
 	    {
+	      // FIXME: need to take care about overlap with the inner wall;
+	      assert(0);
 	      auto pyra_phys = 
 		new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zOffset - _PYRAMID_MIRROR_HEIGHT_/2), 
-				  pyramid->GetLogicalVolume(), pyramid->GetSolid()->GetName(), gas_log, false, counter);
+				  pyramid->GetLogicalVolume(), pyramid->GetSolid()->GetName(), m_fiducial_volume_log, false, counter);
 
 	      new G4LogicalBorderSurface(pyramid->GetSolid()->GetName(), gas_phys, pyra_phys, pyramid->GetMirrorSurface());
 	    }
 #else
-	    new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zOffset - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2), 
-	    		      grid_log, "SupportGridBar", gas_log, false, counter);
+	    // Yes, they are part of the gas volume;
+	    //new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), azOffset - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2), 
+	    new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), m_gas_volume_length/2 - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2), 
+	    		      grid_log, "SupportGridBar", m_gas_volume_log, false, counter);
 	    
 #endif
 
@@ -627,7 +811,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 		  // Reflection off one of the four pyramid mirrors;
 		  {		  
 		    double vx = (pitch - xyactive)/2, vy = _PYRAMID_MIRROR_HEIGHT_, norm = sqrt(vx*vx+vy*vy);
-		    double z0 = _VESSEL_OFFSET_ + gas_volume_offset + zOffset - _PYRAMID_MIRROR_HEIGHT_/2;
+		    double z0 = _FIDUCIAL_VOLUME_OFFSET_ + gas_volume_offset + zOffset - _PYRAMID_MIRROR_HEIGHT_/2;
 		    
 		    TVector3 nx( vx/norm, 0, -vy/norm), ny(0,-1,0), nz(0,0,1), nv(0,1,0);
 		    nx.Rotate(iq*M_PI/2, nz); ny.Rotate(iq*M_PI/2, nz);
@@ -641,7 +825,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 		    } //if
 		    auto qsurface = new FlatSurface((1/mm)*center, nx, ny);
 		    
-		    auto boundary = new OpticalBoundary(m_Geometry->FindRadiator(gas_log), qsurface, false);
+		    auto boundary = new OpticalBoundary(m_Geometry->FindRadiator(m_gas_volume_log), qsurface, false);
 		    pboundaries[iq] = boundary;
 		    det->StoreOpticalBoundary(boundary);
 		  }
@@ -720,29 +904,37 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
       }
 
 #if 0
-      auto *alu_log1 = new G4LogicalVolume(alu_shape1, m_Aluminum,  "AluFrame1", 0, 0, 0);
-//auto *alu_log2 = new G4LogicalVolume(alu_shape2, m_Aluminum,  "AluFrame2", 0, 0, 0);
+      auto *alu_log = new G4LogicalVolume(alu_shape, m_Aluminum,  "AluFrame", 0, 0, 0);
       // FIXME: duplicate code;
       {
 	G4VisAttributes* visAtt = new G4VisAttributes(G4Colour(0, 1, 1, 0.5));
-	visAtt->SetVisibility(true);
+	// Otherwise visualization hangs on this shape;
+	visAtt->SetVisibility(false);//true);
 	visAtt->SetForceSolid(true);
 	
-	alu_log1->SetVisAttributes(visAtt);
-	//alu_log2->SetVisAttributes(visAtt);
+	alu_log->SetVisAttributes(visAtt);
       }
-      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gas_volume_length/2 - 20*mm), 
-	alu_log1, "AluFrame1", gas_log, false, 0);
+      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, _FIDUCIAL_VOLUME_LENGTH_/2 - _SENSOR_AREA_LENGTH_ + alu_thickness/2),// + 20*mm), 
+	alu_log, "AluFrame", m_fiducial_volume_log, false, 0);
 #endif
     }
     
     for(unsigned im=0; im<2; im++)
       // FIXME: they are not really upstream (just need to store them);
       det->AddOpticalBoundary(CherenkovDetector::Upstream, 0, mboundaries[im]);
+    //#endif
   }
 
   for(auto radiator: det->Radiators())
     radiator.second->SetReferenceRefractiveIndex(radiator.second->GetMaterial()->RefractiveIndex(eV*_MAGIC_CFF_/_LAMBDA_NOMINAL_));
+
+#ifdef _GENERATE_GDML_OUTPUT_
+  {
+    G4GDMLParser parser;
+    unlink("pfRICH.gdml");
+    parser.Write("pfRICH.gdml", fiducial_volume_phys);
+  }
+#endif
 
   return expHall_phys;
 } // DetectorConstruction::Construct()
