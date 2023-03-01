@@ -30,7 +30,7 @@ Materials::Materials( void ): CherenkovWaveLengthRange(_WLDIM_, _NU_MIN_, _NU_ST
   m_Acrylic = m_Nitrogen = m_FusedSilica = 0;
 
   m_FakeCarbon_1_g_cm3 = m_HalfInch_CF_HoneyComb = m_QuarterInch_CF_HoneyComb = 0;  
-  m_FR4 = m_Water = m_Copper = 0;
+  m_FR4 = m_Water = m_Copper = m_Silicon = 0;
 } // Materials::Materials()
 
 // -------------------------------------------------------------------------------------
@@ -64,6 +64,7 @@ void Materials::DefineMaterials( void )
     m_Silver   = manager->FindOrBuildMaterial("G4_Ag");    assert(m_Silver);
     m_Copper   = manager->FindOrBuildMaterial("G4_Cu");    assert(m_Copper);
     m_Water    = manager->FindOrBuildMaterial("G4_WATER"); assert(m_Water);
+    m_Silicon  = manager->FindOrBuildMaterial("G4_Si");    assert(m_Silicon);
   }  
 
   // Air;
@@ -304,7 +305,7 @@ void Materials::DefineMaterials( void )
 
   // Bialkali photocathode;
   {
-    // Well, th eonly part what matters here is the refractive index; density is fake;
+    // Well, the only part what matters here is the refractive index; density is fake;
     m_Bialkali = new G4Material("Bialkali", 1.0*g/cm3, 3);
 
     m_Bialkali->AddElement(m_Na, 2);

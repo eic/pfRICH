@@ -29,7 +29,7 @@ static const double sign = flip ? -1.0 : 1.0;
 
 // Call /geometry/test/run if uncommented;
 #define _GEOMETRY_CHECK_
-//#define _GENERATE_GDML_OUTPUT_
+#define _GENERATE_GDML_OUTPUT_
 // --------------------------------------------------------------------------------------------
 
 // -- Primary particle(s) ---------------------------------------------------------------------

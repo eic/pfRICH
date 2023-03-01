@@ -85,6 +85,12 @@
 // These are some random numbers to the moment; are only important for time-of-flight;
 #define _HRPPD_METALLIZATION_REFLECTIVITY_    (0.80)
 #define _HRPPD_METALLIZATION_ROUGHNESS_       (0.05)
+
+// Assume two plates, 600um thick, ~70% OAR;
+#define _EFFECTIVE_MCP_THICKNESS_     (2*0.6*mm*0.3)
+// FIXME: change to glass; should not really matter I guess;
+#define _EFFECTIVE_MCP_MATERIAL_  m_FusedSilica
+
 // --------------------------------------------------------------------------------------------
 
 // -- Wavelength range ------------------------------------------------------------------------
@@ -140,14 +146,21 @@
 // -- Materials behind the sensor plane -------------------------------------------------------
 
 #define _READOUT_PCB_THICKNESS_             (2.0*mm)
+// Want to decrease material budget around the walls;
+#define _READOUT_PCB_SIZE_     (_HRPPD_OPEN_AREA_SIZE_ - 2.0*mm)
+
+// This stuff is pretty vague, merely a placeholder;
+#define _ASIC_SIZE_XY_                        (16.0)
+#define _ASIC_THICKNESS_                       (1.0)
+#define _ASIC_MATERIAL_                    m_Silicon
 
 // The numbers below will be smeared over 120mm x 120mm area;
 //#define _EFFECTIVE_SURFACE_AREA_ (_HRPPD_TILE_SIZE_ * _HRPPD_TILE_SIZE_)
 
 // A very rough estimate: assume ~6mm diameter Cu pipe with ~0.5mm thick walls; 
-#define _EFFECTIVE_WATER_VOLUME_ (_HRPPD_TILE_SIZE_ * M_PI * 2.5*mm * 2.5*mm)
+//#define _EFFECTIVE_WATER_VOLUME_ (_HRPPD_TILE_SIZE_ * M_PI * 2.5*mm * 2.5*mm)
 // ~1mm thick ASIC & FPGA cold plates; a single pipe; ignore thermal bridges surface;
-#define _EFFECTIVE_COPPER_VOLUME_ (1.0*mm * (3*cm * 3*cm + 4 * 2*cm * 2*cm) + _HRPPD_TILE_SIZE_ * 0.5*mm * M_PI * 5.5*mm)
+//#define _EFFECTIVE_COPPER_VOLUME_ (1.0*mm * (3*cm * 3*cm + 4 * 2*cm * 2*cm) + _HRPPD_TILE_SIZE_ * 0.5*mm * M_PI * 5.5*mm)
 
 // --------------------------------------------------------------------------------------------
 

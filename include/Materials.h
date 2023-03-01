@@ -43,7 +43,7 @@ protected:
   // A honeycomb sandwich with epoxy glue (10mil+10mil+1/2"+10mil+10mil), or a 1/4"-based combination;
   G4Material *m_HalfInch_CF_HoneyComb, *m_QuarterInch_CF_HoneyComb;  
   // FR4 imitation with appropriate rad. length;
-  G4Material *m_FR4, *m_Water, *m_Copper;
+  G4Material *m_FR4, *m_Water, *m_Copper, *m_Silicon;
 
   //G4RadiatorMaterial *m_Aerogel[2], *m_Nitrogen, *m_Acrylic, *m_FusedSilica;
   G4RadiatorMaterial *m_Nitrogen, *m_Acrylic, *m_FusedSilica;
