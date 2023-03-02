@@ -42,6 +42,7 @@ include_directories(
   ${IRT}/include/IRT 
   ${BMF}/include 
   ${HEPMC3}/include 
+  ${XERCES}/include 
 
   ${PROJECT_SOURCE_DIR}/include 
   ${PROJECT_SOURCE_DIR}/g4irt/include 
@@ -89,11 +90,15 @@ if(DEFINED HEPMC3)
   SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHEPMC3")
   target_link_libraries(${PFRICH_EXE} ${LIBNAME} -L${HEPMC3}/lib -L${HEPMC3}/lib64 HepMC3)
 endif()
+if(DEFINED XERCES)
+  SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXERCES")
+  target_link_libraries(${PFRICH_EXE} ${LIBNAME} -L${XERCES}/lib -L${XERCES}/lib64 HepMC3)
+endif()
 
 #----------------------------------------------------------------------------
 
-add_executable( xmlreader ${XML_SRC})
-target_link_libraries( xmlreader xerces-c)
+#add_executable( xmlreader ${XML_SRC})
+#target_link_libraries( xmlreader xerces-c)
 
 #----------------------------------------------------------------------------
 

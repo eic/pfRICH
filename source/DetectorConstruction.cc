@@ -225,6 +225,12 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
   G4Tubs *expHall_box = new G4Tubs("PFRICH_World",  0*cm, 95*cm, 250*cm, 0*degree, 360*degree);
   auto expHall_log = new G4LogicalVolume(expHall_box, m_Air, "PFRICH_World", 0, 0, 0);
   G4VPhysicalVolume* expHall_phys = new G4PVPlacement(0, G4ThreeVector(), expHall_log, "PFRICH_World", 0, false, 0);
+  {
+    //G4VisAttributes* visAtt = new G4VisAttributes(G4Colour(1, 1, 1, 0.5));
+    //visAtt->SetVisibility(false);
+    //visAtt->SetDaughtersInvisible(false);
+    //expHall_log->SetVisAttributes(visAtt);
+  }
     
   auto *det = m_Geometry->GetDetector("pfRICH");
   //det->SetReadoutCellMask(~0x0);
@@ -475,7 +481,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	  //auto mshape = im ? new G4Cons(names[im], r0[im] - thickness, r0[im], r1[im] - thickness, r1[im], mlen/2, 0*degree, 360*degree) :
 	  auto mshape = im ? new G4Cons(names[im], r0[im], r0[im] + thickness, r1[im], r1[im] + thickness, mlen/2, 0*degree, 360*degree) :
 	    new G4Cons(names[im], r0[im] - thickness, r0[im], r1[im] - thickness, r1[im], mlen/2, 0*degree, 360*degree);
-	  
+	  //printf("%f %f %f %f\n", r0[im] - thickness, r0[im], r1[im] - thickness, r1[im]);
+
 	  // There should be a cutaway on the inner mirror because of the beam pipe flange;
 	  G4LogicalVolume *solid_log = 0;
 	  if (im) {
@@ -951,7 +958,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
   {
     G4GDMLParser parser;
     unlink("pfRICH.gdml");
-    parser.Write("pfRICH.gdml", expHall_phys);//fiducial_volume_phys);
+    parser.Write("pfRICH.gdml", expHall_phys);
     //exit(0);
   }
 #endif

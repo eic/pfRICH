@@ -15,7 +15,9 @@
 #include <string>
 #include <vector>
 
+#ifdef XERCES
 #include <XmlTree.h>
+#endif
 
 // Does not make sense to spoil tuning.h with this number;
 #define _ACRYLIC_DENSITY_                     (1.18*g/cm3)
@@ -165,6 +167,7 @@ void Materials::DefineMaterials( void )
     } //for il
   } 
 
+#ifdef XERCES
   // Belle II aerogel, two types;
   {
     unsigned id[2] = {_AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_, _AEROGEL_BELLE_II_LARGE_REFRACTIVE_INDEX_};
@@ -270,6 +273,7 @@ void Materials::DefineMaterials( void )
     } //for mat
     //printf("%s\n", mat->GetName());
   }
+#endif
 
 #ifdef _ACRYLIC_THICKNESS_
   {

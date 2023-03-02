@@ -5,6 +5,19 @@ Standalone ePIC pfRICH GEANT4 simulation codes
 installation under /tmp is assumed. Change the commands accordingly if installing 
 in a different directory. Make sure 'cmake' is 3.0 or higher.
 
+Xerces-c installation
+---------------------
+
+```
+cd /tmp 
+# Copy over xerces-c-3.2.4.tar.gz (or a similar version) from the Web, unpack;
+cd xerces-c-3.2.4 && mkdir build && cd build
+cmake -DCMAKE_INSTALL_PREFIX=. -Wno-dev ..
+make -j8 install
+
+export LD_LIBRARY_PATH=/tmp/xerces-c-3.2.4/build/lib:${LD_LIBRARY_PATH}
+```
+
 IRT installation
 ----------------
 
@@ -54,10 +67,12 @@ cd /tmp
 git clone https://github.com/alexander-kiselev/pfRICH.git
 cd pfRICH && mkdir build && cd build
 # 'BMF' and 'HepMC3' are optional;
-cmake -DCMAKE_INSTALL_PREFIX=. -DIRT=/tmp/irt/build -DBMF=/tmp/BeastMagneticField/build -DHepMC3=/tmp/HepMC3/build -Wno-dev ..
+cmake -DCMAKE_INSTALL_PREFIX=. -DIRT=/tmp/irt/build -DBMF=/tmp/BeastMagneticField/build -DHEPMC3=/tmp/HepMC3/build -DXERCES=/tmp//build -Wno-dev ..
 make -j8 install
 
 export LD_LIBRARY_PATH=/tmp/pfRICH/build/lib:${LD_LIBRARY_PATH}
+
+cd include && ln -s tuning.ak.h tuning.h && cd ..
 ```
 
 Examples 
@@ -65,16 +80,16 @@ Examples
 
 ```
 cd /tmp/pfRICH
-./build/pfrich
+./build/pfrich -s 1000
 ```
 
 ```
 cd /tmp/pfRICH
-./build/pfrich -m macro/pfrich.mac
+./build/pfrich -m macro/ak/vis.mac
 
 root -l 'scripts/pfrich.C("pfrich.root")'
 
-root -l 'scripts/e-eval.C("pfrich.root")'
+root -l 'scripts/multi-eval.C("pfrich.root")'
 
 ```
 Automation
