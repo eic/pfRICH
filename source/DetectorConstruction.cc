@@ -603,6 +603,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
       // Cannot access GEANT shapes in the reconstruction code -> store this value;
       pd->SetActiveAreaSize(xyactive);
 
+      G4Box *qd_box  = new G4Box("FakePhotoDetector", xyactive/2, xyactive/2, pdthick/2);
+      G4LogicalVolume* qd_log = new G4LogicalVolume(qd_box, m_Bialkali, "FakePhotoDetector", 0, 0, 0);
+
       {
 	double accu = -hrppd_container_volume_thickness/2;
 
@@ -630,8 +633,12 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	    CreateLambertianMirrorSurface("WindowMetallization", _HRPPD_METALLIZATION_REFLECTIVITY_, _HRPPD_METALLIZATION_ROUGHNESS_);
 	  new G4LogicalBorderSurface("WindowMetallization", wnd_phys, cer_phys, opWindowMetallization);
 	  
+	  // Fake photodector layer (photocathode);
+	  new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, accu + pdthick/2), qd_log, "FakePhotoDetector", 
+			    hrppd_log, false, 0);
+	  //accu += pdthick;
 	  // Photodector layer (photocathode);
-	  new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, accu + pdthick/2), pd->GetLogicalVolume(), "PhotoDetector", 
+	  new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, accu + pdthick + pdthick/2), pd->GetLogicalVolume(), "PhotoDetector", 
 			    hrppd_log, false, 0);
 
 	  accu += certhick + 1*mm;
@@ -662,29 +669,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	}
 #endif
       }
-
-#if 0
-      const unsigned ddim = 3;
-      G4LogicalVolume *dlogs[ddim];
-      const char *dnames[ddim] = {"PCB", "Copper", "Water"};
-      G4Material *dmats[ddim]  = {m_FR4, m_Copper, m_Water};
-      double area = xysize*xysize, dthicks[ddim] = {_READOUT_PCB_THICKNESS_, 
-						    _EFFECTIVE_WATER_VOLUME_/area, 
-						    _EFFECTIVE_COPPER_VOLUME_/area}; 
-      // FIXME: duplicate code;
-      {
-	G4VisAttributes* visAtt = new G4VisAttributes(G4Colour(0, 1, 0, 0.5));
-	visAtt->SetVisibility(true);
-	visAtt->SetForceSolid(true);
-      
-	for(unsigned iq=0; iq<ddim; iq++) {
-	  auto box = new G4Box(dnames[iq], xysize/2, xysize/2, dthicks[iq]/2);
-	  dlogs[iq] = new G4LogicalVolume(box, dmats[iq], dnames[iq], 0, 0, 0);
-	  
-	  dlogs[iq]->SetVisAttributes(visAtt);
-	} //for iq      
-      }
-#endif
 
       // 'pitch': yes, want them installed without gaps;
 #ifdef _USE_PYRAMIDS_
@@ -800,19 +784,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	    {
 #if 1//_MBUDGET_
 	      new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zcont), hrppd_log, "HRPPD", m_fiducial_volume_log, false, counter);
-#endif
-
-	      // Dead material layers;
-#if 0
-	      {
-		double accu = zcer + 10*mm;
-
-		for(unsigned iq=0; iq<ddim; iq++) {
-		  new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), accu + dthicks[iq]/2), dlogs[iq], dnames[iq], 
-				    m_fiducial_volume_log, false, counter);
-		  accu += dthicks[iq];
-		} //for iq
-	      }
 #endif
 	    }
 
