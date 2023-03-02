@@ -3,7 +3,7 @@
 #define _X0_          0.0
 #define _Y0_          0.0
 #define _SIZE_      250.0
-#define _XYDIM_       400
+#define _XYDIM_       500
 //#define _SIZE_     1300.0
 //#define _XYDIM_       500
 #define _BWIDTH_ (_SIZE_/_XYDIM_)
@@ -17,8 +17,10 @@ void xray(const char *fname)
   auto hrlen = new TH2D("hrlen", "pfRICH radiation length scan [%]",  
 			_XYDIM_, _X0_ - _SIZE_/2, _X0_ + _SIZE_/2, 
 			_XYDIM_, _Y0_ - _SIZE_/2, _Y0_ + _SIZE_/2);
-  hrlen->GetXaxis()->SetTitle("pfRICH front side X, [mm]");
-  hrlen->GetYaxis()->SetTitle("pfRICH front side Y, [mm]");
+  hrlen->GetXaxis()->SetTitle("pfRICH vessel front side X, [mm]");
+  hrlen->GetYaxis()->SetTitle("pfRICH vessel front side Y, [mm]");
+  hrlen->GetXaxis()->SetTitleOffset(1.20);
+  hrlen->GetYaxis()->SetTitleOffset(1.40);
 
   double z = -_DISTANCE_;
   for(unsigned i = 0; i < _XYDIM_; i++) {
@@ -61,7 +63,8 @@ void xray(const char *fname)
 
   gStyle->SetOptStat(0);
   auto cv = new TCanvas("cv", "", 800, 800);
-  hrlen->SetMinimum(0);
+  hrlen->SetMinimum( 0);
+  hrlen->SetMaximum(47);
   hrlen->Draw("COLZ");
 
   for(unsigned ir=0; ir<2; ir++) {

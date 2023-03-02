@@ -28,8 +28,8 @@ static const double sign = flip ? -1.0 : 1.0;
 //#define _DISABLE_ABSORPTION_
 
 // Call /geometry/test/run if uncommented;
-#define _GEOMETRY_CHECK_
-#define _GENERATE_GDML_OUTPUT_
+//#define _GEOMETRY_CHECK_
+//#define _GENERATE_GDML_OUTPUT_
 // --------------------------------------------------------------------------------------------
 
 // -- Primary particle(s) ---------------------------------------------------------------------
@@ -59,7 +59,7 @@ static const double sign = flip ? -1.0 : 1.0;
 //
 //#define _AEROGEL_1_ _AEROGEL_CLAS12_DENSITY_225_MG_CM3_
 #define _AEROGEL_1_ _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_
-#define _AEROGEL_THICKNESS_1_               (2.0*cm)
+#define _AEROGEL_THICKNESS_1_               (2.5*cm)
 //#define _AEROGEL_2_ _AEROGEL_CLAS12_DENSITY_155_MG_CM3_
 //#define _AEROGEL_THICKNESS_2_               (2.0*cm)
 
@@ -92,9 +92,6 @@ static const double sign = flip ? -1.0 : 1.0;
 
 // -- Mirrors ---------------------------------------------------------------------------------
 //
-// Some "standard" value applied to all mirrors;
-#define _MIRROR_REFLECTIVITY_                 (0.90)
-
 // If uncommented, optional funneling mirrors around the HRPPD sensors are installed;
 //#define _USE_PYRAMIDS_
 // Mirror height and width;
@@ -103,10 +100,6 @@ static const double sign = flip ? -1.0 : 1.0;
 
 // May still want to disable the funneling optics in IRT;
 //#define _USE_PYRAMIDS_OPTICS_
-
-// At the downstream (sensor plane) location; upstream radii are calculated automatically;
-#define _CONICAL_MIRROR_INNER_RADIUS_     (120.0*mm)
-#define _CONICAL_MIRROR_OUTER_RADIUS_     (540.0*mm)
 
 // May still want to disable the conical mirror optics in IRT;
 #define _USE_CONICAL_MIRROR_OPTICS_

@@ -29,15 +29,11 @@
 
 // 2*10mil CF + 1/4" HC + 2*10mil CF;
 #define _VESSEL_FRONT_SIDE_THICKNESS_       (0.29*_INCH_)
-// Something fake; for now assume there is essentially no rear wall;
-//#define _VESSEL_REAR_SIDE_THICKNESS_        (0.29*_INCH_)//0.01*mm)
 // 2*10mil CF + 1/4" HC + 2*10mil CF;
 #define _VESSEL_INNER_WALL_THICKNESS_       (0.29*_INCH_)
 // 2*10mil CF + 1/2" HC + 2*10mil CF;
 #define _VESSEL_OUTER_WALL_THICKNESS_       (0.54*_INCH_)
-// FIXME: describe each wall individually; at present choose 1/4" equivalent material
-// which is obviously more dense;
-//#define _VESSEL_MATERIAL_    (m_QuarterInch_CF_HoneyComb)
+//#define _HONEYCOMB_REINFORCEMENT_MATERIAL_ m_Aluminum//Delrin
 
 // Some moderately optimistic number for aerogel-to-aerogel, aerogel-to-acrylic, 
 // acrylic-to-mirror and such spacing;
@@ -63,6 +59,16 @@
 
 #define _HRPPD_SUPPORT_GRID_BAR_HEIGHT_     (3.0*mm)
 #define _HRPPD_SUPPORT_GRID_BAR_WIDTH_     (12.0*mm)
+// --------------------------------------------------------------------------------------------
+
+// -- Mirrors ---------------------------------------------------------------------------------
+//
+// Some "standard" value applied to all mirrors;
+#define _MIRROR_REFLECTIVITY_                 (0.90)
+
+// At the downstream (sensor plane) location; upstream radii are calculated automatically;
+#define _CONICAL_MIRROR_INNER_RADIUS_     (120.0*mm)
+#define _CONICAL_MIRROR_OUTER_RADIUS_     (570.0*mm)
 // --------------------------------------------------------------------------------------------
 
 // -- HRPPD geometry --------------------------------------------------------------------------
@@ -153,14 +159,6 @@
 #define _ASIC_SIZE_XY_                        (16.0)
 #define _ASIC_THICKNESS_                       (1.0)
 #define _ASIC_MATERIAL_                    m_Silicon
-
-// The numbers below will be smeared over 120mm x 120mm area;
-//#define _EFFECTIVE_SURFACE_AREA_ (_HRPPD_TILE_SIZE_ * _HRPPD_TILE_SIZE_)
-
-// A very rough estimate: assume ~6mm diameter Cu pipe with ~0.5mm thick walls; 
-//#define _EFFECTIVE_WATER_VOLUME_ (_HRPPD_TILE_SIZE_ * M_PI * 2.5*mm * 2.5*mm)
-// ~1mm thick ASIC & FPGA cold plates; a single pipe; ignore thermal bridges surface;
-//#define _EFFECTIVE_COPPER_VOLUME_ (1.0*mm * (3*cm * 3*cm + 4 * 2*cm * 2*cm) + _HRPPD_TILE_SIZE_ * 0.5*mm * M_PI * 5.5*mm)
 
 // --------------------------------------------------------------------------------------------
 

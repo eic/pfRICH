@@ -137,7 +137,7 @@ void DetectorConstruction::BuildVesselWalls( void )
     new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, -_HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2), wall_log, "InnerWall", 
 		      m_gas_volume_log, false, 0);
 
-    // Add a pair of aluminum reinforcement rings; full radial thickness (a bit more material);
+    // Add a pair of delrin reinforcement rings; full radial thickness (a bit more material);
     {
       double rlength = _INCH_/4;//2;
 
@@ -145,7 +145,7 @@ void DetectorConstruction::BuildVesselWalls( void )
       auto *ring_shape = new G4SubtractionSolid("InnerWallAluRing", qouter, 
 						FlangeCut(rlength + 1*mm, _FLANGE_CLEARANCE_),
 						0, G4ThreeVector(0.0, 0.0, 0.0));
-      auto *ring_log = new G4LogicalVolume(ring_shape, m_Aluminum,  "InnerWallAluRing", 0, 0, 0);
+      auto *ring_log = new G4LogicalVolume(ring_shape, m_Delrin,  "InnerWallAluRing", 0, 0, 0);
       for(unsigned iq=0; iq<2; iq++) {
 	double zOffset = (iq ? 1.0 : -1.0)*(wlength/2 - rlength/2);
 
@@ -164,7 +164,7 @@ void DetectorConstruction::BuildVesselWalls( void )
     new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, -_FIDUCIAL_VOLUME_LENGTH_/2 + _VESSEL_FRONT_SIDE_THICKNESS_/2), 
 		      wall_log, "FrontWall", m_fiducial_volume_log, false, 0);
 
-    // Add inner reinforcement ring;
+    // Add inner reinforcement ring (delrin);
     {
       double rlength = _VESSEL_FRONT_SIDE_THICKNESS_;
 
@@ -172,10 +172,10 @@ void DetectorConstruction::BuildVesselWalls( void )
       auto *ring_shape = new G4SubtractionSolid("FrontWallAluRing1", qouter, 
 						FlangeCut(rlength + 1*mm, _FLANGE_CLEARANCE_),
 						0, G4ThreeVector(0.0, 0.0, 0.0));
-      auto *ring_log = new G4LogicalVolume(ring_shape, m_Aluminum,  "FrontWallAluRing1", 0, 0, 0);
+      auto *ring_log = new G4LogicalVolume(ring_shape, m_Delrin,  "FrontWallAluRing1", 0, 0, 0);
       new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, 0.0), ring_log, "FrontWallAluRing1", wall_log, false, 0);
     }
-    // Add outer reinforcement ring;
+    // Add outer reinforcement ring (aluminum);
     {
       double rlength = _VESSEL_FRONT_SIDE_THICKNESS_;
 
@@ -222,9 +222,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
   DefineMaterials();
 
   // The experimental hall; FIXME: hardcoded;
-  G4Tubs *expHall_box = new G4Tubs("World",  0*cm, 95*cm, 250*cm, 0*degree, 360*degree);
-  auto expHall_log = new G4LogicalVolume(expHall_box, m_Air, "World", 0, 0, 0);
-  G4VPhysicalVolume* expHall_phys = new G4PVPlacement(0, G4ThreeVector(), expHall_log, "World", 0, false, 0);
+  G4Tubs *expHall_box = new G4Tubs("PFRICH_World",  0*cm, 95*cm, 250*cm, 0*degree, 360*degree);
+  auto expHall_log = new G4LogicalVolume(expHall_box, m_Air, "PFRICH_World", 0, 0, 0);
+  G4VPhysicalVolume* expHall_phys = new G4PVPlacement(0, G4ThreeVector(), expHall_log, "PFRICH_World", 0, false, 0);
     
   auto *det = m_Geometry->GetDetector("pfRICH");
   //det->SetReadoutCellMask(~0x0);
@@ -637,6 +637,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	  accu += certhick + 1*mm;
 	}
 
+#if 1//_MBUDGET_
 	// Readout PCB;
 	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, accu + _READOUT_PCB_THICKNESS_/2), pcb_log, "PCB", 
 			  hrppd_log, false, 0);
@@ -659,6 +660,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 
 	  accu += _ASIC_THICKNESS_;
 	}
+#endif
       }
 
 #if 0

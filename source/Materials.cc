@@ -30,7 +30,7 @@ Materials::Materials( void ): CherenkovWaveLengthRange(_WLDIM_, _NU_MIN_, _NU_ST
   m_Acrylic = m_Nitrogen = m_FusedSilica = 0;
 
   m_FakeCarbon_1_g_cm3 = m_HalfInch_CF_HoneyComb = m_QuarterInch_CF_HoneyComb = 0;  
-  m_FR4 = m_Water = m_Copper = m_Silicon = 0;
+  m_FR4 = m_Water = m_Copper = m_Silicon = m_Delrin = 0;
 } // Materials::Materials()
 
 // -------------------------------------------------------------------------------------
@@ -389,11 +389,29 @@ void Materials::DefineMaterials( void )
     m_FR4->AddElement(m_C, 1);
   }
 
-  printf("Copper      : %f\n", m_Copper->GetRadlen()/mm);
-  printf("Water       : %f\n", m_Water->GetRadlen()/mm);
-  printf("Ceramic     : %f\n", m_Ceramic->GetRadlen()/mm);
-  printf("FR4         : %f\n", m_FR4->GetRadlen()/mm);
-  printf("Fused silica: %f\n", m_FusedSilica->GetRadlen()/mm);
+  {
+    // Well, the only part what matters here is the refractive index; density is fake;
+    m_Delrin = new G4Material("Delrin", 1.41*g/cm3, 3);
+
+    m_Delrin->AddElement(m_C, 1);
+    m_Delrin->AddElement(m_H, 2);
+    m_Delrin->AddElement(m_O, 1);
+  }
+
+  {
+    // Manage readable printout;
+    auto half = m_HalfInch_CF_HoneyComb, quarter = m_QuarterInch_CF_HoneyComb;
+
+    printf("Copper      : %8.3f [cm],  %8.3f [g/cm^3]\n",  m_Copper->  GetRadlen()   /cm, m_Copper     ->GetDensity()/(g/cm3));
+    printf("Aluminum    : %8.3f [cm],  %8.3f [g/cm^3]\n",  m_Aluminum->GetRadlen()   /cm, m_Aluminum   ->GetDensity()/(g/cm3));
+    printf("Delrin      : %8.3f [cm],  %8.3f [g/cm^3]\n",  m_Delrin->GetRadlen()     /cm, m_Delrin     ->GetDensity()/(g/cm3));
+    printf("Water       : %8.3f [cm],  %8.3f [g/cm^3]\n",  m_Water->GetRadlen()      /cm, m_Water      ->GetDensity()/(g/cm3));
+    printf("Ceramic     : %8.3f [cm],  %8.3f [g/cm^3]\n",  m_Ceramic->GetRadlen()    /cm, m_Ceramic    ->GetDensity()/(g/cm3));
+    printf("FR4         : %8.3f [cm],  %8.3f [g/cm^3]\n",  m_FR4->GetRadlen()        /cm, m_FR4        ->GetDensity()/(g/cm3));
+    printf("Fused silica: %8.3f [cm],  %8.3f [g/cm^3]\n",  m_FusedSilica->GetRadlen()/cm, m_FusedSilica->GetDensity()/(g/cm3));
+    printf("1/2\" HC     : %8.3f [cm],  %8.3f [g/cm^3]\n", half->GetRadlen()         /cm, half         ->GetDensity()/(g/cm3));
+    printf("1/4\" HC     : %8.3f [cm],  %8.3f [g/cm^3]\n", quarter->GetRadlen()      /cm, quarter      ->GetDensity()/(g/cm3));
+  }
 } // Materials::DefineMaterials()
 
 // -------------------------------------------------------------------------------------
