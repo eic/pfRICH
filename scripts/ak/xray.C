@@ -1,7 +1,7 @@
  
 #define _DISTANCE_ 1185.5
-#define _X0_          0.0
-#define _Y0_          0.0
+#define _X0_         0.0
+#define _Y0_         0.0
 #define _SIZE_      250.0
 #define _XYDIM_       500
 //#define _SIZE_     1300.0

@@ -137,7 +137,7 @@ void DetectorConstruction::BuildVesselWalls( void )
     new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, -_HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2), wall_log, "InnerWall", 
 		      m_gas_volume_log, false, 0);
 
-    // Add a pair of delrin reinforcement rings; full radial thickness (a bit more material);
+    // Add a pair of PEEK reinforcement rings; full radial thickness (a bit more material);
     {
       double rlength = _INCH_/4;//2;
 
@@ -145,7 +145,7 @@ void DetectorConstruction::BuildVesselWalls( void )
       auto *ring_shape = new G4SubtractionSolid("InnerWallAluRing", qouter, 
 						FlangeCut(rlength + 1*mm, _FLANGE_CLEARANCE_),
 						0, G4ThreeVector(0.0, 0.0, 0.0));
-      auto *ring_log = new G4LogicalVolume(ring_shape, m_Delrin,  "InnerWallAluRing", 0, 0, 0);
+      auto *ring_log = new G4LogicalVolume(ring_shape, m_PEEK,  "InnerWallAluRing", 0, 0, 0);
       for(unsigned iq=0; iq<2; iq++) {
 	double zOffset = (iq ? 1.0 : -1.0)*(wlength/2 - rlength/2);
 
@@ -164,7 +164,7 @@ void DetectorConstruction::BuildVesselWalls( void )
     new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, -_FIDUCIAL_VOLUME_LENGTH_/2 + _VESSEL_FRONT_SIDE_THICKNESS_/2), 
 		      wall_log, "FrontWall", m_fiducial_volume_log, false, 0);
 
-    // Add inner reinforcement ring (delrin);
+    // Add inner reinforcement ring (PEEK);
     {
       double rlength = _VESSEL_FRONT_SIDE_THICKNESS_;
 
@@ -172,7 +172,7 @@ void DetectorConstruction::BuildVesselWalls( void )
       auto *ring_shape = new G4SubtractionSolid("FrontWallAluRing1", qouter, 
 						FlangeCut(rlength + 1*mm, _FLANGE_CLEARANCE_),
 						0, G4ThreeVector(0.0, 0.0, 0.0));
-      auto *ring_log = new G4LogicalVolume(ring_shape, m_Delrin,  "FrontWallAluRing1", 0, 0, 0);
+      auto *ring_log = new G4LogicalVolume(ring_shape, m_PEEK,  "FrontWallAluRing1", 0, 0, 0);
       new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, 0.0), ring_log, "FrontWallAluRing1", wall_log, false, 0);
     }
     // Add outer reinforcement ring (aluminum);
@@ -656,7 +656,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, accu + _READOUT_PCB_THICKNESS_/2), pcb_log, "PCB", 
 			  hrppd_log, false, 0);
 	accu += _READOUT_PCB_THICKNESS_;
+#endif
 	
+#if 1//_MBUDGET_
 	// ASIC chips;
 	{
 	  double pitch = _READOUT_PCB_SIZE_/2;
@@ -739,7 +741,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 	G4double qePhotonEnergy[qeEntries], qeData[qeEntries];
 	for(int iq=0; iq<qeEntries; iq++) {
 	  qePhotonEnergy[iq] = eV * _MAGIC_CFF_ / (WL[qeEntries - iq - 1] + 0.0);
-	  qeData        [iq] =                     QE[qeEntries - iq - 1];
+	  qeData        [iq] =                     QE[qeEntries - iq - 1] * _QE_DOWNSCALING_FACTOR_;
 	  
 	  if (qeData[iq] > qemax) qemax = qeData[iq];
 	} //for iq

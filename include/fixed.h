@@ -7,6 +7,9 @@
 #ifndef _PFRICH_FIXED_
 #define _PFRICH_FIXED_
 
+static const bool flip = true;
+static const double sign = flip ? -1.0 : 1.0;
+
 #define _INCH_                             (25.4*mm)
 #define _MIL_                          (_INCH_/1000)
 
@@ -28,11 +31,11 @@
 #define _FLANGE_CLEARANCE_                  (5.0*mm)
 
 // 2*10mil CF + 1/4" HC + 2*10mil CF;
-#define _VESSEL_FRONT_SIDE_THICKNESS_       (0.29*_INCH_)
+#define _VESSEL_FRONT_SIDE_THICKNESS_  (0.29*_INCH_)
 // 2*10mil CF + 1/4" HC + 2*10mil CF;
-#define _VESSEL_INNER_WALL_THICKNESS_       (0.29*_INCH_)
+#define _VESSEL_INNER_WALL_THICKNESS_  (0.29*_INCH_)
 // 2*10mil CF + 1/2" HC + 2*10mil CF;
-#define _VESSEL_OUTER_WALL_THICKNESS_       (0.54*_INCH_)
+#define _VESSEL_OUTER_WALL_THICKNESS_  (0.54*_INCH_)
 //#define _HONEYCOMB_REINFORCEMENT_MATERIAL_ m_Aluminum//Delrin
 
 // Some moderately optimistic number for aerogel-to-aerogel, aerogel-to-acrylic, 
@@ -53,9 +56,9 @@
 // Well, a fake material for now;
 //#define _MIRROR_MATERIAL_            (m_QuarterInch_CF_HoneyComb)//m_CarbonFiber)
 // 2*10mil CF + 1/4" HC + 2*10mil CF;
-#define _INNER_MIRROR_THICKNESS_            (0.29*_INCH_)//1.0*mm)
+#define _INNER_MIRROR_THICKNESS_       (0.29*_INCH_)
 // 2*10mil CF + 1/2" HC + 2*10mil CF;
-#define _OUTER_MIRROR_THICKNESS_            (0.54*_INCH_)//2.0*mm)
+#define _OUTER_MIRROR_THICKNESS_       (0.54*_INCH_)
 
 #define _HRPPD_SUPPORT_GRID_BAR_HEIGHT_     (3.0*mm)
 #define _HRPPD_SUPPORT_GRID_BAR_WIDTH_     (12.0*mm)
@@ -132,9 +135,9 @@
 #define _AEROGEL_BAND_COUNT_                     (3)
 
 // Inner and outer radial walls are thicker;
-#define _AEROGEL_INNER_WALL_THICKNESS_      (1.0*mm)//2.0*mm)
+#define _AEROGEL_INNER_WALL_THICKNESS_      (1.0*mm)
 // No need in a thick wall here, since aluminum rings embedded in honeycomb edges will be used;
-#define _AEROGEL_OUTER_WALL_THICKNESS_      (1.0*mm)//5.0*mm)
+#define _AEROGEL_OUTER_WALL_THICKNESS_      (1.0*mm)
 // All other separators are thin; FIXME: there are no gaps between aerogel tiles and separators;
 #define _AEROGEL_SEPARATOR_WALL_THICKNESS_  (0.5*mm)
 // --------------------------------------------------------------------------------------------
@@ -142,7 +145,7 @@
 // -- Other parameters ------------------------------------------------------------------------
 //
 // This needs to be verified (and actually the QE at normal incidence renormalized); 
-#define _BIALKALI_REFRACTIVE_INDEX_            (2.7)
+#define _BIALKALI_REFRACTIVE_INDEX_           (1.47)
 
 // This number is 1.00 for HRPPDs (no SiPM-like fill factor or such); keep in place 
 // for historical reasons;
@@ -150,7 +153,7 @@
 // --------------------------------------------------------------------------------------------
 
 // -- Materials behind the sensor plane -------------------------------------------------------
-
+//
 #define _READOUT_PCB_THICKNESS_             (2.0*mm)
 // Want to decrease material budget around the walls;
 #define _READOUT_PCB_SIZE_     (_HRPPD_OPEN_AREA_SIZE_ - 2.0*mm)
@@ -159,7 +162,80 @@
 #define _ASIC_SIZE_XY_                        (16.0)
 #define _ASIC_THICKNESS_                       (1.0)
 #define _ASIC_MATERIAL_                    m_Silicon
+// --------------------------------------------------------------------------------------------
 
+// -- General ---------------------------------------------------------------------------------
+//
+// May want to suppress secondaries;
+#define _DISABLE_SECONDARIES_
+
+// Comment out if want to run without MARCO magnetic field;
+#define _USE_MAGNETIC_FIELD_ "./database/MARCO_v.6.4.1.1.3_2T_Magnetic_Field_Map_2022_11_14_rad_coords_cm_T.txt"
+
+// May want to disable parasitic sources of photons during G4 stepping;
+//#define _DISABLE_GAS_VOLUME_PHOTONS_
+//#define _DISABLE_ACRYLIC_PHOTONS_
+//#define _DISABLE_HRPPD_WINDOW_PHOTONS_
+
+// May want to disable Rayleigh scattering and / or absorption by hand; 
+//#define _DISABLE_RAYLEIGH_SCATTERING_
+//#define _DISABLE_ABSORPTION_
+
+// Call /geometry/test/run if uncommented;
+//#define _GEOMETRY_CHECK_
+//#define _GENERATE_GDML_OUTPUT_
+// --------------------------------------------------------------------------------------------
+
+// -- Aerogel ---------------------------------------------------------------------------------
+//
+//#define _AEROGEL_1_ _AEROGEL_CLAS12_DENSITY_225_MG_CM3_
+#define _AEROGEL_1_ _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_
+#define _AEROGEL_THICKNESS_1_               (2.5*cm)
+//#define _AEROGEL_2_ _AEROGEL_CLAS12_DENSITY_155_MG_CM3_
+//#define _AEROGEL_THICKNESS_2_               (2.0*cm)
+
+// Set to m_Nitrogen and something like <100um thickness, for "clean" studies only;
+#define _AEROGEL_SPACER_MATERIAL_       (m_Absorber)
+
+// If uncommented: fixed refractive index, no attenuation (single-layer CLAS12 config only);
+//#define _AEROGEL_REFRACTIVE_INDEX_           (1.044)
+// --------------------------------------------------------------------------------------------
+
+// -- Acrylic filter --------------------------------------------------------------------------
+//
+// If _ACRYLIC_THICKNESS_ is defined, a single layer right after the aerogel is installed; 
+#define _ACRYLIC_THICKNESS_                 (3.0*mm)
+#define _ACRYLIC_WL_CUTOFF_                 (300*nm)
+
+// If uncommented: fixed refractive index, no attenuation; 
+//#define _ACRYLIC_REFRACTIVE_INDEX_            (1.50)
+// --------------------------------------------------------------------------------------------
+
+// -- QE and Co -------------------------------------------------------------------------------
+//
+// Default is to use LAPPD QE as given by Alexey;
+//#define _USE_SiPM_QE_
+
+#define _QE_DOWNSCALING_FACTOR_          (30.0/37.0)
+
+// Some reasonably optimistic number; assume that it includes an unknown 
+// HRPPD Collection Efficiency (CE) as well;
+#define _SAFETY_FACTOR_                       (0.70)
+// --------------------------------------------------------------------------------------------
+
+// -- Mirrors ---------------------------------------------------------------------------------
+//
+// If uncommented, optional funneling mirrors around the HRPPD sensors are installed;
+//#define _USE_PYRAMIDS_
+// Mirror height and width;
+//#define _PYRAMID_MIRROR_HEIGHT_            (30.0*mm)
+//#define _PYRAMID_MIRROR_APERTURE_WIDTH_    (_HRPPD_ACTIVE_AREA_SIZE_)
+
+// May still want to disable the funneling optics in IRT;
+//#define _USE_PYRAMIDS_OPTICS_
+
+// May still want to disable the conical mirror optics in IRT;
+#define _USE_CONICAL_MIRROR_OPTICS_
 // --------------------------------------------------------------------------------------------
 
 #endif
