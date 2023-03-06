@@ -66,9 +66,15 @@ SET( sources
    ${PROJECT_SOURCE_DIR}/source/TofPetMultiColumn.cc
    ${PROJECT_SOURCE_DIR}/source/MagneticField.cc
    ${PROJECT_SOURCE_DIR}/source/Materials.cc
-   ${PROJECT_SOURCE_DIR}/source/DetectorConstruction.cc
    ${PROJECT_SOURCE_DIR}/source/PrimaryGeneratorAction.cc
    ${PROJECT_SOURCE_DIR}/source/RunAction.cc
+
+   ${PROJECT_SOURCE_DIR}/source/Vessel.cc
+   ${PROJECT_SOURCE_DIR}/source/Aerogel.cc
+   ${PROJECT_SOURCE_DIR}/source/Acrylic.cc
+   ${PROJECT_SOURCE_DIR}/source/Mirrors.cc
+   ${PROJECT_SOURCE_DIR}/source/PhotonDetectors.cc
+   ${PROJECT_SOURCE_DIR}/source/DetectorConstruction.cc
 )
 
 SET( XML_SRC

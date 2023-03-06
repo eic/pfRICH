@@ -46,8 +46,8 @@ Try out example
 ```
 cd ${SANDBOX}/pfRICH
 # A pre-uploaded file with 500 events;
-root -l './scripts/ak/pfrich.C("examples/pfrich.root")'
-root -l './scripts/ak/multi-eval.C("examples/pfrich.root")'
+root -l './examples/pfrich.C("examples/pfrich.root")'
+root -l './examples/multi-eval.C("examples/pfrich.root")'
 ```
 
 Installation of the actual GEANT simulation environment requires few more steps:

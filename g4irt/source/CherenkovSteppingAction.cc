@@ -75,6 +75,10 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
   auto info = dynamic_cast<TransientTrackInformation *>(track->GetUserInformation());
   // Can be a primary particle -> no structure was created so far, and no parent;
   if (!info) {
+    // FIXME: what is this?;
+    if (tdef->GetPDGEncoding() > 1000000000) return;
+ 
+    //printf("%d\n", tdef->GetPDGEncoding());
     auto particle = new ChargedParticle(tdef->GetPDGEncoding());
     info = AttachUserInfo(track, particle, 0);
 
@@ -255,11 +259,14 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 	auto sdef = strack->GetDynamicParticle()->GetParticleDefinition();
 	//if (m_SeconadriesDisabled && sdef->GetPDGEncoding() != 0) {
 	// FIXME: why 'sdef' does not work here?;
-	if (m_SeconadriesDisabled && particleDef != opticalphoton) {
+	if ((m_SeconadriesDisabled && particleDef != opticalphoton) ||
+	    // FIXME: who are these guys?; and why they are all not killed right here?;
+	    sdef->GetPDGEncoding() > 1000000000) {
 	  strack->SetTrackStatus(fStopAndKill);
 	  continue;
 	} //if
 
+#if 0
 	if (xfrom && xfrom->GetProcessDefinedStep()) {
 	  TransientParticle *pptr = info->Myself();
 	  auto particle = dynamic_cast<ChargedParticle*>(pptr);
@@ -270,6 +277,7 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 	  //	 xfrom->GetProcessDefinedStep()->GetProcessSubType(),
 	  //	 xfrom->GetProcessDefinedStep()->GetProcessName().c_str());
 	} //if
+#endif
 
 	// Keep track of charged particles (if secondaries are enabled) and of the optical photons;
 	  
@@ -292,7 +300,9 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 	  } //if
 	} else {
 	  if (sdef->GetPDGCharge()) {
-	    auto particle = new ChargedParticle(sdef->GetPDGEncoding());
+	    //if (sdef->GetPDGEncoding() > 100000)//!= 11)
+	      //printf("%d\n", sdef->GetPDGEncoding());
+	    auto particle = new ChargedParticle(sdef->GetPDGEncoding(), false);
 	    AttachUserInfo(strack, particle, info->Myself());
 
 	    m_EventPtr->AddChargedParticle(particle);

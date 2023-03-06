@@ -12,7 +12,7 @@
 /vis/viewer/set/viewpointThetaPhi 90. 179.
 #
 # Specify zoom value
-/vis/viewer/zoom 3.7
+/vis/viewer/zoom 8.0
 #
 # Shift to the pfRICH location
 /vis/viewer/panTo -1.5 0.0 m

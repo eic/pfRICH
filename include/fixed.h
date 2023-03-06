@@ -174,6 +174,7 @@ static const double sign = flip ? -1.0 : 1.0;
 
 // May want to disable parasitic sources of photons during G4 stepping;
 //#define _DISABLE_GAS_VOLUME_PHOTONS_
+//#define _DISABLE_AEROGEL_PHOTONS_
 //#define _DISABLE_ACRYLIC_PHOTONS_
 //#define _DISABLE_HRPPD_WINDOW_PHOTONS_
 
@@ -181,9 +182,18 @@ static const double sign = flip ? -1.0 : 1.0;
 //#define _DISABLE_RAYLEIGH_SCATTERING_
 //#define _DISABLE_ABSORPTION_
 
+// Import other parts of ePIC geometry;
+//#define _IMPORT_TRACKER_GDML_FILE_ ("./gdml/tracking_only.modified.gdml")
+//#define _IMPORT_BEAMPIPE_GDML_FILE_ ("./gdml/ip6_brycecanyon.modified.gdml")
+
 // Call /geometry/test/run if uncommented;
 //#define _GEOMETRY_CHECK_
-//#define _GENERATE_GDML_OUTPUT_
+
+// Generate GDML output file (for material scans, etc);
+//#define _GENERATE_GDML_OUTPUT_       ("pfRICH.gdml")
+
+// Disable pfRICH altogether;
+//#define _DISABLE_PFRICH_GEOMETRY_
 // --------------------------------------------------------------------------------------------
 
 // -- Aerogel ---------------------------------------------------------------------------------
