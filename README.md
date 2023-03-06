@@ -110,9 +110,9 @@ Run examples
 cd ${SANDBOX}/pfRICH
 ./build/pfrich -s 1000
 
-root -l 'scripts/ak/pfrich.C("pfrich.root")'
+root -l 'examples/pfrich.C("pfrich.root")'
 
-./build/pfrich -m macro/ak/vis.mac
+./build/pfrich -m examples/vis.mac
 
 ```
 Automation
