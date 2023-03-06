@@ -91,6 +91,9 @@ static const double sign = flip ? -1.0 : 1.0;
 // enough description of a fully efficient pixellated surface of the real sensors;
 #define _HRPPD_ACTIVE_AREA_SIZE_          (108.0*mm)
 
+// This needs to be verified (and actually the QE at normal incidence renormalized); 
+#define _BIALKALI_REFRACTIVE_INDEX_           (1.47)
+
 // These are some random numbers to the moment; are only important for time-of-flight;
 #define _HRPPD_METALLIZATION_REFLECTIVITY_    (0.80)
 #define _HRPPD_METALLIZATION_ROUGHNESS_       (0.05)
@@ -140,16 +143,6 @@ static const double sign = flip ? -1.0 : 1.0;
 #define _AEROGEL_OUTER_WALL_THICKNESS_      (1.0*mm)
 // All other separators are thin; FIXME: there are no gaps between aerogel tiles and separators;
 #define _AEROGEL_SEPARATOR_WALL_THICKNESS_  (0.5*mm)
-// --------------------------------------------------------------------------------------------
-
-// -- Other parameters ------------------------------------------------------------------------
-//
-// This needs to be verified (and actually the QE at normal incidence renormalized); 
-#define _BIALKALI_REFRACTIVE_INDEX_           (1.47)
-
-// This number is 1.00 for HRPPDs (no SiPM-like fill factor or such); keep in place 
-// for historical reasons;
-#define _SENSOR_PLANE_GEOMETRIC_EFFICIENCY_   (1.00)
 // --------------------------------------------------------------------------------------------
 
 // -- Materials behind the sensor plane -------------------------------------------------------
@@ -231,6 +224,10 @@ static const double sign = flip ? -1.0 : 1.0;
 // Some reasonably optimistic number; assume that it includes an unknown 
 // HRPPD Collection Efficiency (CE) as well;
 #define _SAFETY_FACTOR_                       (0.70)
+
+// This number is 1.00 for HRPPDs (no SiPM-like fill factor or such); keep in place 
+// for historical reasons;
+#define _SENSOR_PLANE_GEOMETRIC_EFFICIENCY_   (1.00)
 // --------------------------------------------------------------------------------------------
 
 // -- Mirrors ---------------------------------------------------------------------------------

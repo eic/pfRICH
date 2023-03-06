@@ -1,10 +1,4 @@
 
-// ? export LD_LIBRARY_PATH=/home/ayk/eic/EicSandbox/build/lib:${LD_LIBRARY_PATH}
-//   export LD_LIBRARY_PATH=/home/ayk/eic/irt/build/lib:${LD_LIBRARY_PATH}
-//
-//   root -l './pfrich.C("pfrich.root")'
-//
-
 void pfrich(const char *dfname, const char *cfname = 0)
 {
   auto fcfg  = new TFile(cfname ? cfname : dfname);
@@ -34,7 +28,6 @@ void pfrich(const char *dfname, const char *cfname = 0)
 	} //for photon
       } //for rhistory
     } //for particle
-    //#endif
   } //for ev
 
   gStyle->SetOptStat(0);
