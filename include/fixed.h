@@ -116,7 +116,7 @@ static const double sign = flip ? -1.0 : 1.0;
 #define _LAMBDA_NOMINAL_                     (365.0)
 #define _MAGIC_CFF_                         (1239.8)
 
-// Consider full range from 175um (fused silica "cutoff") to 800um, at most; 
+// Consider full range from 175um (fused silica "cutoff" - MO: actually can go down to 140 nm) to 800um, at most; 
 #define _WLDIM_                                  26
 #define _LAMBDA_MIN_                         (175.0)
 #define _LAMBDA_MAX_                         (800.0)
