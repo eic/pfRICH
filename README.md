@@ -4,15 +4,17 @@ Standalone ePIC pfRICH GEANT4 simulation codes
   It is assumed that thisroot.sh and geant4.sh were sourced. The latter is 
 not needed to just import already produced ROOT trees.
 
-  In the following installation under /tmp is assumed. Define SANDBOX 
+  In the following installation under /tmp/sandbox is assumed. Define SANDBOX 
 environment variable accordingly if installing in a different directory. 
-Make sure 'cmake' is version 3.0 or higher.
+
+  Make sure 'cmake' is version 3.0 or higher. The following combination is known 
+to work: SL7, gcc 4.8.5, cmake 3.22.1, ROOT 6.18.04, GEANT 4.10.05.p01 . 
 
 Define installation area
 ------------------------
 
 ```
-export SANDBOX=/tmp
+export SANDBOX=/tmp/sandbox
 export LD_LIBRARY_PATH=${SANDBOX}/lib:${SANDBOX}/lib64:${LD_LIBRARY_PATH}
 ```
 
@@ -50,7 +52,8 @@ root -l './examples/pfrich.C("examples/pfrich.root")'
 root -l './examples/multi-eval.C("examples/pfrich.root")'
 ```
 
-Installation of the actual GEANT simulation environment requires few more steps:
+Installation of the actual GEANT simulation environment requires few more steps (make sure 
+geant.sh was sourced):
 
 
 Install Xerces-c
