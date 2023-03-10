@@ -56,12 +56,16 @@ static const double sign = flip ? -1.0 : 1.0;
 // Well, a fake material for now;
 //#define _MIRROR_MATERIAL_            (m_QuarterInch_CF_HoneyComb)//m_CarbonFiber)
 // 2*10mil CF + 1/4" HC + 2*10mil CF;
-#define _INNER_MIRROR_THICKNESS_       (0.29*_INCH_)
+#define _INNER_MIRROR_THICKNESS_               (1.0)//0.29*_INCH_)
 // 2*10mil CF + 1/2" HC + 2*10mil CF;
-#define _OUTER_MIRROR_THICKNESS_       (0.54*_INCH_)
+#define _OUTER_MIRROR_THICKNESS_               (2.0)//0.54*_INCH_)
 
+// In practise will be part of the aluminum disk;
 #define _HRPPD_SUPPORT_GRID_BAR_HEIGHT_     (3.0*mm)
 #define _HRPPD_SUPPORT_GRID_BAR_WIDTH_     (12.0*mm)
+
+// Just to fit everything in;
+#define _HRPPD_CONTAINER_VOLUME_HEIGHT_    (32.0*mm)
 // --------------------------------------------------------------------------------------------
 
 // -- Mirrors ---------------------------------------------------------------------------------
@@ -72,12 +76,14 @@ static const double sign = flip ? -1.0 : 1.0;
 // At the downstream (sensor plane) location; upstream radii are calculated automatically;
 #define _CONICAL_MIRROR_INNER_RADIUS_     (120.0*mm)
 #define _CONICAL_MIRROR_OUTER_RADIUS_     (570.0*mm)
+//-#define _CONICAL_MIRROR_OUTER_RADIUS_     (400.0*mm)
 // --------------------------------------------------------------------------------------------
 
 // -- HRPPD geometry --------------------------------------------------------------------------
 //
 // A formfactor presently assumed for the final production;
 #define _HRPPD_TILE_SIZE_                 (120.0*mm)
+//#define _HRPPD_TILE_SIZE_                 (112.0*mm)
 #define _HRPPD_WINDOW_THICKNESS_            (5.0*mm)
 // Anode base plate and walls; 
 #define _HRPPD_CERAMIC_BODY_THICKNESS_      (9.0*mm)
@@ -87,9 +93,11 @@ static const double sign = flip ? -1.0 : 1.0;
 #define _HRPPD_PLATING_LAYER_THICKNESS_    (0.06*mm)
 // Walls ~3mm thick are assumed;
 #define _HRPPD_OPEN_AREA_SIZE_            (114.0*mm)
+//#define _HRPPD_OPEN_AREA_SIZE_            (106.0*mm)
 // Area covered by the photocathode in the geometry description; should be a good 
 // enough description of a fully efficient pixellated surface of the real sensors;
 #define _HRPPD_ACTIVE_AREA_SIZE_          (108.0*mm)
+//#define _HRPPD_ACTIVE_AREA_SIZE_          (100.0*mm)
 
 // This needs to be verified (and actually the QE at normal incidence renormalized); 
 #define _BIALKALI_REFRACTIVE_INDEX_           (1.47)
@@ -116,9 +124,9 @@ static const double sign = flip ? -1.0 : 1.0;
 #define _LAMBDA_NOMINAL_                     (365.0)
 #define _MAGIC_CFF_                         (1239.8)
 
-// Consider full range from 175um (fused silica "cutoff" - MO: actually can go down to 140 nm) to 800um, at most; 
-#define _WLDIM_                                  26
-#define _LAMBDA_MIN_                         (175.0)
+// As 2023/03/09 consider wavelength range from 150um to 800um; MO: should we go down to 140nm?; 
+#define _WLDIM_                                  27
+#define _LAMBDA_MIN_                         (150.0)
 #define _LAMBDA_MAX_                         (800.0)
 #define _NU_MIN_       (eV*_MAGIC_CFF_/_LAMBDA_MAX_)
 #define _NU_MAX_       (eV*_MAGIC_CFF_/_LAMBDA_MIN_)
@@ -154,7 +162,17 @@ static const double sign = flip ? -1.0 : 1.0;
 // This stuff is pretty vague, merely a placeholder;
 #define _ASIC_SIZE_XY_                        (16.0)
 #define _ASIC_THICKNESS_                       (1.0)
-#define _ASIC_MATERIAL_                    m_Silicon
+#define _ASIC_MATERIAL_                   m_Silicon
+
+// XY-size is calculated based on the ASIC size and location;
+#define _COLD_PLATE_THICKNESS_                 (1.0)
+#define _COLD_PLATE_MATERIAL_            m_Aluminum
+
+// Water cooling pipe;
+#define _COOLING_PIPE_INNER_DIAMETER_  (_INCH_*3/8 )
+#define _COOLING_PIPE_WALL_THICKNESS_  (_INCH_*1/16)
+#define _COOLING_PIPE_MATERIAL_              m_PEEK
+
 // --------------------------------------------------------------------------------------------
 
 // -- General ---------------------------------------------------------------------------------

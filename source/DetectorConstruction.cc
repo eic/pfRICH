@@ -193,6 +193,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
   m_r0min = _FLANGE_EPIPE_DIAMETER_/2 + _FLANGE_CLEARANCE_ + 
     _VESSEL_INNER_WALL_THICKNESS_ + _BUILDING_BLOCK_CLEARANCE_;
   m_r0max = m_gas_volume_radius - _BUILDING_BLOCK_CLEARANCE_;
+  //-m_r0max = m_gas_volume_radius - 100.0;//_BUILDING_BLOCK_CLEARANCE_;
   
   // Aerogel;
   DefineAerogel(det, flange);

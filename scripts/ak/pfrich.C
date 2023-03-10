@@ -41,5 +41,7 @@ void pfrich(const char *dfname, const char *cfname = 0)
   auto cv = new TCanvas("cv", "", 1000, 1000);
   hxy->GetXaxis()->SetTitle("Sensor plane X, [mm]");
   hxy->GetYaxis()->SetTitle("Sensor plane Y, [mm]");
+  hxy->GetXaxis()->SetTitleOffset(1.20);
+  hxy->GetYaxis()->SetTitleOffset(1.40);
   hxy->Draw("COL");
 } // pfrich()

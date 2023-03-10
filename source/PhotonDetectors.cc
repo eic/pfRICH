@@ -7,6 +7,7 @@
 #include <G4UnionSolid.hh>
 #include <G4SubtractionSolid.hh>
 #include <G4IntersectionSolid.hh>
+#include <G4GDMLParser.hh>
 
 #define _GEANT_SOURCE_CODE_
 #include <G4Object.h>
@@ -26,11 +27,16 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
   double azOffset = _FIDUCIAL_VOLUME_LENGTH_/2 - _SENSOR_AREA_LENGTH_;
   double xysize = _HRPPD_TILE_SIZE_, wndthick = _HRPPD_WINDOW_THICKNESS_, zwnd = azOffset + wndthick/2;
   
-  // HRPPD assembly container volume;
-  double hrppd_container_volume_thickness = 30*mm, zcont = azOffset + hrppd_container_volume_thickness/2;
+  // HRPPD assembly container volume; 
+  double hrppd_container_volume_thickness = _HRPPD_CONTAINER_VOLUME_HEIGHT_;
+  double zcont = azOffset + hrppd_container_volume_thickness/2;
+  //+double zwire = azOffset + hrppd_container_volume_thickness + 1.0;///2;
   G4Box *hrppd_box  = new G4Box("HRPPD", xysize/2, xysize/2, hrppd_container_volume_thickness/2);
-  G4LogicalVolume* hrppd_log = new G4LogicalVolume(hrppd_box, m_Nitrogen,  "HRPPD", 0, 0, 0);
+  // Well, the inside volume will then be air as well; fine;
+  G4LogicalVolume* hrppd_log = new G4LogicalVolume(hrppd_box, m_Air,  "HRPPD", 0, 0, 0);
   
+  //+G4RotationMatrix *rY = new G4RotationMatrix(CLHEP::HepRotationY(90*degree));
+
   // Full size quartz window;
   G4Box *wnd_box  = new G4Box("QuartzWindow", xysize/2, xysize/2, wndthick/2);
   G4LogicalVolume* wnd_log = new G4LogicalVolume(wnd_box, m_FusedSilica,  "QuartzWindow", 0, 0, 0);
@@ -66,12 +72,6 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
   
   G4Box *mcp  = new G4Box("MCP", xyopen/2, xyopen/2, _EFFECTIVE_MCP_THICKNESS_/2);
   G4LogicalVolume* mcp_log = new G4LogicalVolume(mcp, _EFFECTIVE_MCP_MATERIAL_,  "MCP", 0, 0, 0);
-  
-  G4Box *pcb  = new G4Box("PCB", _READOUT_PCB_SIZE_/2, _READOUT_PCB_SIZE_/2, _READOUT_PCB_THICKNESS_/2);
-  G4LogicalVolume* pcb_log = new G4LogicalVolume(pcb, m_FR4,  "PCB", 0, 0, 0);
-  
-  G4Box *asic  = new G4Box("ASIC", _ASIC_SIZE_XY_/2, _ASIC_SIZE_XY_/2, _ASIC_THICKNESS_/2);
-  G4LogicalVolume* asic_log = new G4LogicalVolume(asic, _ASIC_MATERIAL_,  "ASIC", 0, 0, 0);
   
   double pdthick = 0.01*mm, zpdc = azOffset + wndthick + pdthick/2;
   G4Box *pd_box  = new G4Box("PhotoDetector", xyactive/2, xyactive/2, pdthick/2);
@@ -125,17 +125,27 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
     }
     
 #if 1//_MBUDGET_
-    // Readout PCB;
-    new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, accu + _READOUT_PCB_THICKNESS_/2), pcb_log, "PCB", 
-		      hrppd_log, false, 0);
-    accu += _READOUT_PCB_THICKNESS_;
+    // Readout PCB; FIXME: ignore copper to the moment (will be few dozens of microns overall; take 
+    // PCB thickness on a high end to kind of compensate for this;
+    {
+      G4Box *pcb  = new G4Box("PCB", _READOUT_PCB_SIZE_/2, _READOUT_PCB_SIZE_/2, _READOUT_PCB_THICKNESS_/2);
+      G4LogicalVolume* pcb_log = new G4LogicalVolume(pcb, m_FR4,  "PCB", 0, 0, 0);
+      
+      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, accu + _READOUT_PCB_THICKNESS_/2), pcb_log, "PCB", 
+			hrppd_log, false, 0);
+
+      accu += _READOUT_PCB_THICKNESS_ + 0.01*mm;
+    }
 #endif
     
 #if 1//_MBUDGET_
     // ASIC chips;
     {
       double pitch = _READOUT_PCB_SIZE_/2;
-      
+        
+      G4Box *asic  = new G4Box("ASIC", _ASIC_SIZE_XY_/2, _ASIC_SIZE_XY_/2, _ASIC_THICKNESS_/2);
+      G4LogicalVolume* asic_log = new G4LogicalVolume(asic, _ASIC_MATERIAL_,  "ASIC", 0, 0, 0);
+
       for(unsigned ix=0; ix<2; ix++) {
 	double xOffset = pitch*(ix - (2-1)/2.);
 	
@@ -147,7 +157,46 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
 	} //for iy
       } //for ix
       
-      accu += _ASIC_THICKNESS_;
+      accu += _ASIC_THICKNESS_ + 0.01*mm;
+    }
+#endif
+
+    // Cold plate;
+#if _LATER_
+    {
+      double size = _READOUT_PCB_SIZE_/2 + _ASIC_SIZE_XY_;
+
+      G4Box *cplate  = new G4Box("ColdPlate", size/2, size/2, _COLD_PLATE_THICKNESS_/2);
+      G4LogicalVolume* cplate_log = new G4LogicalVolume(cplate, _COLD_PLATE_MATERIAL_,  "ColdPlate", 0, 0, 0);
+
+      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, accu + _COLD_PLATE_THICKNESS_/2), cplate_log, "ColdPlate", 
+			hrppd_log, false, 0);
+
+      accu += _COLD_PLATE_THICKNESS_ + 0.01*mm;
+    }
+
+    // Water cooling pipe & water itself;
+    {
+      // FIXME: yes, have to make the pipes 1.5mm shorter to fit into the HRPPD container volume;
+      // must be a minor simplification I guess;
+      double length = _HRPPD_TILE_SIZE_ /*+ _HRPPD_INSTALLATION_GAP_*/, iradius = _COOLING_PIPE_INNER_DIAMETER_/2; 
+      double oradius = iradius + _COOLING_PIPE_WALL_THICKNESS_;
+
+      auto pipe = new G4Tubs("CoolingPipe", 0.0, oradius, length/2, 0*degree, 360*degree);
+      G4LogicalVolume* pipe_log = new G4LogicalVolume(pipe, _COOLING_PIPE_MATERIAL_, "CoolingPipe", 0, 0, 0);
+
+      //G4RotationMatrix *rY = new G4RotationMatrix(CLHEP::HepRotationY(90*degree));
+      new G4PVPlacement(rY, G4ThreeVector(0.0, 0.0, accu + oradius), pipe_log, "CoolingPipe", 
+			hrppd_log, false, 0);
+
+      {
+	auto water = new G4Tubs("Water", 0.0, iradius, length/2, 0*degree, 360*degree);
+	G4LogicalVolume* water_log = new G4LogicalVolume(water, m_Water, "Water", 0, 0, 0);
+
+	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, 0.0), water_log, "Water", pipe_log, false, 0);
+      }
+
+      accu += 2*oradius + 0.01*mm;
     }
 #endif
   }
@@ -224,6 +273,7 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
   {
     const unsigned ydim = 5, qpop[ydim] = {9, 9, 9, 7, 5};
     
+    //std::vector<TVector2> coord;
     std::vector<TVector2> coord;
     
     assert(qpop[0]%2);
@@ -251,15 +301,55 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
 	}
       } //for bt
     } //for iy
-    
+   
     {
-      int counter = 0;
-      
+      int counter = 0;//+, wcounter = 0;
+
+      // FIXME: all hardcoded; round AWG numbers, don't be silly;
+      //+double step = 1.5*mm, rmax = 600*mm, d18AWG = 1.0*mm, d24AWG = 0.5*mm;
+      //+std::map<std::pair<int, bool>, unsigned> population;
+
       for(auto xy: coord) {
 #if 1//_MBUDGET_
 	// HRPPD assembly;
+	//auto hrppd_phys = 
 	new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zcont), hrppd_log, "HRPPD", m_fiducial_volume_log, 
 			  false, counter);
+
+	// Cabling imitation;
+#if _LATER_
+	{
+	  bool lr = xy.X() > 0.0;
+	  int row = (int)rint((xy.Y()) / pitch);
+
+	  printf("@@@ %d %d\n", lr, row);//xy.X(), yOffset, length);
+	  if (/*!lr &&*/ row == 2)
+	  for(unsigned iq=0; iq<6/*6*/; iq++) {
+	    population[std::make_pair(row, lr)]++;
+	    // FIXME: hardcoded;
+	    double yOffset = xy.Y() - 108*mm/2 + population[std::make_pair(row, lr)]*step;
+	    double length = sqrt(rmax*rmax - yOffset*yOffset) - fabs(xy.X());
+	    printf("@@@ %f %f %f\n", xy.X(), yOffset, length);
+
+	    TString wname; wname.Form("Wire%04d", wcounter++);
+	    auto wire = new G4Tubs(wname.Data(), 0.0, d24AWG/2, length/2, 0*degree, 360*degree);
+	    G4LogicalVolume* wire_log = new G4LogicalVolume(wire, m_Copper, wname.Data(), 0, 0, 0);
+	    
+	    new G4PVPlacement(rY, G4ThreeVector(xy.X() + (lr ? 1.0 : -1.0)*length/2, yOffset, zwire),
+			      wire_log, wname.Data(), m_fiducial_volume_log, false, 0);
+	    
+
+	  } //for iq
+	} 
+#endif
+#if 0
+	if (!counter) {
+	  G4GDMLParser parser;
+
+	  unlink("hrppd.112mm.gdml");
+	  parser.Write("hrppd.112mm.gdml", hrppd_phys);
+	}
+#endif
 #endif
 	
 	// Cut in the aluminum plate;

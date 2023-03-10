@@ -35,7 +35,8 @@ void DetectorConstruction::DefineMirrors(CherenkovDetector *cdet, G4UnionSolid *
   double r0[2] = {m_r0min, m_r0max}, r1[2] = {_CONICAL_MIRROR_INNER_RADIUS_, _CONICAL_MIRROR_OUTER_RADIUS_};
   
   for(unsigned im=0; im<2; im++) {
-    auto material = im ? m_HalfInch_CF_HoneyComb : m_QuarterInch_CF_HoneyComb;
+    //auto material = im ? m_HalfInch_CF_HoneyComb : m_QuarterInch_CF_HoneyComb;
+    auto material = m_CarbonFiber;//QuarterInch_CF_HoneyComb;
     double thickness = im ? _OUTER_MIRROR_THICKNESS_ : _INNER_MIRROR_THICKNESS_;
     //auto mgroup = new CherenkovMirrorGroup();
     
