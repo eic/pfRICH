@@ -162,7 +162,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
 					   // Yes, account for vessel inner wall thickness;
 					   FlangeCut(m_gas_volume_length + 1*mm, _FLANGE_CLEARANCE_),
 					   0, G4ThreeVector(0.0, 0.0, 0.0));
-  m_gas_volume_log = new G4LogicalVolume(gas_shape, m_Nitrogen,  "GasVolume", 0, 0, 0);
+  m_gas_volume_log = new G4LogicalVolume(gas_shape, _GAS_RADIATOR_,  "GasVolume", 0, 0, 0);
   m_gas_phys = new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, m_gas_volume_offset), 
 				 m_gas_volume_log, "GasVolume", m_fiducial_volume_log, false, 0);
 
@@ -174,7 +174,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
     // FIXME: Z-location does not really matter here, right?;
     auto boundary = new FlatSurface(TVector3(0,0,0), sign*TVector3(1,0,0), TVector3(0,-1,0));
 
-    m_Geometry->SetContainerVolume(det, "GasVolume", 0, m_gas_volume_log, m_Nitrogen, boundary)
+    m_Geometry->SetContainerVolume(det, "GasVolume", 0, m_gas_volume_log, _GAS_RADIATOR_, boundary)
 #ifdef _DISABLE_GAS_VOLUME_PHOTONS_
       ->DisableOpticalPhotonGeneration()
 #endif

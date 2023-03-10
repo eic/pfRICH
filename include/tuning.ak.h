@@ -24,9 +24,10 @@
 //#define _ALTERNATIVE_PARTICLE_TYPE_        ("kaon+")
 
 //#define _PRIMARY_PARTICLE_ETA_            (sign*2.07)
+//#define _PRIMARY_PARTICLE_ETA_            (sign*1.9)
 #define _PRIMARY_PARTICLE_ETA_            (sign*2.5)
 // Uniform phi, if undefined;
-//#define _PRIMARY_PARTICLE_PHI_         (95*degree)//110.0*degree)
+#define _PRIMARY_PARTICLE_PHI_         (95*degree)//110.0*degree)
 #define _PRIMARY_PARTICLE_MOMENTUM_       (10.0*GeV)
 // --------------------------------------------------------------------------------------------
 

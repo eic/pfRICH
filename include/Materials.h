@@ -33,7 +33,7 @@ protected:
   void DefineMaterials( void );
 
   // Basic elements;
-  G4Element *m_C, *m_N, *m_O, *m_H, *m_Si, *m_K, *m_Na, *m_Sb, *m_Al, *m_Ca;
+  G4Element *m_C, *m_N, *m_O, *m_F, *m_H, *m_Si, *m_K, *m_Na, *m_Sb, *m_Al, *m_Ca;
 
   // Materials;
   G4Material *m_Air, *m_Absorber, *m_Bialkali, *m_Aluminum, *m_CarbonFiber, *m_Ceramic, *m_Silver;
@@ -46,7 +46,7 @@ protected:
   G4Material *m_FR4, *m_Water, *m_Copper, *m_Silicon, *m_Delrin, *m_PEEK;
 
   //G4RadiatorMaterial *m_Aerogel[2], *m_Nitrogen, *m_Acrylic, *m_FusedSilica;
-  G4RadiatorMaterial *m_Nitrogen, *m_Acrylic, *m_FusedSilica;
+  G4RadiatorMaterial *m_Nitrogen, *m_Acrylic, *m_FusedSilica, *m_C2F6;
   std::map<unsigned, G4RadiatorMaterial*> _m_Aerogel;
 };
 

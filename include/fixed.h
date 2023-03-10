@@ -66,6 +66,9 @@ static const double sign = flip ? -1.0 : 1.0;
 
 // Just to fit everything in;
 #define _HRPPD_CONTAINER_VOLUME_HEIGHT_    (32.0*mm)
+
+// Can also use m_C2F6;
+#define _GAS_RADIATOR_                     m_Nitrogen
 // --------------------------------------------------------------------------------------------
 
 // -- Mirrors ---------------------------------------------------------------------------------
@@ -110,7 +113,6 @@ static const double sign = flip ? -1.0 : 1.0;
 #define _EFFECTIVE_MCP_THICKNESS_     (2*0.6*mm*0.3)
 // FIXME: change to glass; should not really matter I guess;
 #define _EFFECTIVE_MCP_MATERIAL_  m_FusedSilica
-
 // --------------------------------------------------------------------------------------------
 
 // -- Wavelength range ------------------------------------------------------------------------

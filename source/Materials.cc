@@ -26,10 +26,10 @@
 
 Materials::Materials( void ): CherenkovWaveLengthRange(_WLDIM_, _NU_MIN_, _NU_STEP_)
 {
-  m_N = m_O = m_C = m_Si = m_H = m_K = m_Na = m_Sb = m_Al = m_Ca = 0; 
+  m_N = m_O = m_C = m_F = m_Si = m_H = m_K = m_Na = m_Sb = m_Al = m_Ca = 0; 
 
   m_Air = m_Absorber = m_Bialkali = m_Aluminum = m_CarbonFiber = m_Ceramic = m_Silver = 0;
-  m_Acrylic = m_Nitrogen = m_FusedSilica = 0;
+  m_Acrylic = m_Nitrogen = m_FusedSilica = m_C2F6 = 0;
 
   m_FakeCarbon_1_g_cm3 = m_HalfInch_CF_HoneyComb = m_QuarterInch_CF_HoneyComb = 0;  
   m_FR4 = m_Water = m_Copper = m_Silicon = m_Delrin = m_PEEK = 0;
@@ -45,6 +45,7 @@ void Materials::DefineElements( void )
   m_C  = manager->FindOrBuildElement("C",  false); assert(m_C);
   m_N  = manager->FindOrBuildElement("N",  false); assert(m_N);
   m_O  = manager->FindOrBuildElement("O",  false); assert(m_O);
+  m_F  = manager->FindOrBuildElement("F",  false); assert(m_F);
   m_N  = manager->FindOrBuildElement("N",  false); assert(m_N);
   m_Si = manager->FindOrBuildElement("Si", false); assert(m_Si);
   m_Al = manager->FindOrBuildElement("Al", false); assert(m_Al);
@@ -300,12 +301,23 @@ void Materials::DefineMaterials( void )
     m_Acrylic->SetMaterialPropertiesTable(acrylicMPT);
 #else
     m_Acrylic->SetRIChOptics(new g4dRIChFilter(m_Acrylic));
-    // FIXME: tuned threshold to 350nm for now;
     m_Acrylic->GetRIChOptics()->setOpticalParams(_ACRYLIC_WL_CUTOFF_);
     m_Acrylic->GetRIChOptics()->pTable->GetProperty("RINDEX")->SetSpline(true);
 #endif
   }
 #endif
+
+  // C2F6 as a gas radiator option;
+  {
+    m_C2F6 = new G4RadiatorMaterial("C2F6", 5.7*mg/cm3, 2);
+
+    m_C2F6->AddElement(m_C , 2);
+    m_C2F6->AddElement(m_F , 6);
+
+    m_C2F6->SetRIChOptics(new g4dRIChGas(m_C2F6));
+    m_C2F6->GetRIChOptics()->setOpticalParams();
+    m_C2F6->GetRIChOptics()->pTable->GetProperty("RINDEX")->SetSpline(true);
+  }
 
   // Bialkali photocathode;
   {
