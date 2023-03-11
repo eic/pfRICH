@@ -1,8 +1,8 @@
  
 #define _DISTANCE_ 1185.5
-#define _X0_       -100.0
-#define _Y0_        150.0
-#define _SIZE_      100.0
+#define _X0_          0.0
+#define _Y0_          0.0
+#define _SIZE_      250.0
 #define _XYDIM_       500
 //#define _SIZE_     400.0
 //#define _XYDIM_       300
@@ -82,7 +82,7 @@ void xray(const char *fname)
   auto cv = new TCanvas("cv", "", 800, 800);
   hrlen->SetMinimum( 0);
   //hrlen->SetMaximum(47);
-  hrlen->SetMaximum(35);
+  //hrlen->SetMaximum(35);
   hrlen->Draw("COLZ");
 
   for(unsigned ir=0; ir<2; ir++) {

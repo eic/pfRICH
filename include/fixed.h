@@ -167,13 +167,13 @@ static const double sign = flip ? -1.0 : 1.0;
 #define _ASIC_MATERIAL_                   m_Silicon
 
 // XY-size is calculated based on the ASIC size and location;
-#define _COLD_PLATE_THICKNESS_                 (1.0)
+#define _COLD_PLATE_THICKNESS_                 (1.5)
 #define _COLD_PLATE_MATERIAL_            m_Aluminum
 
 // Water cooling pipe;
-#define _COOLING_PIPE_INNER_DIAMETER_  (_INCH_*3/8 )
-#define _COOLING_PIPE_WALL_THICKNESS_  (_INCH_*1/16)
-#define _COOLING_PIPE_MATERIAL_              m_PEEK
+#define _COOLING_PIPE_INNER_DIAMETER_  (_INCH_*0.218)//3/8 )
+#define _COOLING_PIPE_WALL_THICKNESS_  (_INCH_*0.016)//1/16)
+#define _COOLING_PIPE_MATERIAL_          m_Titanium
 
 // --------------------------------------------------------------------------------------------
 
@@ -200,10 +200,10 @@ static const double sign = flip ? -1.0 : 1.0;
 //#define _IMPORT_BEAMPIPE_GDML_FILE_ ("./gdml/ip6_brycecanyon.modified.gdml")
 
 // Call /geometry/test/run if uncommented;
-//#define _GEOMETRY_CHECK_
+#define _GEOMETRY_CHECK_
 
 // Generate GDML output file (for material scans, etc);
-//#define _GENERATE_GDML_OUTPUT_       ("pfRICH.gdml")
+#define _GENERATE_GDML_OUTPUT_       ("pfRICH.gdml")
 
 // Disable pfRICH altogether;
 //#define _DISABLE_PFRICH_GEOMETRY_

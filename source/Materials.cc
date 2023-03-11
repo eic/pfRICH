@@ -28,7 +28,7 @@ Materials::Materials( void ): CherenkovWaveLengthRange(_WLDIM_, _NU_MIN_, _NU_ST
 {
   m_N = m_O = m_C = m_F = m_Si = m_H = m_K = m_Na = m_Sb = m_Al = m_Ca = 0; 
 
-  m_Air = m_Absorber = m_Bialkali = m_Aluminum = m_CarbonFiber = m_Ceramic = m_Silver = 0;
+  m_Air = m_Absorber = m_Bialkali = m_Aluminum = m_CarbonFiber = m_Ceramic = m_Silver = m_Titanium = 0;
   m_Acrylic = m_Nitrogen = m_FusedSilica = m_C2F6 = 0;
 
   m_FakeCarbon_1_g_cm3 = m_HalfInch_CF_HoneyComb = m_QuarterInch_CF_HoneyComb = 0;  
@@ -66,6 +66,7 @@ void Materials::DefineMaterials( void )
     m_Aluminum = manager->FindOrBuildMaterial("G4_Al");    assert(m_Aluminum);
     m_Silver   = manager->FindOrBuildMaterial("G4_Ag");    assert(m_Silver);
     m_Copper   = manager->FindOrBuildMaterial("G4_Cu");    assert(m_Copper);
+    m_Titanium = manager->FindOrBuildMaterial("G4_Ti");    assert(m_Titanium);
     m_Water    = manager->FindOrBuildMaterial("G4_WATER"); assert(m_Water);
     m_Silicon  = manager->FindOrBuildMaterial("G4_Si");    assert(m_Silicon);
   }  

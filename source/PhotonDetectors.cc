@@ -30,7 +30,7 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
   // HRPPD assembly container volume; 
   double hrppd_container_volume_thickness = _HRPPD_CONTAINER_VOLUME_HEIGHT_;
   double zcont = azOffset + hrppd_container_volume_thickness/2;
-  //+double zwire = azOffset + hrppd_container_volume_thickness + 1.0;///2;
+  double zcables = azOffset + hrppd_container_volume_thickness + 1.0;///2;
   G4Box *hrppd_box  = new G4Box("HRPPD", xysize/2, xysize/2, hrppd_container_volume_thickness/2);
   // Well, the inside volume will then be air as well; fine;
   G4LogicalVolume* hrppd_log = new G4LogicalVolume(hrppd_box, m_Air,  "HRPPD", 0, 0, 0);
@@ -161,42 +161,42 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
     }
 #endif
 
-    // Cold plate;
-#if _LATER_
+    // Cold plates and pipes;
+#if 1//_LATER_
     {
-      double size = _READOUT_PCB_SIZE_/2 + _ASIC_SIZE_XY_;
+      double pitch = _READOUT_PCB_SIZE_/2;
 
-      G4Box *cplate  = new G4Box("ColdPlate", size/2, size/2, _COLD_PLATE_THICKNESS_/2);
+      G4Box *cplate  = new G4Box("ColdPlate", _ASIC_SIZE_XY_/2, _ASIC_SIZE_XY_/2, _COLD_PLATE_THICKNESS_/2);
       G4LogicalVolume* cplate_log = new G4LogicalVolume(cplate, _COLD_PLATE_MATERIAL_,  "ColdPlate", 0, 0, 0);
 
-      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, accu + _COLD_PLATE_THICKNESS_/2), cplate_log, "ColdPlate", 
-			hrppd_log, false, 0);
-
-      accu += _COLD_PLATE_THICKNESS_ + 0.01*mm;
-    }
-
-    // Water cooling pipe & water itself;
-    {
       // FIXME: yes, have to make the pipes 1.5mm shorter to fit into the HRPPD container volume;
       // must be a minor simplification I guess;
       double length = _HRPPD_TILE_SIZE_ /*+ _HRPPD_INSTALLATION_GAP_*/, iradius = _COOLING_PIPE_INNER_DIAMETER_/2; 
       double oradius = iradius + _COOLING_PIPE_WALL_THICKNESS_;
-
       auto pipe = new G4Tubs("CoolingPipe", 0.0, oradius, length/2, 0*degree, 360*degree);
       G4LogicalVolume* pipe_log = new G4LogicalVolume(pipe, _COOLING_PIPE_MATERIAL_, "CoolingPipe", 0, 0, 0);
 
-      //G4RotationMatrix *rY = new G4RotationMatrix(CLHEP::HepRotationY(90*degree));
-      new G4PVPlacement(rY, G4ThreeVector(0.0, 0.0, accu + oradius), pipe_log, "CoolingPipe", 
-			hrppd_log, false, 0);
+      auto water = new G4Tubs("Water", 0.0, iradius, length/2, 0*degree, 360*degree);
+      G4LogicalVolume* water_log = new G4LogicalVolume(water, m_Water, "Water", 0, 0, 0);
+      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, 0.0), water_log, "Water", pipe_log, false, 0);
 
-      {
-	auto water = new G4Tubs("Water", 0.0, iradius, length/2, 0*degree, 360*degree);
-	G4LogicalVolume* water_log = new G4LogicalVolume(water, m_Water, "Water", 0, 0, 0);
+      G4RotationMatrix *rY = new G4RotationMatrix(CLHEP::HepRotationY(90*degree));
 
-	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, 0.0), water_log, "Water", pipe_log, false, 0);
-      }
+      for(unsigned bt=0; bt<2; bt++) {
+	double yOffset = pitch*(bt - (2-1)/2.);
+	
+	new G4PVPlacement(rY, G4ThreeVector(0.0, yOffset, accu + _COLD_PLATE_THICKNESS_ + oradius), 
+			  pipe_log, "CoolingPipe", hrppd_log, false, 0);
+	
+	for(unsigned lr=0; lr<2; lr++) {
+	  double xOffset = pitch*(lr - (2-1)/2.);
+	  
+	  new G4PVPlacement(0, G4ThreeVector(xOffset, yOffset, accu + _COLD_PLATE_THICKNESS_/2), cplate_log, 
+			    "ColdPlate", hrppd_log, false, 0);
+	} //for lr
+      } //for bt
 
-      accu += 2*oradius + 0.01*mm;
+      accu += _COLD_PLATE_THICKNESS_ + 2*oradius + 0.01*mm;
     }
 #endif
   }
@@ -303,11 +303,20 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
     } //for iy
    
     {
-      int counter = 0;//+, wcounter = 0;
+      int counter = 0, ccounter = 0;
 
       // FIXME: all hardcoded; round AWG numbers, don't be silly;
-      //+double step = 1.5*mm, rmax = 600*mm, d18AWG = 1.0*mm, d24AWG = 0.5*mm;
-      //+std::map<std::pair<int, bool>, unsigned> population;
+      double d18AWG = 1.0*mm, d24AWG = 0.5*mm;
+      // Calculate effective copper layer thickness per HRPPD, assuming 6x 24AWG HV
+      // lines and 2x 18AWG LV lines (ignore sense wires);
+      double volume  = _HRPPD_TILE_SIZE_*(6*M_PI*d24AWG*d24AWG/4 + 2*M_PI*d18AWG*d18AWG/4);
+      double surface = pow(_HRPPD_TILE_SIZE_, 2);
+      double thickness = volume / surface;
+      //printf("@@@ -> %f\n", thickness/mm);
+
+      // FIXME: yes, this is not exactly fair: assume uniform layer;
+      G4Box *cables  = new G4Box("Cables", pitch/2, pitch/2, thickness/2);
+      G4LogicalVolume* cables_log = new G4LogicalVolume(cables, m_Copper, "Cables", 0, 0, 0);
 
       for(auto xy: coord) {
 #if 1//_MBUDGET_
@@ -316,40 +325,13 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
 	new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zcont), hrppd_log, "HRPPD", m_fiducial_volume_log, 
 			  false, counter);
 
-	// Cabling imitation;
-#if _LATER_
-	{
-	  bool lr = xy.X() > 0.0;
-	  int row = (int)rint((xy.Y()) / pitch);
-
-	  printf("@@@ %d %d\n", lr, row);//xy.X(), yOffset, length);
-	  if (/*!lr &&*/ row == 2)
-	  for(unsigned iq=0; iq<6/*6*/; iq++) {
-	    population[std::make_pair(row, lr)]++;
-	    // FIXME: hardcoded;
-	    double yOffset = xy.Y() - 108*mm/2 + population[std::make_pair(row, lr)]*step;
-	    double length = sqrt(rmax*rmax - yOffset*yOffset) - fabs(xy.X());
-	    printf("@@@ %f %f %f\n", xy.X(), yOffset, length);
-
-	    TString wname; wname.Form("Wire%04d", wcounter++);
-	    auto wire = new G4Tubs(wname.Data(), 0.0, d24AWG/2, length/2, 0*degree, 360*degree);
-	    G4LogicalVolume* wire_log = new G4LogicalVolume(wire, m_Copper, wname.Data(), 0, 0, 0);
-	    
-	    new G4PVPlacement(rY, G4ThreeVector(xy.X() + (lr ? 1.0 : -1.0)*length/2, yOffset, zwire),
-			      wire_log, wname.Data(), m_fiducial_volume_log, false, 0);
-	    
-
-	  } //for iq
-	} 
-#endif
-#if 0
-	if (!counter) {
-	  G4GDMLParser parser;
-
-	  unlink("hrppd.112mm.gdml");
-	  parser.Write("hrppd.112mm.gdml", hrppd_phys);
-	}
-#endif
+	// Cabling imitation; pretend that these layers will simply accumulate towards the outer 
+	// circumference; assume all cables are laid out horizontally along the cooling pipes;
+	int column = (int)rint((xy.X()) / pitch);
+	//printf("%d\n", column);
+	for(int iq=0; iq<abs(column)+1; iq++)
+	  new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zcables + iq*2*thickness), cables_log, 
+			    "Cables", m_fiducial_volume_log, false, ccounter++);
 #endif
 	
 	// Cut in the aluminum plate;

@@ -36,7 +36,7 @@ protected:
   G4Element *m_C, *m_N, *m_O, *m_F, *m_H, *m_Si, *m_K, *m_Na, *m_Sb, *m_Al, *m_Ca;
 
   // Materials;
-  G4Material *m_Air, *m_Absorber, *m_Bialkali, *m_Aluminum, *m_CarbonFiber, *m_Ceramic, *m_Silver;
+  G4Material *m_Air, *m_Absorber, *m_Bialkali, *m_Aluminum, *m_CarbonFiber, *m_Ceramic, *m_Silver, *m_Titanium;
   // Fake carbon to calibrate radiation length of the honeycomb samples; will be created 
   // consisting of pure carbon, density 1g/cm^3; 
   G4Material *m_FakeCarbon_1_g_cm3; 
