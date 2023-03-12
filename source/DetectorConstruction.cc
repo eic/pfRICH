@@ -150,8 +150,11 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
   // All volumes are defined assuming EIC h-going endcap orientation (dRICH case was developed this way 
   // for ATHENA); therefore need to rotate by 180 degrees around Y axis;
   G4RotationMatrix *rY = new G4RotationMatrix(CLHEP::HepRotationY(flip ? 180*degree : 0));
-  new G4PVPlacement(rY, G4ThreeVector(0.0, 0.0, sign*_FIDUCIAL_VOLUME_OFFSET_), m_fiducial_volume_log, 
-		    "PFRICH", expHall_phys->GetLogicalVolume(), false, 0);
+#ifdef _GENERATE_GDML_OUTPUT_
+  auto fiducial_volume_phys = 
+#endif
+    new G4PVPlacement(rY, G4ThreeVector(0.0, 0.0, sign*_FIDUCIAL_VOLUME_OFFSET_), m_fiducial_volume_log, 
+		      "PFRICH", expHall_phys->GetLogicalVolume(), false, 0);
     
   // Gas container volume;
   m_gas_volume_length = _FIDUCIAL_VOLUME_LENGTH_ - _VESSEL_FRONT_SIDE_THICKNESS_ - _SENSOR_AREA_LENGTH_;
@@ -226,7 +229,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
     G4GDMLParser parser;
 
     unlink(_GENERATE_GDML_OUTPUT_);
-    parser.Write(_GENERATE_GDML_OUTPUT_, expHall_phys);
+    //parser.Write(_GENERATE_GDML_OUTPUT_, expHall_phys);
+    parser.Write(_GENERATE_GDML_OUTPUT_, fiducial_volume_phys);
   }
 #endif
 
