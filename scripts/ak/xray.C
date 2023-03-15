@@ -2,11 +2,11 @@
 #define _DISTANCE_ 1185.5
 #define _X0_          0.0
 #define _Y0_          0.0
-#define _SIZE_      250.0
+//#define _SIZE_      250.0
 #define _XYDIM_       500
 //#define _SIZE_     400.0
 //#define _XYDIM_       300
-//#define _SIZE_     1300.0
+#define _SIZE_     1300.0
 //#define _XYDIM_       300
 #define _BWIDTH_ (_SIZE_/_XYDIM_)
 
@@ -90,8 +90,8 @@ void xray(const char *fname)
     TEllipse *el = new TEllipse(0, 0, r, r);
     el->SetFillStyle(kNone);
     el->SetLineColor(ir ? kGreen : kRed);
-    el->SetLineStyle(kDashed);
-    el->SetLineWidth(2);
-    el->Draw("SAME");
+    el->SetLineStyle(9);//kDashed);
+    el->SetLineWidth(4);
+    //+el->Draw("SAME");
   } //for ir
 } // xray()
