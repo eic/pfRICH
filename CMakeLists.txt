@@ -5,6 +5,8 @@ project(pfRICH)
 
 set(CMAKE_BUILD_TYPE Debug)
 
+cmake_policy(SET CMP0079 NEW) # allow `target_link_libraries` from any dir
+
 #----------------------------------------------------------------------------
 
 find_package(ROOT 6.0.00 REQUIRED COMPONENTS RIO Hist Tree)
