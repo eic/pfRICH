@@ -18,8 +18,9 @@ static const double sign = flip ? -1.0 : 1.0;
 #define _VESSEL_OUTER_RADIUS_             (643.0*mm)
 
 // Given by the project;
-#define _FIDUCIAL_VOLUME_LENGTH_          (541.5*mm)
-#define _FIDUCIAL_VOLUME_OFFSET_ (1185.5*mm + _FIDUCIAL_VOLUME_LENGTH_/2)
+#define _TRACKER_SACRIFICED_SPACE_       (0.0*mm)
+#define _FIDUCIAL_VOLUME_LENGTH_          (541.5*mm - _TRACKER_SACRIFICED_SPACE_)
+#define _FIDUCIAL_VOLUME_OFFSET_ (1185.5*mm + _TRACKER_SACRIFICED_SPACE_ + _FIDUCIAL_VOLUME_LENGTH_/2)
 
 // Taken from Alex's drawing; 
 #define _FLANGE_EPIPE_DIAMETER_           (105.3*mm)
