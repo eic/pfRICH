@@ -8,6 +8,7 @@
 #include <G4SubtractionSolid.hh>
 #include <G4IntersectionSolid.hh>
 #include <G4GDMLParser.hh>
+#include <G4LogicalBorderSurface.hh>
 
 #define _GEANT_SOURCE_CODE_
 #include <G4Object.h>
@@ -16,6 +17,7 @@
 
 #include <CherenkovDetectorCollection.h>
 #include <G4RadiatorMaterial.h>
+#include <CherenkovMirror.h>
 #include <CherenkovPhotonDetector.h>
 
 #include <DetectorConstruction.h>
@@ -201,7 +203,17 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
 #endif
   }
 
-  // 'pitch': yes, want them installed without gaps;
+  double alu_thickness = _INCH_/2 - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_;
+  auto *alu_tube = new G4Tubs("AluFrame", 0.0, _VESSEL_OUTER_RADIUS_, alu_thickness/2, 0*degree, 360*degree);
+  auto *alu_shape = new G4SubtractionSolid("AluFrame", alu_tube, 
+					   FlangeCut(alu_thickness + 1*mm, _FLANGE_CLEARANCE_), 0, G4ThreeVector(0.0, 0.0, 0.0));
+  double alu_cut_size = xysize + 0.5*mm;
+  auto *alu_cut = new G4Box("AluWndCut", alu_cut_size/2, alu_cut_size/2, alu_thickness/2 + 1*mm);
+  // Cut the central area by hand;
+  alu_shape = new G4SubtractionSolid("AluFrame", alu_shape, alu_cut, 0, G4ThreeVector(                        0.0, 0.0, 0.0));
+  alu_shape = new G4SubtractionSolid("AluFrame", alu_shape, alu_cut, 0, G4ThreeVector(-_HRPPD_CENTRAL_ROW_OFFSET_, 0.0, 0.0));
+
+  // 'pitch': yes, want these container volumes installed without gaps;
 #ifdef _USE_PYRAMIDS_
   G4Box *pyra_box = new G4Box("Dummy", pitch/2, pitch/2, _PYRAMID_MIRROR_HEIGHT_/2);
   G4Trd *pyra_cut = new G4Trd("Dummy", pitch/2, xyactive/2, pitch/2, xyactive/2, _PYRAMID_MIRROR_HEIGHT_/2 + 0.01*mm);
@@ -217,16 +229,6 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
   pyramid->DefineLogicalVolume();
   m_Geometry->AddMirrorLookupEntry(pyramid->GetLogicalVolume(), pyramid);
 #else
-  double alu_thickness = _INCH_/2 - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_;
-  auto *alu_tube = new G4Tubs("AluFrame", 0.0, _VESSEL_OUTER_RADIUS_, alu_thickness/2, 0*degree, 360*degree);
-  auto *alu_shape = new G4SubtractionSolid("AluFrame", alu_tube, 
-					   FlangeCut(alu_thickness + 1*mm, _FLANGE_CLEARANCE_), 0, G4ThreeVector(0.0, 0.0, 0.0));
-  double alu_cut_size = xysize + 0.5*mm;
-  auto *alu_cut = new G4Box("AluWndCut", alu_cut_size/2, alu_cut_size/2, alu_thickness/2 + 1*mm);
-  // Cut the central area by hand;
-  alu_shape = new G4SubtractionSolid("AluFrame", alu_shape, alu_cut, 0, G4ThreeVector(                        0.0, 0.0, 0.0));
-  alu_shape = new G4SubtractionSolid("AluFrame", alu_shape, alu_cut, 0, G4ThreeVector(-_HRPPD_CENTRAL_ROW_OFFSET_, 0.0, 0.0));
-  
   G4Box *grid_box = new G4Box("Dummy", pitch/2, pitch/2, _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2);
   double value = pitch - _HRPPD_SUPPORT_GRID_BAR_WIDTH_;
   G4Box *grid_cut = new G4Box("Dummy", value/2, value/2, _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2 + 0.01*mm);
@@ -271,11 +273,40 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
   m_Geometry->AddPhotonDetector(cdet, pd->GetLogicalVolume(), pd);
   
   {
-    const unsigned ydim = 5, qpop[ydim] = {9, 9, 9, 7, 5};
+    unsigned const hdim = 9;
+    const unsigned flags[hdim][hdim] = {
+      // NB: WYSIWIG fashion; well, it is top/ bottom and left/right symmetric;
+      {0, 0, 1, 1, 1, 1, 1, 0, 0},
+      {0, 1, 1, 1, 1, 1, 1, 1, 0},
+      {1, 1, 1, 1, 1, 1, 1, 1, 1},
+      {1, 1, 1, 1, 2, 1, 1, 1, 1},
+      {3, 3, 3, 4, 0, 2, 1, 1, 1},
+      {1, 1, 1, 1, 2, 1, 1, 1, 1},
+      {1, 1, 1, 1, 1, 1, 1, 1, 1},
+      {0, 1, 1, 1, 1, 1, 1, 1, 0},
+      {0, 0, 1, 1, 1, 1, 1, 0, 0}
+    };
+
+    std::vector<std::pair<TVector2, bool>> coord;
+
+    for(unsigned ix=0; ix<hdim; ix++) {
+      double xOffset = pitch*(ix - (hdim-1)/2.); 
+      
+      for(unsigned iy=0; iy<hdim; iy++) {
+	double yOffset = pitch*(iy - (hdim-1)/2.); 
+	unsigned flag = flags[hdim-iy-1][ix];
+
+	if (!flag) continue;
+
+	double qxOffset = xOffset + (flag >= 3 ? -_HRPPD_CENTRAL_ROW_OFFSET_ : 0.0);
+	coord.push_back(std::make_pair(TVector2(qxOffset, yOffset), flag%2));
+	//bool center = (ix == 4 && (iy == 3 || iy == 5)) || (iy == 4 && (ix == 3 || ix == 5));
+      } //for iy
+    } //for ix
+      //const unsigned ydim = 5, qpop[ydim] = {9, 9, 9, 7, 5};
     
     //std::vector<TVector2> coord;
-    std::vector<TVector2> coord;
-    
+#if _OLD_
     assert(qpop[0]%2);
     {
       double yOffset = 0.0;
@@ -286,7 +317,7 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
 	
 	if (ix == 4) continue;
 	
-	coord.push_back(TVector2(xOffset, yOffset));
+	coord.push_back(std::make_pair(TVector2(xOffset, yOffset), (ix <= 2 || ix >= 6)));
       }
     } 
     for(unsigned iy=1; iy<ydim; iy++) {
@@ -297,10 +328,12 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
 	for(unsigned ix=0; ix<xdim; ix++) {
 	  double xOffset = pitch*(ix - (xdim-1)/2.);
 	  
-	  coord.push_back(TVector2(xOffset, yOffset));
+	  bool what = ix == 4 && iy == 1;
+	  coord.push_back(std::make_pair(TVector2(xOffset, yOffset), !what));
 	}
       } //for bt
     } //for iy
+#endif
    
     {
       int counter = 0, ccounter = 0;
@@ -318,7 +351,8 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
       G4Box *cables  = new G4Box("Cables", pitch/2, pitch/2, thickness/2);
       G4LogicalVolume* cables_log = new G4LogicalVolume(cables, m_Copper, "Cables", 0, 0, 0);
 
-      for(auto xy: coord) {
+      for(auto xyptr: coord) {
+	auto &xy = xyptr.first;
 #if 1//_MBUDGET_
 	// HRPPD assembly;
 	//auto hrppd_phys = 
@@ -342,16 +376,19 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
 				       TVector3(1*sign,0,0), TVector3(0,-1,0));
 	
 #ifdef _USE_PYRAMIDS_
-	{
+	// FIXME: just remove four pyrapid assemblies around the beam pipe completely;
+	// this is suboptimal -> do it better later;
+	if (xyptr.second) {
 	  // FIXME: need to take care about overlap with the inner wall;
-	  assert(0);
+	  //assert(0);
 	  auto pyra_phys = 
-	    new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zOffset - _PYRAMID_MIRROR_HEIGHT_/2), 
-			      pyramid->GetLogicalVolume(), pyramid->GetSolid()->GetName(), m_fiducial_volume_log, 
+	    //new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), zOffset - _PYRAMID_MIRROR_HEIGHT_/2), 
+	    new G4PVPlacement(0, G4ThreeVector(xy.X(), xy.Y(), m_gas_volume_length/2 - _PYRAMID_MIRROR_HEIGHT_/2), 
+			      pyramid->GetLogicalVolume(), pyramid->GetSolid()->GetName(), m_gas_volume_log, 
 			      false, counter);
 	  
 	  new G4LogicalBorderSurface(pyramid->GetSolid()->GetName(), m_gas_phys, pyra_phys, pyramid->GetMirrorSurface());
-	}
+	} //if
 #else
 	// Yes, they are part of the gas volume;
 #if 1//_MBUDGET_ 
@@ -374,7 +411,9 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
 	      // Reflection off one of the four pyramid mirrors;
 	      {		  
 		double vx = (pitch - xyactive)/2, vy = _PYRAMID_MIRROR_HEIGHT_, norm = sqrt(vx*vx+vy*vy);
-		double z0 = _FIDUCIAL_VOLUME_OFFSET_ + gas_volume_offset + zOffset - _PYRAMID_MIRROR_HEIGHT_/2;
+		//double z0 = _FIDUCIAL_VOLUME_OFFSET_ + gas_volume_offset + zOffset - _PYRAMID_MIRROR_HEIGHT_/2;
+		double z0 = _FIDUCIAL_VOLUME_OFFSET_ + _FIDUCIAL_VOLUME_LENGTH_/2 - 
+		  _SENSOR_AREA_LENGTH_ - _PYRAMID_MIRROR_HEIGHT_/2;
 		
 		TVector3 nx( vx/norm, 0, -vy/norm), ny(0,-1,0), nz(0,0,1), nv(0,1,0);
 		nx.Rotate(iq*M_PI/2, nz); ny.Rotate(iq*M_PI/2, nz);
