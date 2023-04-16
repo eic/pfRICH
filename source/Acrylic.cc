@@ -21,6 +21,7 @@
 
 void DetectorConstruction::DefineAcrylic(CherenkovDetector *cdet, G4UnionSolid *flange)
 {
+#ifdef _ACRYLIC_THICKNESS_
   double acthick = _ACRYLIC_THICKNESS_;
   m_gzOffset += acthick/2;
   
@@ -43,6 +44,7 @@ void DetectorConstruction::DefineAcrylic(CherenkovDetector *cdet, G4UnionSolid *
   new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, m_gzOffset), ac_log, "Acrylic", m_gas_volume_log, false, 0);
   
   m_gzOffset += acthick/2 + _BUILDING_BLOCK_CLEARANCE_;
+#endif
 } // DetectorConstruction::DefineAcrylic()
 
 // -------------------------------------------------------------------------------------

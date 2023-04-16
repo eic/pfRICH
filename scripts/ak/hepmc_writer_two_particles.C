@@ -46,18 +46,18 @@ void hepmc_writer_two_particles(const char* out_fname, int n_events)
     v1->add_particle_in(p1);
     v1->add_particle_in(p2);
 
-    for(unsigned iq=0; iq</*2*/2; iq++) {
-      Double_t eta   = rdmn_gen->Uniform(-1.91, -1.90);
+    for(unsigned iq=0; iq</*2*/1; iq++) {
+      Double_t eta   = rdmn_gen->Uniform(-2.5, -2.2);
       Double_t th    = 2*std::atan(exp(-eta));
-      Double_t p     = rdmn_gen->Uniform(7.0, 7.1);
-      Double_t phi   = iq%2 ? 0.*M_PI/180. : 10.*M_PI/180.;
+      Double_t p     = 7.0;//rdmn_gen->Uniform(7.0, 7.1);
+      Double_t phi   = rdmn_gen->Uniform(-M_PI, M_PI);///180. : 10.*M_PI/180.;
 
       Double_t px    = p * std::cos(phi) * std::sin(th);
       Double_t py    = p * std::sin(phi) * std::sin(th);
       Double_t pz    = p * std::cos(th);
 
       //auto particle = pion;//events_parsed%2 ? pion : kaon;
-      auto particle = iq%2 ? pion : kaon;
+      auto particle = kaon;//iq%2 ? pion : kaon;
       GenParticlePtr pq = std::make_shared<GenParticle>(FourVector(
 								   px, py, pz,
 								   sqrt(p*p + pow(particle->Mass(), 2))),
