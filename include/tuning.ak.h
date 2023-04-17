@@ -24,8 +24,8 @@
 // Will toggle between the two types if defined;
 //#define _ALTERNATIVE_PARTICLE_TYPE_        ("kaon+")
 
-//#define _PRIMARY_PARTICLE_ETA_            (sign*2.07)
-#define _PRIMARY_PARTICLE_ETA_            (sign*2.4)
+#define _PRIMARY_PARTICLE_ETA_            (sign*1.80)
+//#define _PRIMARY_PARTICLE_ETA_            (sign*2.4)
 //#define _PRIMARY_PARTICLE_ETA_            (sign*1.65)
 // Uniform phi, if undefined;
 //#define _PRIMARY_PARTICLE_PHI_         (95*degree)//110.0*degree)

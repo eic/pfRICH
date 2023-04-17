@@ -245,6 +245,15 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
     double WL[qeEntries] = { 325,  340,  350,  370,  400,  450,  500,  550,  600,  650,  700,  750,  800,  850,  900};
     double QE[qeEntries] = {0.04, 0.10, 0.20, 0.30, 0.35, 0.40, 0.38, 0.35, 0.27, 0.20, 0.15, 0.12, 0.08, 0.06, 0.04};
 #else
+#ifdef _PLANACON_GEOMETRY_
+    const G4int qeEntries = 26;
+    
+    // Create LAPPD QE table; assume Hi-QE Blue photocathode;
+    double WL[qeEntries] = { 200,  220,  240,  260,  280,  300,  320,  340,  360,  380,  400,  420,  440,  
+			     460,  480,  500,  520,  540,  560,  580,  600,  620,  640,  660,  680,  700};
+    double QE[qeEntries] = {0.16, 0.20, 0.24, 0.29, 0.31, 0.30, 0.29, 0.30, 0.32, 0.32, 0.30, 0.26, 0.22, 
+			    0.17, 0.15, 0.12, 0.11, 0.09, 0.07, 0.05, 0.03, 0.03, 0.02, 0.02, 0.01, 0.00};
+#else
     const G4int qeEntries = 26;
     
     // Create LAPPD QE table; use LAPPD126 from Alexey's March 2022 LAPPD Workshop presentation;
@@ -252,6 +261,7 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
 			     420,  440,  460,  480,  500,  520,  540,  560,  580,  600,  620,  640,  660};
     double QE[qeEntries] = {0.25, 0.26, 0.27, 0.30, 0.32, 0.35, 0.36, 0.36, 0.36, 0.36, 0.37, 0.35, 0.30, 
 			    0.27, 0.24, 0.20, 0.18, 0.15, 0.13, 0.11, 0.10, 0.09, 0.08, 0.07, 0.05, 0.05};
+#endif
 #endif     
     
     double qemax = 0.0;
@@ -273,6 +283,48 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
   m_Geometry->AddPhotonDetector(cdet, pd->GetLogicalVolume(), pd);
   
   {
+#ifdef _PLANACON_GEOMETRY_
+      // NB: WYSIWIG fashion; well, it is top/ bottom and left/right symmetric;
+#if 1
+    unsigned const hdim = 12;
+    const unsigned flags[hdim][hdim] = {
+      {0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0},
+      {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+      {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+      {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+      {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+      {3, 3, 3, 3, 3, 0, 0, 1, 1, 1, 1, 1},
+      {3, 3, 3, 3, 3, 0, 0, 1, 1, 1, 1, 1},
+      {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+      {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+      {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+      {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+      {0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0},
+    };
+#else
+    unsigned const hdim = 18;
+    const unsigned flags[hdim][hdim] = {
+      {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
+      {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
+      {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+      {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+      {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+      {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+      {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+      {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1},
+      {3, 3, 3, 3, 3, 3, 3, 4, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1},
+      {3, 3, 3, 3, 3, 3, 3, 4, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1},
+      {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1},
+      {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+      {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+      {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+      {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+      {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+      {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
+      {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0}
+    };
+#endif
+#else
     unsigned const hdim = 9;
     const unsigned flags[hdim][hdim] = {
       // NB: WYSIWIG fashion; well, it is top/ bottom and left/right symmetric;
@@ -286,6 +338,7 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
       {0, 1, 1, 1, 1, 1, 1, 1, 0},
       {0, 0, 1, 1, 1, 1, 1, 0, 0}
     };
+#endif
 
     std::vector<std::pair<TVector2, bool>> coord;
 
@@ -300,13 +353,11 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
 
 	double qxOffset = xOffset + (flag >= 3 ? -_HRPPD_CENTRAL_ROW_OFFSET_ : 0.0);
 	coord.push_back(std::make_pair(TVector2(qxOffset, yOffset), flag%2));
-	//bool center = (ix == 4 && (iy == 3 || iy == 5)) || (iy == 4 && (ix == 3 || ix == 5));
       } //for iy
     } //for ix
-      //const unsigned ydim = 5, qpop[ydim] = {9, 9, 9, 7, 5};
-    
-    //std::vector<TVector2> coord;
+    printf("%lu sensors total\n", coord.size());
 #if _OLD_
+    //const unsigned ydim = 5, qpop[ydim] = {9, 9, 9, 7, 5};
     assert(qpop[0]%2);
     {
       double yOffset = 0.0;

@@ -7,6 +7,8 @@
 #ifndef _PFRICH_FIXED_
 #define _PFRICH_FIXED_
 
+//#define _PLANACON_GEOMETRY_
+
 static const bool flip = true;
 static const double sign = flip ? -1.0 : 1.0;
 
@@ -15,7 +17,11 @@ static const double sign = flip ? -1.0 : 1.0;
 
 // -- Vessel geometry -------------------------------------------------------------------------
 //
+#ifdef _PLANACON_GEOMETRY_
+#define _VESSEL_OUTER_RADIUS_             (570.0*mm)
+#else
 #define _VESSEL_OUTER_RADIUS_             (643.0*mm)
+#endif
 
 // Given by the project;
 #define _TRACKER_SACRIFICED_SPACE_       (0.0*mm)
@@ -49,10 +55,6 @@ static const double sign = flip ? -1.0 : 1.0;
 // Because of the beam pipe flange; 
 #define _HRPPD_CENTRAL_ROW_OFFSET_         (40.0*mm)
 
-// Gap between tiles at the sensor plane; as of 2023/02/15, assume a "windowed grid" 
-// support plate on the upstream sensor plane end + individual pockets with 
-// ~1mm thick walls for each HRPPD (<10mm high?); insertion from the downstream side;
-#define _HRPPD_INSTALLATION_GAP_          (  1.5*mm)
 
 // Well, a fake material for now;
 //#define _MIRROR_MATERIAL_            (m_QuarterInch_CF_HoneyComb)//m_CarbonFiber)
@@ -62,8 +64,18 @@ static const double sign = flip ? -1.0 : 1.0;
 #define _OUTER_MIRROR_THICKNESS_               (2.0)//0.54*_INCH_)
 
 // In practise will be part of the aluminum disk;
+#ifdef _PLANACON_GEOMETRY_
+#define _HRPPD_INSTALLATION_GAP_           (25.0*mm)
+#define _HRPPD_SUPPORT_GRID_BAR_HEIGHT_     (2.0*mm)
+#define _HRPPD_SUPPORT_GRID_BAR_WIDTH_      (_HRPPD_INSTALLATION_GAP_ + 2*3.0*mm)
+#else
+// Gap between tiles at the sensor plane; as of 2023/02/15, assume a "windowed grid" 
+// support plate on the upstream sensor plane end + individual pockets with 
+// ~1mm thick walls for each HRPPD (<10mm high?); insertion from the downstream side;
+#define _HRPPD_INSTALLATION_GAP_            (1.5*mm)
 #define _HRPPD_SUPPORT_GRID_BAR_HEIGHT_     (3.0*mm)
 #define _HRPPD_SUPPORT_GRID_BAR_WIDTH_     (12.0*mm)
+#endif
 
 // Just to fit everything in;
 #define _HRPPD_CONTAINER_VOLUME_HEIGHT_    (32.0*mm)
@@ -79,15 +91,30 @@ static const double sign = flip ? -1.0 : 1.0;
 
 // At the downstream (sensor plane) location; upstream radii are calculated automatically;
 #define _CONICAL_MIRROR_INNER_RADIUS_     (120.0*mm)
+#ifdef _PLANACON_GEOMETRY_
+#define _CONICAL_MIRROR_OUTER_RADIUS_     (520.0*mm)
+#else
 #define _CONICAL_MIRROR_OUTER_RADIUS_     (570.0*mm)
+#endif
 //-#define _CONICAL_MIRROR_OUTER_RADIUS_     (400.0*mm)
 // --------------------------------------------------------------------------------------------
 
 // -- HRPPD geometry --------------------------------------------------------------------------
 //
+#ifdef _PLANACON_GEOMETRY_
+// This description should be good enough;
+#define _HRPPD_TILE_SIZE_                  (59.0*mm)
+#define _HRPPD_OPEN_AREA_SIZE_             (53.0*mm)
+#define _HRPPD_ACTIVE_AREA_SIZE_          (_HRPPD_OPEN_AREA_SIZE_)
+#else
 // A formfactor presently assumed for the final production;
 #define _HRPPD_TILE_SIZE_                 (120.0*mm)
-//#define _HRPPD_TILE_SIZE_                 (112.0*mm)
+// Walls ~3mm thick are assumed;
+#define _HRPPD_OPEN_AREA_SIZE_            (114.0*mm)
+// Area covered by the photocathode in the geometry description; should be a good 
+// enough description of a fully efficient pixellated surface of the real sensors;
+#define _HRPPD_ACTIVE_AREA_SIZE_          (108.0*mm)
+#endif
 #define _HRPPD_WINDOW_THICKNESS_            (5.0*mm)
 // Anode base plate and walls; 
 #define _HRPPD_CERAMIC_BODY_THICKNESS_      (9.0*mm)
@@ -95,13 +122,6 @@ static const double sign = flip ? -1.0 : 1.0;
 // Assume 100% coverage pure silver plating 15um thick, 4 layers total (pads on both sides 
 // and ground around signal layer); 
 #define _HRPPD_PLATING_LAYER_THICKNESS_    (0.06*mm)
-// Walls ~3mm thick are assumed;
-#define _HRPPD_OPEN_AREA_SIZE_            (114.0*mm)
-//#define _HRPPD_OPEN_AREA_SIZE_            (106.0*mm)
-// Area covered by the photocathode in the geometry description; should be a good 
-// enough description of a fully efficient pixellated surface of the real sensors;
-#define _HRPPD_ACTIVE_AREA_SIZE_          (108.0*mm)
-//#define _HRPPD_ACTIVE_AREA_SIZE_          (100.0*mm)
 
 // This needs to be verified (and actually the QE at normal incidence renormalized); 
 #define _BIALKALI_REFRACTIVE_INDEX_           (1.47)
@@ -229,7 +249,11 @@ static const double sign = flip ? -1.0 : 1.0;
 //
 // If _ACRYLIC_THICKNESS_ is defined, a single layer right after the aerogel is installed; 
 #define _ACRYLIC_THICKNESS_                 (3.0*mm)
+#ifdef _PLANACON_GEOMETRY_
+#define _ACRYLIC_WL_CUTOFF_                 (275*nm)
+#else
 #define _ACRYLIC_WL_CUTOFF_                 (300*nm)
+#endif
 
 // If uncommented: fixed refractive index, no attenuation; 
 //#define _ACRYLIC_REFRACTIVE_INDEX_            (1.50)
@@ -240,7 +264,11 @@ static const double sign = flip ? -1.0 : 1.0;
 // Default is to use LAPPD QE as given by Alexey;
 //#define _USE_SiPM_QE_
 
+#ifdef _PLANACON_GEOMETRY_
+#define _QE_DOWNSCALING_FACTOR_               (1.00)
+#else
 #define _QE_DOWNSCALING_FACTOR_          (30.0/37.0)
+#endif
 
 // Some reasonably optimistic number; assume that it includes an unknown 
 // HRPPD Collection Efficiency (CE) as well;
@@ -254,13 +282,17 @@ static const double sign = flip ? -1.0 : 1.0;
 // -- Mirrors ---------------------------------------------------------------------------------
 //
 // If uncommented, optional funneling mirrors around the HRPPD sensors are installed;
-//#define _USE_PYRAMIDS_
+#define _USE_PYRAMIDS_
 // Mirror height and width;
-//#define _PYRAMID_MIRROR_HEIGHT_            (30.0*mm)
-//#define _PYRAMID_MIRROR_APERTURE_WIDTH_    (_HRPPD_ACTIVE_AREA_SIZE_)
+#ifdef _PLANACON_GEOMETRY_
+#define _PYRAMID_MIRROR_HEIGHT_            (25.0*mm)
+#else
+#define _PYRAMID_MIRROR_HEIGHT_            (30.0*mm)
+#endif
+#define _PYRAMID_MIRROR_APERTURE_WIDTH_    (_HRPPD_ACTIVE_AREA_SIZE_)
 
 // May still want to disable the funneling optics in IRT;
-//#define _USE_PYRAMIDS_OPTICS_
+#define _USE_PYRAMIDS_OPTICS_
 
 // May still want to disable the conical mirror optics in IRT;
 #define _USE_CONICAL_MIRROR_OPTICS_
