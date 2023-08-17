@@ -37,6 +37,12 @@ endif()
 
 #----------------------------------------------------------------------------
 
+## Some dependency above  clearly pulls in a ressult of
+## find_package (XerxesC)
+# message ("XercesC_FOUND = ${XercesC_FOUND}")
+# message ("XercesC_INCLUDE_DIR = ${XercesC_INCLUDE_DIR}")
+# message ("XercesC_LIBRARIES = ${XercesC_LIBRARIES}")
+
 include_directories( 
   ${Geant4_INCLUDE_DIR} 
   ${ROOT_INCLUDE_DIRS}	
@@ -44,13 +50,35 @@ include_directories(
   ${IRT}/include/IRT 
   ${BMF}/include 
   ${HEPMC3}/include 
-  ${XERCES}/include 
 
   ${PROJECT_SOURCE_DIR}/include 
   ${PROJECT_SOURCE_DIR}/g4irt/include 
 )
 
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.h )
+if(DEFINED XERCES)
+  include_directories( 
+    ${XERCES}/include
+  )
+elseif(${XercesC_FOUND})
+  include_directories( 
+    XercesC_INCLUDE_DIR
+  )
+endif()
+
+# file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.h )
+SET( headers 
+  include/tuning.cc.h
+  include/fixed.h
+  include/tuning.ak.h
+  include/Materials.h
+  include/RunAction.h
+  include/MagneticField.h
+  include/tuning.xx.h
+  include/DetectorConstruction.h
+  include/PrimaryGeneratorAction.h
+  include/tuning.h
+  include/TofPetMultiColumn.h
+) 
 
 SET(G4IRT_LIB g4irt)
 SET(PFRICH_EXE pfrich)
@@ -79,10 +107,16 @@ SET( sources
    ${PROJECT_SOURCE_DIR}/source/DetectorConstruction.cc
 )
 
-SET( XML_SRC
-   ${PROJECT_SOURCE_DIR}/source/XmlReader.cc
-)
-
+if(DEFINED XERCES OR XercesC_FOUND )
+  SET( XML_SRC
+    ${PROJECT_SOURCE_DIR}/source/XmlReader.cc
+  )
+  SET( headers
+    ${headers}
+    include/XmlTree.h
+  )
+endif()
+  
 ADD_LIBRARY( ${G4IRT_LIB} SHARED ${G4IRT_SRC} )
 TARGET_LINK_LIBRARIES(${G4IRT_LIB} ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} -L${IRT}/lib IRT)
 
@@ -98,10 +132,15 @@ if(DEFINED HEPMC3)
   SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHEPMC3")
   target_link_libraries(${PFRICH_EXE} -L${HEPMC3}/lib -L${HEPMC3}/lib64 HepMC3)
 endif()
+
 if(DEFINED XERCES)
   SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXERCES")
   target_link_libraries(${PFRICH_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
+elseif(${XercesC_FOUND})
+  add_compile_definitions ( XERCES )
+  target_link_libraries(${PFRICH_EXE} ${XercesC_LIBRARIES} )
 endif()
+
 
 #----------------------------------------------------------------------------
 
