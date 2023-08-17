@@ -353,7 +353,6 @@ void Materials::DefineMaterials( void )
       refractiveIndex[iq] = _BIALKALI_REFRACTIVE_INDEX_;
     
     G4MaterialPropertiesTable* bialkaliMPT = new G4MaterialPropertiesTable();
-    cout << "hello bia" << endl;
     bialkaliMPT->AddProperty("RINDEX", GetPhotonEnergies(), refractiveIndex, _WLDIM_);
     
     m_Bialkali->SetMaterialPropertiesTable(bialkaliMPT);
