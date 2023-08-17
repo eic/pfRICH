@@ -29,7 +29,7 @@ Materials::Materials( void ): CherenkovWaveLengthRange(_WLDIM_, _NU_MIN_, _NU_ST
   m_N = m_O = m_C = m_F = m_Si = m_H = m_K = m_Na = m_Sb = m_Al = m_Ca = 0; 
 
   m_Air = m_Absorber = m_Bialkali = m_Aluminum = m_CarbonFiber = m_Ceramic = m_Silver = m_Titanium = 0;
-  m_Acrylic = m_Nitrogen = m_FusedSilica = m_C2F6 = 0;
+  m_Acrylic = m_Nitrogen = m_FusedSilica = m_C2F6 = m_Sapphire = 0;
 
   m_FakeCarbon_1_g_cm3 = m_HalfInch_CF_HoneyComb = m_QuarterInch_CF_HoneyComb = 0;  
   m_FR4 = m_Water = m_Copper = m_Silicon = m_Delrin = m_PEEK = 0;
@@ -55,6 +55,21 @@ void Materials::DefineElements( void )
   m_K  = manager->FindOrBuildElement("K",  false); assert(m_K);
   m_Sb = manager->FindOrBuildElement("Sb", false); assert(m_Sb);
 } // Materials::DefineElements()
+
+// -------------------------------------------------------------------------------------
+// As provided by Charles, see e-mail from 2023/08/14; 
+// https://refractiveindex.info/?shelf=3d&book=crystals&page=sapphire
+
+static double calculate_sapphire_n(double lambda) {
+  double lambda_squared = lambda * lambda;
+
+  double term1 = 1.4313493  * lambda_squared  / (lambda_squared - pow(0.0726631, 2));
+  double term2 = 0.65054713 * lambda_squared  / (lambda_squared - pow(0.1193242, 2));
+  double term3 = 5.3414021  * lambda_squared  / (lambda_squared - pow(18.028251, 2));
+  
+  double n_squared = 1 + term1 + term2 + term3;
+  return sqrt(n_squared);
+}
 
 // -------------------------------------------------------------------------------------
 
@@ -99,6 +114,28 @@ void Materials::DefineMaterials( void )
     nitrogenMPT->AddProperty("RINDEX", GetPhotonEnergies(), refractiveIndex, _WLDIM_);
     
     m_Nitrogen->SetMaterialPropertiesTable(nitrogenMPT);
+  }
+
+  {
+    m_Sapphire = new G4RadiatorMaterial("Sapphire",       3.98*mg/cm3, 2);
+
+    m_Sapphire->AddElement(m_Al, 2);
+    m_Sapphire->AddElement(m_O,  3);
+        
+    G4double refractiveIndex[_WLDIM_];
+    for(int iq=0; iq<_WLDIM_; iq++) {
+      // Available dispersion formula requires wavelength in [um] units;
+      double wl = 1E-3 * _MAGIC_CFF_ / (GetPhotonEnergy(iq)/eV);
+      
+      refractiveIndex[iq] = calculate_sapphire_n(wl);
+      printf("%7.2f\n", refractiveIndex[iq]);
+    } //for iq
+    //exit(0);
+
+    G4MaterialPropertiesTable* sapphireMPT = new G4MaterialPropertiesTable();
+    sapphireMPT->AddProperty("RINDEX", GetPhotonEnergies(), refractiveIndex, _WLDIM_);
+    
+    m_Sapphire->SetMaterialPropertiesTable(sapphireMPT);
   }
 
   // Import UV silica refractive index data;
@@ -193,7 +230,14 @@ void Materials::DefineMaterials( void )
     //tree->Print();
     auto mats = tree->FindTags("Material");
     //printf("%d\n", (int)mats.size()); assert(0);
-    
+
+    // Prepare for creation of a fake Belle II aerogel with <n> ~ 1.04; 
+    double densities[2] = {0.0, 0.0}, nominal_ri[2] = {1.045, 1.055}, a1040_ri = 1.040;
+    // Will be used in several places;
+    double dri10 = nominal_ri[1] - nominal_ri[0], dri20 = a1040_ri - nominal_ri[0];
+    G4RadiatorMaterial *a1040 = 0;
+    std::map<TString, std::vector<double>> e1040, v1040;
+
     for(unsigned im=0; im<mats.size(); im++) {
       auto mat = mats[im];
 
@@ -207,7 +251,17 @@ void Materials::DefineMaterials( void )
       auto elems = comp->FindTags("Element");
       //printf("   %d\n", (int)elems.size());
       
+      densities[im] = atof(dens->GetFirstString());
+      // FIXME: use densities[] once debugging is over;
       auto aerogel = new G4RadiatorMaterial(name, atof(dens->GetFirstString())*g/cm3, elems.size());
+
+      // FIXME: assuming that element composition is the same (which is true);
+      if (im) {
+	// FIXME: this is not right (must account for density scaling with <n>);
+	double slope = (densities[1] - densities[0])/dri10;//(nominal_ri[1] - nominal_ri[0]);
+
+	a1040 = new G4RadiatorMaterial("BelleIIAerogel3", (densities[0] + slope*dri20)*g/cm3, elems.size());
+      } //if
       
       for(auto elem: elems) {
 	const XMLCh* xmlch = elem->GetAttribute("fraction");
@@ -225,9 +279,12 @@ void Materials::DefineMaterials( void )
 	
 	auto ptr = manager->FindOrBuildElement(buffer, false); assert(ptr);
 	aerogel->AddElement(ptr, atof(fraction)*100*perCent);
+
+	if (im) a1040->AddElement(ptr, atof(fraction)*100*perCent);
       } //for elem
       
-      G4MaterialPropertiesTable *mpt = new G4MaterialPropertiesTable();
+      G4MaterialPropertiesTable *mpt     =      new G4MaterialPropertiesTable();
+      G4MaterialPropertiesTable *mpt1040 = im ? new G4MaterialPropertiesTable() : 0;
       
       auto properties = mat->FindTags("Property");
       for(auto prop: properties) {
@@ -257,21 +314,40 @@ void Materials::DefineMaterials( void )
 	double cff = strcmp(name, "RINDEX") ? mm : 1.0;
 
 	unsigned counter = 0;
-	double e[dim], v[dim];
+	double e[dim], v[dim], vbff[dim];
 	for(auto entry: entries) {
 	  //printf("%2d -> %f (%10.7f vs %10.7f .. %10.7f)\n", counter, entry.first, entry.first*eV, _NU_MIN_, _NU_MAX_);
 	  
 	  if (entry.first*eV >= _NU_MIN_ && entry.first*eV <= _NU_MAX_) {
+	    if (im) {
+	      //printf("@Q@ %s %d %d vs %d\n", name, e1040.size(), e1040[name].size(), counter);
+	      // FIXME: out of range check;
+	      assert(e1040[name][counter] == entry.first  * eV);
+	      
+	      //printf("@Q@ %7.3f\n", e1040[name][counter]);
+	      double slope = (entry.second * cff - v1040[name][counter])/dri10;
+	      vbff[counter] = v1040[name][counter] + slope*dri20;
+	    } else {
+	      // Just store <n> ~ 1.045 aerogel parameterization point;
+	      e1040[name].push_back(entry.first  * eV);
+	      v1040[name].push_back(entry.second * cff);
+	    } //if
+
 	    e[counter  ] = entry.first  * eV;
 	    v[counter++] = entry.second * cff;
 	  } //if
 	} 
 	
 	mpt->AddProperty(name, e, v, counter);
+	if (im) mpt1040->AddProperty(name, e, vbff, counter);
       } //for prop
 
       aerogel->SetMaterialPropertiesTable(mpt);
       _m_Aerogel[id[im]] = aerogel;
+      if (im) {
+	a1040->SetMaterialPropertiesTable(mpt1040);
+	_m_Aerogel[_AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_] = a1040;
+      } //if
     } //for mat
     //printf("%s\n", mat->GetName());
   }

@@ -39,9 +39,9 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
   
   //+G4RotationMatrix *rY = new G4RotationMatrix(CLHEP::HepRotationY(90*degree));
 
-  // Full size quartz window;
+  // Full size quartz window; FIXME: Sapphire, here and in all other places;
   G4Box *wnd_box  = new G4Box("QuartzWindow", xysize/2, xysize/2, wndthick/2);
-  G4LogicalVolume* wnd_log = new G4LogicalVolume(wnd_box, m_FusedSilica,  "QuartzWindow", 0, 0, 0);
+  G4LogicalVolume* wnd_log = new G4LogicalVolume(wnd_box, _HRPPD_WINDOW_MATERIAL_/*m_FusedSilica*/,  "QuartzWindow", 0, 0, 0);
   {	
     TVector3 nx(1*sign,0,0), ny(0,-1,0);
     
