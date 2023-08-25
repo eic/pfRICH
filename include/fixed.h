@@ -9,6 +9,12 @@
 
 //#define _PLANACON_GEOMETRY_
 
+// Comment out if do not want them in GDML output;
+//#define _CREATE_FAKE_SENSITIVE_VOLUMES_
+
+// Make a cylindrical vessel, if commented out;
+#define _POLYHEDRA_VESSEL_SEGMENTATION_ 12
+
 static const bool flip = true;
 static const double sign = flip ? -1.0 : 1.0;
 
@@ -231,10 +237,10 @@ static const double sign = flip ? -1.0 : 1.0;
 //#define _IMPORT_BEAMPIPE_GDML_FILE_ ("./gdml/ip6_brycecanyon.modified.gdml")
 
 // Call /geometry/test/run if uncommented;
-//#define _GEOMETRY_CHECK_
+#define _GEOMETRY_CHECK_
 
 // Generate GDML output file (for material scans, etc);
-#define _GENERATE_GDML_OUTPUT_       ("pfRICH.gdml")
+//#define _GENERATE_GDML_OUTPUT_       ("pfRICH.gdml")
 
 // Disable pfRICH altogether;
 //#define _DISABLE_PFRICH_GEOMETRY_

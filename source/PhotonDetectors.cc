@@ -204,7 +204,7 @@ void DetectorConstruction::DefinePhotonDetectors(CherenkovDetector *cdet)
   }
 
   double alu_thickness = _INCH_/2 - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_;
-  auto *alu_tube = new G4Tubs("AluFrame", 0.0, _VESSEL_OUTER_RADIUS_, alu_thickness/2, 0*degree, 360*degree);
+  auto *alu_tube = G4TubsDodecagonWrapper("AluFrame", 0.0, _VESSEL_OUTER_RADIUS_, alu_thickness);
   auto *alu_shape = new G4SubtractionSolid("AluFrame", alu_tube, 
 					   FlangeCut(alu_thickness + 1*mm, _FLANGE_CLEARANCE_), 0, G4ThreeVector(0.0, 0.0, 0.0));
   double alu_cut_size = xysize + 0.5*mm;

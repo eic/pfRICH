@@ -13,6 +13,14 @@
 #include <G4IntersectionSolid.hh>
 #include <G4GDMLParser.hh>
 
+#include <G4VSensitiveDetector.hh>
+#include <G4HCofThisEvent.hh>
+#include <G4SDManager.hh>
+
+#ifdef _POLYHEDRA_VESSEL_SEGMENTATION_
+#include <G4Polyhedra.hh>
+#endif
+
 #define _GEANT_SOURCE_CODE_
 #include <G4Object.h>
 
@@ -39,7 +47,7 @@ DetectorConstruction::DetectorConstruction(CherenkovDetectorCollection *geometry
 G4VUserDetectorConstruction(), 
 m_Geometry(geometry), m_gas_volume_length(0.0), m_gas_volume_radius(0.0), 
   m_expHall_log(0), m_fiducial_volume_log(0), m_gas_volume_log(0), m_gzOffset(0.0), 
-m_r0min(0.0), m_r0max(0.0), m_gas_volume_offset(.0), m_gas_tube(0), m_gas_phys(0)
+  m_r0min(0.0), m_r0max(0.0), m_gas_volume_offset(.0), m_gas_tube(0), m_gas_phys(0), m_fiducial_volume_phys(0)
 {
   // Optical boundaries of the inner and outer conical mirrors; do not want to spoil the 
   // central area (mirro-less) optical path (would happen if define them in situ);
@@ -48,8 +56,28 @@ m_r0min(0.0), m_r0max(0.0), m_gas_volume_offset(.0), m_gas_tube(0), m_gas_phys(0
 
 // -------------------------------------------------------------------------------------
 
+#ifdef _CREATE_FAKE_SENSITIVE_VOLUMES_
+class FakeSD : public G4VSensitiveDetector {
+public:
+  FakeSD(const G4String& name, const G4String& hitsCollectionName): G4VSensitiveDetector(name) {};
+  virtual ~FakeSD() {};
+  
+  // methods from base class
+  virtual void   Initialize(G4HCofThisEvent* hitCollection) {};
+  virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history) { return true; };
+  virtual void   EndOfEvent(G4HCofThisEvent* hitCollection) {};
+};
+#endif
+
 void DetectorConstruction::ConstructSDandField()
 {
+  // Fake sensitive detector (photocathode);
+#ifdef _CREATE_FAKE_SENSITIVE_VOLUMES_
+  FakeSD *sd = new FakeSD("FakeSD", "TrackerHitsCollection");
+  G4SDManager::GetSDMpointer()->AddNewDetector(sd);
+  SetSensitiveDetector("PhotoDetector", sd, true);
+#endif
+
 #if defined(BMF) && defined(_USE_MAGNETIC_FIELD_)
   G4FieldManager* fieldMgr = G4TransportationManager::GetTransportationManager()->GetFieldManager();
 
@@ -124,6 +152,23 @@ G4UnionSolid *DetectorConstruction::FlangeCut(double length, double clearance)
 
 // -------------------------------------------------------------------------------------
 
+G4VSolid *DetectorConstruction::G4TubsDodecagonWrapper(const char *name, double rmin, double rmax, double length)
+{
+#ifdef _POLYHEDRA_VESSEL_SEGMENTATION_
+  {
+    double alfa = 2*M_PI / _POLYHEDRA_VESSEL_SEGMENTATION_, Rmin = rmin / cos(alfa/2), Rmax = rmax / cos(alfa/2);
+    double ri[2] = {Rmin, Rmin}, ro[2] = {Rmax, Rmax}, z[2] = {-length/2, length/2};
+
+    return new G4Polyhedra(name, 180.*deg/_POLYHEDRA_VESSEL_SEGMENTATION_, 360.*deg, 
+			   _POLYHEDRA_VESSEL_SEGMENTATION_, 2, z, ri, ro);
+  }
+#else
+  return new G4Tubs(name, rmin, rmax, length/2, 0*degree, 360*degree);
+#endif
+} // DetectorConstruction::G4TubsDodecagonWrapper()
+
+// -------------------------------------------------------------------------------------
+
 G4VPhysicalVolume *DetectorConstruction::Construct( void )
 {
   // Chemical elements and materials;
@@ -141,18 +186,18 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
   det->SetReadoutCellMask(0xFFFFFFFFFFFFFFFF);
 
   // Fiducial volume (air); has to be called "PFRICH";
-  auto *fiducial_folume_tube = new G4Tubs("PFRICH", 0.0, _VESSEL_OUTER_RADIUS_, _FIDUCIAL_VOLUME_LENGTH_/2, 
-				 0*degree, 360*degree);
-  auto *fiducial_volume_shape = new G4SubtractionSolid("PFRICH", fiducial_folume_tube, 
-						       FlangeCut(_FIDUCIAL_VOLUME_LENGTH_ + 1*mm, _FLANGE_CLEARANCE_), 
-						       0, G4ThreeVector(0.0, 0.0, 0.0));
+  auto *fiducial_volume_tube = 
+    G4TubsDodecagonWrapper("PFRICH", 0.0, _VESSEL_OUTER_RADIUS_, _FIDUCIAL_VOLUME_LENGTH_);
+  auto *fiducial_volume_shape = new G4SubtractionSolid("PFRICH", fiducial_volume_tube, 
+  						       FlangeCut(_FIDUCIAL_VOLUME_LENGTH_ + 1*mm, _FLANGE_CLEARANCE_), 
+  						       0, G4ThreeVector(0.0, 0.0, 0.0));
   m_fiducial_volume_log = new G4LogicalVolume(fiducial_volume_shape, m_Air,  "PFRICH", 0, 0, 0);
   // All volumes are defined assuming EIC h-going endcap orientation (dRICH case was developed this way 
   // for ATHENA); therefore need to rotate by 180 degrees around Y axis;
   G4RotationMatrix *rY = new G4RotationMatrix(CLHEP::HepRotationY(flip ? 180*degree : 0));
-#ifdef _GENERATE_GDML_OUTPUT_
-  auto fiducial_volume_phys = 
-#endif
+  //#ifdef _GENERATE_GDML_OUTPUT_
+  m_fiducial_volume_phys = 
+    //#endif
     new G4PVPlacement(rY, G4ThreeVector(0.0, 0.0, sign*_FIDUCIAL_VOLUME_OFFSET_), m_fiducial_volume_log, 
 		      "PFRICH", expHall_phys->GetLogicalVolume(), false, 0);
     
@@ -160,7 +205,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
   m_gas_volume_length = _FIDUCIAL_VOLUME_LENGTH_ - _VESSEL_FRONT_SIDE_THICKNESS_ - _SENSOR_AREA_LENGTH_;
   m_gas_volume_offset = -(_SENSOR_AREA_LENGTH_ - _VESSEL_FRONT_SIDE_THICKNESS_)/2;
   m_gas_volume_radius = _VESSEL_OUTER_RADIUS_ - _VESSEL_OUTER_WALL_THICKNESS_;
-  m_gas_tube = new G4Tubs("GasVolume", 0.0, m_gas_volume_radius, m_gas_volume_length/2, 0*degree, 360*degree);
+  m_gas_tube = G4TubsDodecagonWrapper("GasVolume", 0.0, m_gas_volume_radius, m_gas_volume_length);
   auto *gas_shape = new G4SubtractionSolid("GasVolume", m_gas_tube, 
 					   // Yes, account for vessel inner wall thickness;
 					   FlangeCut(m_gas_volume_length + 1*mm, _FLANGE_CLEARANCE_),
@@ -224,18 +269,22 @@ G4VPhysicalVolume *DetectorConstruction::Construct( void )
   ImportGdmlFile(_IMPORT_BEAMPIPE_GDML_FILE_, 12);
 #endif
 
-#ifdef _GENERATE_GDML_OUTPUT_
-  {
-    G4GDMLParser parser;
-
-    unlink(_GENERATE_GDML_OUTPUT_);
-    //parser.Write(_GENERATE_GDML_OUTPUT_, expHall_phys);
-    parser.Write(_GENERATE_GDML_OUTPUT_, fiducial_volume_phys);
-  }
-#endif
-
   return expHall_phys;
 } // DetectorConstruction::Construct()
+
+// -------------------------------------------------------------------------------------
+
+void DetectorConstruction::ExportGdmlFile( void )
+{
+#ifdef _GENERATE_GDML_OUTPUT_
+  G4GDMLParser parser;
+  
+  unlink(_GENERATE_GDML_OUTPUT_);
+  //parser.Write(_GENERATE_GDML_OUTPUT_, expHall_phys);
+  //printf("@@@ parser.Write()\n");
+  parser.Write(_GENERATE_GDML_OUTPUT_, m_fiducial_volume_phys);
+#endif
+} // DetectorConstruction::ExportGdmlFile()
 
 // -------------------------------------------------------------------------------------
 

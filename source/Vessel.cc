@@ -59,8 +59,8 @@ void DetectorConstruction::BuildVesselWalls( void )
 
   // Front vessel wall; it is part of the fiducial volume;
   {
-    auto *wall_tube = new G4Tubs("FrontWall", 0.0, _VESSEL_OUTER_RADIUS_, _VESSEL_FRONT_SIDE_THICKNESS_/2, 
-				 0*degree, 360*degree);
+    auto *wall_tube = 
+      G4TubsDodecagonWrapper("FrontWall", 0.0, _VESSEL_OUTER_RADIUS_, _VESSEL_FRONT_SIDE_THICKNESS_);
     auto *wall_shape = new G4SubtractionSolid("FrontWall", wall_tube, 
 					      FlangeCut(_VESSEL_FRONT_SIDE_THICKNESS_ + 1*mm, _FLANGE_CLEARANCE_),
 					      0, G4ThreeVector(0.0, 0.0, 0.0));
@@ -94,8 +94,8 @@ void DetectorConstruction::BuildVesselWalls( void )
   // Outer vessel wall; it is part of the fiducial volume;
   {
     double wlength = m_gas_volume_length;
-    auto *wall_tube = new G4Tubs("OuterWall", m_gas_volume_radius, _VESSEL_OUTER_RADIUS_, 
-				 wlength/2, 0*degree, 360*degree);
+    auto *wall_tube =
+      G4TubsDodecagonWrapper("OuterWall", m_gas_volume_radius, _VESSEL_OUTER_RADIUS_, wlength);
     auto *wall_log = new G4LogicalVolume(wall_tube, m_HalfInch_CF_HoneyComb,  "OuterWall", 0, 0, 0);
     new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, -_FIDUCIAL_VOLUME_LENGTH_/2 + _VESSEL_FRONT_SIDE_THICKNESS_ + 
 				       wlength/2), 
@@ -105,8 +105,8 @@ void DetectorConstruction::BuildVesselWalls( void )
     {
       double rlength = _INCH_/2;
 
-      auto *ring_tube = new G4Tubs("OuterWallAluRing", m_gas_volume_radius, _VESSEL_OUTER_RADIUS_, 
-				   rlength/2, 0*degree, 360*degree);
+      auto *ring_tube = 
+	G4TubsDodecagonWrapper("OuterWallAluRing", m_gas_volume_radius, _VESSEL_OUTER_RADIUS_, rlength);
 
       auto *ring_log = new G4LogicalVolume(ring_tube, m_Aluminum,  "OuterWallAluRing", 0, 0, 0);
       for(unsigned iq=0; iq<2; iq++) {
