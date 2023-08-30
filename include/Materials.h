@@ -46,7 +46,7 @@ protected:
   G4Material *m_FR4, *m_Water, *m_Copper, *m_Silicon, *m_Delrin, *m_PEEK;
 
   //G4RadiatorMaterial *m_Aerogel[2], *m_Nitrogen, *m_Acrylic, *m_FusedSilica;
-  G4RadiatorMaterial *m_Nitrogen, *m_Acrylic, *m_FusedSilica, *m_C2F6;
+  G4RadiatorMaterial *m_Nitrogen, *m_Acrylic, *m_FusedSilica, *m_C2F6, *m_Sapphire;
   std::map<unsigned, G4RadiatorMaterial*> _m_Aerogel;
 };
 

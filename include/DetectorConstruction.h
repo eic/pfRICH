@@ -9,11 +9,12 @@ class G4Colour;
 class G4UnionSolid;
 class G4PVPlacement;
 class G4Tubs;
+class G4VSolid;//Polyhedra;
 
 class CherenkovDetector;
 class CherenkovDetectorCollection;
 class OpticalBoundary;
-  
+
 class DetectorConstruction : public Materials, public G4VUserDetectorConstruction
 {
 public:
@@ -24,6 +25,8 @@ public:
 
   G4VPhysicalVolume* Construct( void );
 
+  void ExportGdmlFile( void );
+
 private:
   CherenkovDetectorCollection *m_Geometry;
 
@@ -31,8 +34,11 @@ private:
   G4LogicalVolume *m_expHall_log, *m_fiducial_volume_log, *m_gas_volume_log;
   double m_gzOffset, m_r0min, m_r0max, m_gas_volume_offset;
   OpticalBoundary *m_mboundaries[2];// = {0, 0};
-  G4Tubs *m_gas_tube;
-  G4PVPlacement *m_gas_phys;
+  //G4Tubs *m_gas_tube;
+  G4VSolid *m_gas_tube;
+  G4PVPlacement *m_gas_phys, *m_fiducial_volume_phys;
+
+  G4VSolid *G4TubsDodecagonWrapper(const char *name, double rmin, double rmax, double length);
 
   G4OpticalSurface *CreateLambertianMirrorSurface(const char *name, 
 						  double reflectivity = 1.0, double roughness = 0.0);

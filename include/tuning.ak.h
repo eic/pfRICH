@@ -14,7 +14,7 @@
 
 // Optional smearing of primary vertices along the beam line; applies to HEPMC3 input as well;
 // 10cm (proton bunch size) is a reasonable value;
-#define _PRIMARY_VERTEX_SIGMA_               (10*cm)
+//#define _PRIMARY_VERTEX_SIGMA_               (10*cm)
 
 //
 // All this can be overriden by '-i' cmd line switch (HEPMC3 input);
@@ -24,7 +24,7 @@
 // Will toggle between the two types if defined;
 //#define _ALTERNATIVE_PARTICLE_TYPE_        ("kaon+")
 
-#define _PRIMARY_PARTICLE_ETA_            (sign*1.80)
+#define _PRIMARY_PARTICLE_ETA_            (sign*2.50)//80)
 //#define _PRIMARY_PARTICLE_ETA_            (sign*2.4)
 //#define _PRIMARY_PARTICLE_ETA_            (sign*1.65)
 // Uniform phi, if undefined;

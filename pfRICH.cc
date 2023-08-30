@@ -90,8 +90,8 @@ int main(int argc, char** argv)
   // Set mandatory initialization classes
   //
   // Detector construction
+  auto construction = new DetectorConstruction(geometry);
   {
-    auto construction = new DetectorConstruction(geometry);
     geometry->AddNewDetector("pfRICH");
 
     runManager->SetUserInitialization(construction);
@@ -148,6 +148,10 @@ int main(int argc, char** argv)
     TString cmd; cmd.Form("/run/beamOn %d", stat);
     UImanager->ApplyCommand(cmd.Data());
   }
+
+#ifdef _GENERATE_GDML_OUTPUT_
+  construction->ExportGdmlFile();
+#endif
 
   // Job termination
   delete visManager;

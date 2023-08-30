@@ -17,7 +17,11 @@ void multi_eval(const char *dfname, const char *cfname = 0)
   //reco->SetSensorActiveAreaPixellation(24);
   // [rad] (should match SPE sigma) & [ns];
   //auto *a1 = reco->UseRadiator("Aerogel225",      0.0040);
-  auto *a1 = reco->UseRadiator("BelleIIAerogel1");
+
+  auto *a1 = reco->UseRadiator("BelleIIAerogel3");
+  //auto *a1 = reco->UseRadiator("BelleIIAerogel3");
+
+
   //reco->SetSinglePhotonTimingResolution(0.030);
   //reco->SetQuietMode();
   reco->AddHypothesis("pi+");

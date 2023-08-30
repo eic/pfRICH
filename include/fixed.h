@@ -9,6 +9,12 @@
 
 //#define _PLANACON_GEOMETRY_
 
+// Comment out if do not want them in GDML output;
+//#define _CREATE_FAKE_SENSITIVE_VOLUMES_
+
+// Make a cylindrical vessel, if commented out;
+#define _POLYHEDRA_VESSEL_SEGMENTATION_ 12
+
 static const bool flip = true;
 static const double sign = flip ? -1.0 : 1.0;
 
@@ -20,13 +26,18 @@ static const double sign = flip ? -1.0 : 1.0;
 #ifdef _PLANACON_GEOMETRY_
 #define _VESSEL_OUTER_RADIUS_             (570.0*mm)
 #else
-#define _VESSEL_OUTER_RADIUS_             (643.0*mm)
+//#define _VESSEL_OUTER_RADIUS_             (643.0*mm)
+// See e-mail from Alex Eslinger from 2023/08/16;
+#define _VESSEL_OUTER_RADIUS_             (638.0*mm)
 #endif
 
 // Given by the project;
-#define _TRACKER_SACRIFICED_SPACE_       (0.0*mm)
-#define _FIDUCIAL_VOLUME_LENGTH_          (541.5*mm - _TRACKER_SACRIFICED_SPACE_)
-#define _FIDUCIAL_VOLUME_OFFSET_ (1185.5*mm + _TRACKER_SACRIFICED_SPACE_ + _FIDUCIAL_VOLUME_LENGTH_/2)
+//#define _TRACKER_SACRIFICED_SPACE_       (0.0*mm)
+//#define _FIDUCIAL_VOLUME_LENGTH_          (541.5*mm - _TRACKER_SACRIFICED_SPACE_)
+//#define _FIDUCIAL_VOLUME_OFFSET_ (1185.5*mm + _TRACKER_SACRIFICED_SPACE_ + _FIDUCIAL_VOLUME_LENGTH_/2)
+// See e-mail from Alex Eslinger from 2023/08/16;
+#define _FIDUCIAL_VOLUME_LENGTH_          (491.0*mm)
+#define _FIDUCIAL_VOLUME_OFFSET_ (1236.0*mm + _FIDUCIAL_VOLUME_LENGTH_/2)
 
 // Taken from Alex's drawing; 
 #define _FLANGE_EPIPE_DIAMETER_           (105.3*mm)
@@ -115,7 +126,9 @@ static const double sign = flip ? -1.0 : 1.0;
 // enough description of a fully efficient pixellated surface of the real sensors;
 #define _HRPPD_ACTIVE_AREA_SIZE_          (108.0*mm)
 #endif
-#define _HRPPD_WINDOW_THICKNESS_            (5.0*mm)
+//#define _HRPPD_WINDOW_THICKNESS_            (5.0*mm)
+// 2023/08/17 -> switch to sapphire;
+#define _HRPPD_WINDOW_THICKNESS_            (3.8*mm)
 // Anode base plate and walls; 
 #define _HRPPD_CERAMIC_BODY_THICKNESS_      (9.0*mm)
 #define _HRPPD_BASEPLATE_THICKNESS_         (3.0*mm)
@@ -134,6 +147,8 @@ static const double sign = flip ? -1.0 : 1.0;
 #define _EFFECTIVE_MCP_THICKNESS_     (2*0.6*mm*0.3)
 // FIXME: change to glass; should not really matter I guess;
 #define _EFFECTIVE_MCP_MATERIAL_  m_FusedSilica
+
+#define _HRPPD_WINDOW_MATERIAL_         m_Sapphire//m_FusedSilica
 // --------------------------------------------------------------------------------------------
 
 // -- Wavelength range ------------------------------------------------------------------------
@@ -161,6 +176,7 @@ static const double sign = flip ? -1.0 : 1.0;
 // Up to two layers along the beam line; 
 #define _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_ 0
 #define _AEROGEL_BELLE_II_LARGE_REFRACTIVE_INDEX_ 1
+#define _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_  2
 // FIXME: this does not look nice, but suffices;
 #define _AEROGEL_CLAS12_DENSITY_155_MG_CM3_     155
 #define _AEROGEL_CLAS12_DENSITY_225_MG_CM3_     225
@@ -221,7 +237,7 @@ static const double sign = flip ? -1.0 : 1.0;
 //#define _IMPORT_BEAMPIPE_GDML_FILE_ ("./gdml/ip6_brycecanyon.modified.gdml")
 
 // Call /geometry/test/run if uncommented;
-//#define _GEOMETRY_CHECK_
+#define _GEOMETRY_CHECK_
 
 // Generate GDML output file (for material scans, etc);
 //#define _GENERATE_GDML_OUTPUT_       ("pfRICH.gdml")
@@ -233,7 +249,8 @@ static const double sign = flip ? -1.0 : 1.0;
 // -- Aerogel ---------------------------------------------------------------------------------
 //
 //#define _AEROGEL_1_ _AEROGEL_CLAS12_DENSITY_225_MG_CM3_
-#define _AEROGEL_1_ _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_
+#define _AEROGEL_1_ _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_
+//#define _AEROGEL_1_ _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_
 #define _AEROGEL_THICKNESS_1_               (2.5*cm)
 //#define _AEROGEL_2_ _AEROGEL_CLAS12_DENSITY_155_MG_CM3_
 //#define _AEROGEL_THICKNESS_2_               (2.0*cm)
