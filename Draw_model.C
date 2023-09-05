@@ -93,7 +93,7 @@ void Draw_model()
     gGeoManager->Write();
     f->Close();
 
-
+//////gEve->GetDefaultGLViewer()->SavePicture("test.png");
 
 }
 
