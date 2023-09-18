@@ -1,18 +1,18 @@
 # Detector and  event visualization 
 
-| **Table of Contents**               |                                                                         |
-| --:                                 |-------------------------------------------------------------------------|
-| [Prerequisites](#Prerequisites)                     | Prerequisites needed for the macros                                     |
-| [Configuration xml file](#Configuration xml file)   | How to create xml file defining colors and transparency of the detector |
-| [Recoloring](#Recoloring) | How to recolor the detector model using configuration xml file           |
-| [Detector visualization](#Detector visualization)           | How to visualize the recolored detector                                 |
-| [Event visualization](#Event visualization)   | How to visualize particles in the recolored detector using a particle gun |
+|                             **Table of Contents** |                                                                         |
+|--------------------------------------------------:|-------------------------------------------------------------------------|
+|                   [Prerequisites](#Prerequisites) | Prerequisites needed for the macros                                     |
+| [Configuration xml file](#Configuration_xml_file) | How to create xml file defining colors and transparency of the detector |
+|                         [Recoloring](#Recoloring) | How to recolor the detector model using configuration xml file           |
+| [Detector visualization](#Detector_visualization) | How to visualize the recolored detector                                 |
+|       [Event visualization](#Event_visualization) | How to visualize particles in the recolored detector using a particle gun |
 ## Prerequisites
 - TGeo geometry ROOT file - see https://github.com/eic/drich-dev for instructions on how to generate the geometry file (geometry.sh macro).
 - Particle gun - see tutorial by Shyam Kumar https://indico.bnl.gov/event/18360/. (Visualize_DD4HEP/Eve_Gun/run_eve.sh) 
 
 
-## Configuration xml file
+## Configuration_xml_file
 If you want to create a new xml file including the information about the colors and transparency of the particular detectors and subdetectors, you can use the following macro:
 `Create_xml.C` in the terminal:
 ```bash
@@ -46,7 +46,7 @@ where `detector_geometry.root` is the geometry file and `Recolored_detector.root
 - If xml file does not include the subdetector, the color is unchanged.
 - If the xml file includes the subdetector not included in the geometry file, the macro will ignore it.
 
-## Detector visualization
+## Detector_visualization
 If you want to visualize the detector saved as `Recolored_detector.root`, you can use the following macro:
 ```bash
 root -l Draw_model.C
@@ -71,7 +71,7 @@ gEve->GetDefaultGLViewer()->SavePicture("output.png");
 ```
 directly in the terminal. The available formats are gif, gif+, jpg, png, eps, and pdf.
 
-## Event visualization
+## Event_visualization
 To visualize the event, you need to run the particle gun first. See the tutorial by Shyam Kumar https://indico.bnl.gov/event/18360/.
 In the folder `Visualize_DD4HEP/Eve_Gun/` you can find the macro `run_eve.sh`. Or run directly in the terminal:
 ```bash
