@@ -2,6 +2,7 @@
 #include "G4Element.hh"
 #include "G4Material.hh"
 #include "G4NistManager.hh"
+#include "G4Version.hh"
 
 #include <TString.h>
 
@@ -156,17 +157,20 @@ void Materials::DefineMaterials( void )
     unsigned riDim = wl.size();
 
     // FIXME: use constant for now;
-    // G4double energy[riDim], refractiveIndex[riDim];
-    std::vector<G4double> energy;
-    std::vector<G4double> refractiveIndex;
-    
+#if G4VERSION_NUMBER < 1070
+    G4double energy[riDim], refractiveIndex[riDim];
     for(int iq=riDim-1; iq>=0; iq--) {
-    // for(int iq=0; iq<riDim; iq++) {
-      // energy         [iq] =  (1240.0/wl[iq])*eV;
-      // refractiveIndex[iq] = ri[iq];
+      energy         [iq] =  (1240.0/wl[iq])*eV;
+      refractiveIndex[iq] = ri[iq];
+    } //for iq
+#else
+    std::vector<G4double> energy;
+    std::vector<G4double> refractiveIndex;    
+    for(int iq=riDim-1; iq>=0; iq--) {
       energy.push_back( (1240.0/wl[iq])*eV );
       refractiveIndex.push_back( ri[iq] );
     } //for iq 
+#endif // version < 10.7
 
     G4MaterialPropertiesTable* fsMPT = new G4MaterialPropertiesTable();
     fsMPT->AddProperty("RINDEX", energy, refractiveIndex, riDim );
@@ -401,6 +405,7 @@ void Materials::DefineMaterials( void )
     m_C2F6->GetRIChOptics()->setOpticalParams();
 
     // kk: We hope that the following is simply not needed
+    // Note that the version number can be checked with #if G4VERSION_NUMBER < 1070
     // // m_C2F6->GetRIChOptics()->pTable->GetProperty("RINDEX")->SetSpline(true);
 
     // If it is, the following should be a hacky solution

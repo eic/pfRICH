@@ -14,6 +14,7 @@
 #include "G4LogicalSkinSurface.hh"
 #include "G4tgbMaterialMgr.hh"
 #include "G4tgbVolumeMgr.hh"
+#include "G4Version.hh"
 
 #include <tuning.h>
 
@@ -157,15 +158,24 @@ protected:
 
   // add properties to the MaterialPropertiesTable and link to material
   void setMatPropTable(int nEntries) {
-    //    if (scaledN!=NULL) pTable->AddProperty("RINDEX",    scaledE, scaledN, nEntries)->SetSpline(true);
+#if G4VERSION_NUMBER < 1070
+    if (scaledN!=NULL) pTable->AddProperty("RINDEX",    scaledE, scaledN, nEntries)->SetSpline(true);
+#else
     if (scaledN!=NULL) pTable->AddProperty("RINDEX",    scaledE, scaledN, nEntries, false, true);
+#endif // version < 10.7
 #ifndef _DISABLE_ABSORPTION_
-    // if (scaledA!=NULL) pTable->AddProperty("ABSLENGTH", scaledE, scaledA, nEntries)->SetSpline(true);
+#if G4VERSION_NUMBER < 1070
+    if (scaledA!=NULL) pTable->AddProperty("ABSLENGTH", scaledE, scaledA, nEntries)->SetSpline(true);
+#else
     if (scaledA!=NULL) pTable->AddProperty("ABSLENGTH", scaledE, scaledA, nEntries, false, true);
+#endif // version < 10.7
 #endif
 #ifndef _DISABLE_RAYLEIGH_SCATTERING_
-    // if (scaledS!=NULL) pTable->AddProperty("RAYLEIGH",  scaledE, scaledS, nEntries)->SetSpline(true);
+#if G4VERSION_NUMBER < 1070
+    if (scaledS!=NULL) pTable->AddProperty("RAYLEIGH",  scaledE, scaledS, nEntries)->SetSpline(true);
+#else
     if (scaledS!=NULL) pTable->AddProperty("RAYLEIGH",  scaledE, scaledS, nEntries, false, true);
+#endif // version < 10.7
 #endif
     //    pTable->AddConstProperty("SCINTILLATIONYIELD", 0. / MeV); // @@@ TBC @@@
     //    pTable->AddConstProperty("RESOLUTIONSCALE", 1.0); // @@@ TBC @@@
