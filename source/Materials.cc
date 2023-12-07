@@ -2,6 +2,7 @@
 #include "G4Element.hh"
 #include "G4Material.hh"
 #include "G4NistManager.hh"
+#include "G4Version.hh"
 
 #include <TString.h>
 
@@ -21,6 +22,10 @@
 
 // Does not make sense to spoil tuning.h with this number;
 #define _ACRYLIC_DENSITY_                     (1.18*g/cm3)
+
+using std::cout;
+using std::cerr;
+using std::endl;
 
 // -------------------------------------------------------------------------------------
 
@@ -152,15 +157,23 @@ void Materials::DefineMaterials( void )
     unsigned riDim = wl.size();
 
     // FIXME: use constant for now;
+#if G4VERSION_NUMBER < 1070
     G4double energy[riDim], refractiveIndex[riDim];
     for(int iq=riDim-1; iq>=0; iq--) {
       energy         [iq] =  (1240.0/wl[iq])*eV;
       refractiveIndex[iq] = ri[iq];
+    } //for iq
+#else
+    std::vector<G4double> energy;
+    std::vector<G4double> refractiveIndex;    
+    for(int iq=riDim-1; iq>=0; iq--) {
+      energy.push_back( (1240.0/wl[iq])*eV );
+      refractiveIndex.push_back( ri[iq] );
     } //for iq 
+#endif // version < 10.7
 
     G4MaterialPropertiesTable* fsMPT = new G4MaterialPropertiesTable();
-    fsMPT->AddProperty("RINDEX", energy, refractiveIndex, riDim);
-    
+    fsMPT->AddProperty("RINDEX", energy, refractiveIndex, riDim );
     m_FusedSilica->SetMaterialPropertiesTable(fsMPT);
   }
 
@@ -183,7 +196,6 @@ void Materials::DefineMaterials( void )
 	
       aerogel->AddElement(m_Si, 1);
       aerogel->AddElement(m_O,  2);
-      
 #ifdef _AEROGEL_REFRACTIVE_INDEX_ 
       // FIXME: use constant for now;
       G4double refractiveIndex[_WLDIM_];
@@ -199,13 +211,11 @@ void Materials::DefineMaterials( void )
       aerogel->SetRIChOptics(new g4dRIChAerogel(aerogel));
       // FIXME: tuned model#3 to n ~ 1.02 @ 400ns (which corresponds to 110 mg/cm^3 density);
       aerogel->GetRIChOptics()->setOpticalParams(3);
-      aerogel->GetRIChOptics()->pTable->GetProperty("RINDEX")->SetSpline(true);
+      // kk aerogel->GetRIChOptics()->pTable->GetProperty("RINDEX")->SetSpline(true);
 #endif
-
       _m_Aerogel[density[il]] = aerogel;
     } //for il
   } 
-
 #ifdef XERCES
   // Belle II aerogel, two types;
   {
@@ -379,11 +389,11 @@ void Materials::DefineMaterials( void )
 #else
     m_Acrylic->SetRIChOptics(new g4dRIChFilter(m_Acrylic));
     m_Acrylic->GetRIChOptics()->setOpticalParams(_ACRYLIC_WL_CUTOFF_);
-    m_Acrylic->GetRIChOptics()->pTable->GetProperty("RINDEX")->SetSpline(true);
+    // kk m_Acrylic->GetRIChOptics()->pTable->GetProperty("RINDEX")->SetSpline(true);
 #endif
   }
 #endif
-
+  
   // C2F6 as a gas radiator option;
   {
     m_C2F6 = new G4RadiatorMaterial("C2F6", 5.7*mg/cm3, 2);
@@ -393,9 +403,23 @@ void Materials::DefineMaterials( void )
 
     m_C2F6->SetRIChOptics(new g4dRIChGas(m_C2F6));
     m_C2F6->GetRIChOptics()->setOpticalParams();
-    m_C2F6->GetRIChOptics()->pTable->GetProperty("RINDEX")->SetSpline(true);
-  }
 
+    // kk: We hope that the following is simply not needed
+    // Note that the version number can be checked with #if G4VERSION_NUMBER < 1070
+    // // m_C2F6->GetRIChOptics()->pTable->GetProperty("RINDEX")->SetSpline(true);
+
+    // If it is, the following should be a hacky solution
+    // auto mpv = m_C2F6->GetRIChOptics()->pTable->GetProperty("RINDEX");
+    // auto nEntries= mpv->GetVectorLength();
+    // std::vector<G4double> scaledE;
+    // std::vector<G4double> scaledN;
+    // for (std::size_t i=0; i<nEntries; ++i){
+    //   scaledE[i] = mpv->Energy(i);
+    //   scaledN[i] = (*mpv)[i];
+    // }
+    // (*mpv) = *(new G4MaterialPropertyVector(scaledE, scaledN, true));
+  }
+  
   // Bialkali photocathode;
   {
     // Well, the only part what matters here is the refractive index; density is fake;
