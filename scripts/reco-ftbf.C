@@ -1,6 +1,6 @@
 
 
-void multi_eval_ftbf(const char *dfname, const char *cfname = 0)
+void reco_ftbf(const char *dfname, const char *cfname = 0)
 {
   auto *reco = new ReconstructionFactory(dfname, cfname, "pfRICH-2x2");
 
@@ -78,4 +78,4 @@ void multi_eval_ftbf(const char *dfname, const char *cfname = 0)
   cv->cd(10); reco->hwl()->Draw();
   cv->cd(11); reco->hvtx()->Draw();
   cv->cd(12); reco->hri()->Draw();
-} // multi_eval_ftbf()
+} // reco_ftbf()

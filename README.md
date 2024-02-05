@@ -115,11 +115,12 @@ Run examples
 
 ```
 cd ${SANDBOX}/pfRICH
+# FIXME: may need to click on "Useful tips", then on "viewer-0" in the Qt display;
 ./build/pfrich-epic -m macro/vis-epic.mac
 
 ./build/pfrich-epic -o pfrich-epic.root -s 1000
 root -l 'scripts/hit-map-epic.C("pfrich-epic.root")'
-root -l 'scripts/multi-eval-epic.C("pfrich-epic.root")'
+root -l 'scripts/reco-epic.C("pfrich-epic.root")'
 
 ./build/pfrich-ftbf -m macro/vis-ftbf.mac
 
@@ -127,7 +128,9 @@ root -l 'scripts/multi-eval-epic.C("pfrich-epic.root")'
 ./build/pfrich-ftbf -o pfrich-ftbf.root -s 1000
 root -l 'scripts/hit-map-ftbf-1x1.C("pfrich-ftbf.root")'
 root -l 'scripts/hit-map-ftbf-2x2.C("pfrich-ftbf.root")'
-#root -l 'scripts/multi-eval-ftbf.C("pfrich.root")'
+# This one is also time consuming; comment "#define _ZCOORD_ASPHERIC_LENS_" in ftbf.default.h", 
+# recompile and re-run ./build/pfrich-ftbf if the lens is of no interest;
+root -l 'scripts/reco-ftbf.C("pfrich-ftbf.root")'
 ```
 
 Customize your environment
@@ -135,7 +138,7 @@ Customize your environment
 
 ```
 # Consider creating your local copies of the repository header files, which you may want to change,
-# and pointing links like share.h to them, like:
+# and pointing links like share.h to them, like (for a person 'xx'):
 cd ${SANDBOX}/pfRICH
 pushd epic/include && rm epic.h && cp epic.default.h epic.xx.h && ln -s epic.xx.h epic.h && popd
 
