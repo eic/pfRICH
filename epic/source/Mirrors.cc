@@ -12,20 +12,21 @@
 #define _GEANT_SOURCE_CODE_
 #include <G4Object.h>
 
-#include <tuning.h>
+#include <epic.h>
 
 #include <CherenkovDetectorCollection.h>
 #include <G4RadiatorMaterial.h>
 #include <CherenkovMirror.h>
 
-#include <DetectorConstruction.h>
+#include <EpicDetectorConstruction.h>
 
 // -------------------------------------------------------------------------------------
 
-void DetectorConstruction::DefineMirrors(CherenkovDetector *cdet, G4UnionSolid *flange)
+void EpicDetectorConstruction::DefineMirrors(CherenkovDetector *cdet, DarkBox *dbox, G4VSolid *mother, 
+					     G4UnionSolid *flange)
 {
   const char *names[2] = {"InnerMirror", "OuterMirror"};
-  double mlen = m_gas_volume_length/2 - m_gzOffset - _BUILDING_BLOCK_CLEARANCE_;
+  double mlen = dbox->m_gas_volume_length/2 - m_gzOffset - _BUILDING_BLOCK_CLEARANCE_;
 #ifdef _USE_PYRAMIDS_
   mlen -= _BUILDING_BLOCK_CLEARANCE_ + _PYRAMID_MIRROR_HEIGHT_;
 #else
@@ -48,7 +49,7 @@ void DetectorConstruction::DefineMirrors(CherenkovDetector *cdet, G4UnionSolid *
       // There should be a cutaway on the inner mirror because of the beam pipe flange;
       G4LogicalVolume *solid_log = 0;
       if (im) {
-	auto solid = new G4IntersectionSolid(names[im], mshape, m_gas_tube, 0, G4ThreeVector(0.0, 0.0, 0.0));
+	auto solid = new G4IntersectionSolid(names[im], mshape, mother, 0, G4ThreeVector(0.0, 0.0, 0.0));
 	solid_log = new G4LogicalVolume(solid, material, names[im], 0, 0, 0);
       } else {
 	auto solid = new G4SubtractionSolid(names[im], mshape, flange,  0, G4ThreeVector(0.0, 0.0, 0.0));
@@ -70,7 +71,7 @@ void DetectorConstruction::DefineMirrors(CherenkovDetector *cdet, G4UnionSolid *
       mirror->DefineLogicalVolume();
       G4VPhysicalVolume *phys = new G4PVPlacement(/*rZ*/0, G4ThreeVector(0,0,mpos), solid_log,
 						  mirror->GetSolid()->GetName(), 
-						  m_gas_phys->GetLogicalVolume(), false, 0);//m_Copies.size());
+						  dbox->m_gas_volume_phys->GetLogicalVolume(), false, 0);//m_Copies.size());
       mirror->AddCopy(mirror->CreateCopy(phys));
       {
 	auto msurface = mirror->GetMirrorSurface();
@@ -78,7 +79,7 @@ void DetectorConstruction::DefineMirrors(CherenkovDetector *cdet, G4UnionSolid *
 	if (msurface)
 	  // Do I really need them separately?;
 	  //char buffer[128]; snprintf(buffer, 128-1, "SphericalMirror");//Surface");//%2d%02d", io, iq);
-	  new G4LogicalBorderSurface(mirror->GetSolid()->GetName(), m_gas_phys, phys, msurface);
+	  new G4LogicalBorderSurface(mirror->GetSolid()->GetName(), dbox->m_gas_volume_phys, phys, msurface);
       } 
       
       auto mcopy = dynamic_cast<SurfaceCopy*>(mirror->GetCopy(0));//m_Copies[iq]);
@@ -90,13 +91,16 @@ void DetectorConstruction::DefineMirrors(CherenkovDetector *cdet, G4UnionSolid *
 	m_Geometry->AddMirrorLookupEntry(mirror->GetLogicalVolume(), mirror);
 	
 	auto surface = dynamic_cast<SurfaceCopy*>(mirror->GetCopy(0))->m_Surface;
-	m_mboundaries[im] = new OpticalBoundary(m_Geometry->FindRadiator(m_gas_volume_log), surface, false);
+	dbox->m_mboundaries[im] = 
+	  new OpticalBoundary(m_Geometry->FindRadiator(dbox->m_gas_volume_phys->GetLogicalVolume()), surface, false);
 	
 	// Complete the radiator volume description; this is the rear side of the container gas volume;
 	//+? det->GetRadiator("GasVolume")->m_Borders[0].second = surface;
       }
     }
+
+    //cdet->AddOpticalBoundary(CherenkovDetector::Upstream, 0, m_mboundaries[im]);
   } //for im
-} // DetectorConstruction::DefineMirrors()
+} // EpicDetectorConstruction::DefineMirrors()
 
 // -------------------------------------------------------------------------------------

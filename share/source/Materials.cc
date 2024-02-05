@@ -7,8 +7,6 @@
 
 #include <TofPetMultiColumn.h>
 
-#include <tuning.h>
-
 #include "Materials.h"
 #include <G4RadiatorMaterial.h>
 
@@ -18,9 +16,6 @@
 #ifdef XERCES
 #include <XmlTree.h>
 #endif
-
-// Does not make sense to spoil tuning.h with this number;
-#define _ACRYLIC_DENSITY_                     (1.18*g/cm3)
 
 // -------------------------------------------------------------------------------------
 
@@ -173,9 +168,9 @@ void Materials::DefineMaterials( void )
 
       TString name; name.Form("Aerogel%03d", density[il]);
 
-#ifdef _AEROGEL_REFRACTIVE_INDEX_ 
+#ifdef _AEROGEL_FIXED_REFRACTIVE_INDEX_ 
       //assert(!(density[0] && density[1]));
-      auto aerogel = new G4RadiatorMaterial(name.Data(), density[il]*mg/cm3, 2, _AEROGEL_REFRACTIVE_INDEX_);
+      auto aerogel = new G4RadiatorMaterial(name.Data(), density[il]*mg/cm3, 2, _AEROGEL_FIXED_REFRACTIVE_INDEX_);
 #else
       auto aerogel = new G4RadiatorMaterial(name.Data(), density[il]*mg/cm3, 2);
 #endif
@@ -184,12 +179,12 @@ void Materials::DefineMaterials( void )
       aerogel->AddElement(m_Si, 1);
       aerogel->AddElement(m_O,  2);
       
-#ifdef _AEROGEL_REFRACTIVE_INDEX_ 
+#ifdef _AEROGEL_FIXED_REFRACTIVE_INDEX_ 
       // FIXME: use constant for now;
       G4double refractiveIndex[_WLDIM_];
       for(int iq=0; iq<_WLDIM_; iq++)
       // Tune to the average provided by the parameterization; FIXME: the value is too low;
-	refractiveIndex[iq] = _AEROGEL_REFRACTIVE_INDEX_;
+	refractiveIndex[iq] = _AEROGEL_FIXED_REFRACTIVE_INDEX_;
       
       G4MaterialPropertiesTable* aerogelMPT = new G4MaterialPropertiesTable();
       aerogelMPT->AddProperty("RINDEX", GetPhotonEnergies(), refractiveIndex, _WLDIM_);
@@ -202,7 +197,7 @@ void Materials::DefineMaterials( void )
       aerogel->GetRIChOptics()->pTable->GetProperty("RINDEX")->SetSpline(true);
 #endif
 
-      _m_Aerogel[density[il]] = aerogel;
+      m_Aerogel[density[il]] = aerogel;
     } //for il
   } 
 
@@ -343,20 +338,19 @@ void Materials::DefineMaterials( void )
       } //for prop
 
       aerogel->SetMaterialPropertiesTable(mpt);
-      _m_Aerogel[id[im]] = aerogel;
+      m_Aerogel[id[im]] = aerogel;
       if (im) {
 	a1040->SetMaterialPropertiesTable(mpt1040);
-	_m_Aerogel[_AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_] = a1040;
+	m_Aerogel[_AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_] = a1040;
       } //if
     } //for mat
     //printf("%s\n", mat->GetName());
   }
 #endif
 
-#ifdef _ACRYLIC_THICKNESS_
   {
-#ifdef _ACRYLIC_REFRACTIVE_INDEX_ 
-    m_Acrylic = new G4RadiatorMaterial("Acrylic",_ACRYLIC_DENSITY_, 3, _ACRYLIC_REFRACTIVE_INDEX_);
+#ifdef _ACRYLIC_FIXED_REFRACTIVE_INDEX_ 
+    m_Acrylic = new G4RadiatorMaterial("Acrylic",_ACRYLIC_DENSITY_, 3, _ACRYLIC_FIXED_REFRACTIVE_INDEX_);
 #else
     m_Acrylic = new G4RadiatorMaterial("Acrylic",_ACRYLIC_DENSITY_, 3);
 #endif
@@ -365,12 +359,12 @@ void Materials::DefineMaterials( void )
     m_Acrylic->AddElement(m_O,  2);
     m_Acrylic->AddElement(m_H,  8);
     
-#ifdef _ACRYLIC_REFRACTIVE_INDEX_ 
+#ifdef _ACRYLIC_FIXED_REFRACTIVE_INDEX_ 
     // FIXME: use constant for now;
     G4double refractiveIndex[_WLDIM_];
     for(int iq=0; iq<_WLDIM_; iq++)
       // Tune to the average provided by the parameterization; FIXME: the value is too low;
-      refractiveIndex[iq] = _ACRYLIC_REFRACTIVE_INDEX_;
+      refractiveIndex[iq] = _ACRYLIC_FIXED_REFRACTIVE_INDEX_;
     
     G4MaterialPropertiesTable* acrylicMPT = new G4MaterialPropertiesTable();
     acrylicMPT->AddProperty("RINDEX", GetPhotonEnergies(), refractiveIndex, _WLDIM_);
@@ -382,7 +376,6 @@ void Materials::DefineMaterials( void )
     m_Acrylic->GetRIChOptics()->pTable->GetProperty("RINDEX")->SetSpline(true);
 #endif
   }
-#endif
 
   // C2F6 as a gas radiator option;
   {

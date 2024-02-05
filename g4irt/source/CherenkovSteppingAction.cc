@@ -92,6 +92,8 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
     m_EventPtr->AddChargedParticle(particle);
   } //if
 
+  //printf("Here! %d\n", tdef->GetPDGEncoding());
+
   G4StepPoint *xfrom = step->GetPreStepPoint(), *xto = step->GetPostStepPoint();
   assert(xfrom && xto);
   G4VPhysicalVolume *vfrom = xfrom->GetPhysicalVolume(), *vto = xto->GetPhysicalVolume();

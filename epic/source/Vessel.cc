@@ -12,13 +12,13 @@
 #define _GEANT_SOURCE_CODE_
 #include <G4Object.h>
 
-#include <tuning.h>
+#include <epic.h>
 
 #include <CherenkovDetectorCollection.h>
 #include <G4RadiatorMaterial.h>
 #include <CherenkovMirror.h>
 
-#include <DetectorConstruction.h>
+#include <EpicDetectorConstruction.h>
 
 // -------------------------------------------------------------------------------------
 
@@ -26,19 +26,21 @@
 // FIXME: a lot of duplicate code and a lot of hardcoded numbers;
 //
 
-void DetectorConstruction::BuildVesselWalls( void )
+void EpicDetectorConstruction::BuildVesselWalls(DarkBox *dbox)
 {
+  auto fvmother = dbox->m_fiducial_volume_phys->GetLogicalVolume();
+
   // Inner vessel wall; it is part of the gas volume;
   {
     // FIXME: pyramid case, please;
-    double wlength = m_gas_volume_length - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_;
+    double wlength = dbox->m_gas_volume_length - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_;
     auto outer = FlangeCut(wlength, _FLANGE_CLEARANCE_ + _VESSEL_INNER_WALL_THICKNESS_);
     auto *wall_shape = new G4SubtractionSolid("InnerWall", outer, 
 					      FlangeCut(wlength + 1*mm, _FLANGE_CLEARANCE_),
 					      0, G4ThreeVector(0.0, 0.0, 0.0));
     auto *wall_log = new G4LogicalVolume(wall_shape, m_QuarterInch_CF_HoneyComb,  "InnerWall", 0, 0, 0);
     new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, -_HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2), wall_log, "InnerWall", 
-		      m_gas_volume_log, false, 0);
+		      dbox->m_gas_volume_phys->GetLogicalVolume(), false, 0);
 
     // Add a pair of PEEK reinforcement rings; full radial thickness (a bit more material);
     {
@@ -60,13 +62,13 @@ void DetectorConstruction::BuildVesselWalls( void )
   // Front vessel wall; it is part of the fiducial volume;
   {
     auto *wall_tube = 
-      G4TubsDodecagonWrapper("FrontWall", 0.0, _VESSEL_OUTER_RADIUS_, _VESSEL_FRONT_SIDE_THICKNESS_);
+      new G4Tubs("FrontWall", 0.0, _VESSEL_OUTER_RADIUS_, _VESSEL_FRONT_SIDE_THICKNESS_/2, 0*degree, 360*degree);
     auto *wall_shape = new G4SubtractionSolid("FrontWall", wall_tube, 
 					      FlangeCut(_VESSEL_FRONT_SIDE_THICKNESS_ + 1*mm, _FLANGE_CLEARANCE_),
 					      0, G4ThreeVector(0.0, 0.0, 0.0));
     auto *wall_log = new G4LogicalVolume(wall_shape, m_QuarterInch_CF_HoneyComb,  "FrontWall", 0, 0, 0);
     new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, -_FIDUCIAL_VOLUME_LENGTH_/2 + _VESSEL_FRONT_SIDE_THICKNESS_/2), 
-		      wall_log, "FrontWall", m_fiducial_volume_log, false, 0);
+		      wall_log, "FrontWall", fvmother, false, 0);
 
     // Add inner reinforcement ring (PEEK);
     {
@@ -93,20 +95,20 @@ void DetectorConstruction::BuildVesselWalls( void )
 
   // Outer vessel wall; it is part of the fiducial volume;
   {
-    double wlength = m_gas_volume_length;
+    double wlength = dbox->m_gas_volume_length;
     auto *wall_tube =
-      G4TubsDodecagonWrapper("OuterWall", m_gas_volume_radius, _VESSEL_OUTER_RADIUS_, wlength);
+      new G4Tubs("OuterWall", m_gas_volume_radius, _VESSEL_OUTER_RADIUS_, wlength/2, 0*degree, 360*degree);
     auto *wall_log = new G4LogicalVolume(wall_tube, m_HalfInch_CF_HoneyComb,  "OuterWall", 0, 0, 0);
     new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, -_FIDUCIAL_VOLUME_LENGTH_/2 + _VESSEL_FRONT_SIDE_THICKNESS_ + 
 				       wlength/2), 
-		      wall_log, "OuterWall", m_fiducial_volume_log, false, 0);
+		      wall_log, "OuterWall", fvmother, false, 0);
 
     // Add a pair of aluminum reinforcement rings; full radial thickness (a bit more material);
     {
       double rlength = _INCH_/2;
 
       auto *ring_tube = 
-	G4TubsDodecagonWrapper("OuterWallAluRing", m_gas_volume_radius, _VESSEL_OUTER_RADIUS_, rlength);
+	new G4Tubs("OuterWallAluRing", m_gas_volume_radius, _VESSEL_OUTER_RADIUS_, rlength/2, 0*degree, 360*degree);
 
       auto *ring_log = new G4LogicalVolume(ring_tube, m_Aluminum,  "OuterWallAluRing", 0, 0, 0);
       for(unsigned iq=0; iq<2; iq++) {
@@ -116,6 +118,6 @@ void DetectorConstruction::BuildVesselWalls( void )
       } //for iq
     }
   }
-} // DetectorConstruction::BuildVesselWalls()
+} // EpicDetectorConstruction::BuildVesselWalls()
 
 // -------------------------------------------------------------------------------------

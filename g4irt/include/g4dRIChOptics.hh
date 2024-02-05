@@ -15,7 +15,8 @@
 #include "G4tgbMaterialMgr.hh"
 #include "G4tgbVolumeMgr.hh"
 
-#include <tuning.h>
+//#include <tuning.h>
+#include <share.h>
 
 /*
  * Service Classes

@@ -1,6 +1,6 @@
 
-#ifndef _PFRICH_PRIMARY_GENERATOR_
-#define _PFRICH_PRIMARY_GENERATOR_
+#ifndef _PFRICH_EPIC_PRIMARY_GENERATOR_
+#define _PFRICH_EPIC_PRIMARY_GENERATOR_
 
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "G4ParticleGun.hh"
@@ -9,17 +9,18 @@
 
 class G4Event;
 
-#include <tuning.h>
+//#include <tuning.h>
+//#include <epic.h>
 
 #if defined(HEPMC3) 
 #include "HepMC3/ReaderAscii.h"
 #endif
 
-class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
+class EpicPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
   public:
-    PrimaryGeneratorAction(const char *hepmc);
-    ~PrimaryGeneratorAction();
+    EpicPrimaryGeneratorAction(const char *hepmc);
+    ~EpicPrimaryGeneratorAction();
 
     void GeneratePrimaries(G4Event*);
 

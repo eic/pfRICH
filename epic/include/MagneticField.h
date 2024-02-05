@@ -5,7 +5,7 @@
 #include "globals.hh"
 #include "G4MagneticField.hh"
 
-#include <tuning.h>
+#include <epic.h>
 
 #if defined(BMF) && defined(_USE_MAGNETIC_FIELD_)
 #include <BeastMagneticField.h>

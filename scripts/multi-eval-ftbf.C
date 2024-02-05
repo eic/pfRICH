@@ -1,8 +1,8 @@
 
 
-void multi_eval_epic(const char *dfname, const char *cfname = 0)
+void multi_eval_ftbf(const char *dfname, const char *cfname = 0)
 {
-  auto *reco = new ReconstructionFactory(dfname, cfname, "pfRICH");
+  auto *reco = new ReconstructionFactory(dfname, cfname, "pfRICH-2x2");
 
   //
   // Factory configuration part;
@@ -36,8 +36,7 @@ void multi_eval_epic(const char *dfname, const char *cfname = 0)
   reco->SetBlackoutBlowupValue(3);
 
   auto hmatch = new TH1D("hmatch", "PID evaluation correctness",       2,    0,      2);
-  //auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        200,  220,    320);
-  auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        40,  270, 290);
+  auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        200,  220,    320);
   // For a dual aerogel configuration;
   //auto hthtr2  = new TH1D("thtr2",   "Cherenkov angle (track)",        200,  220,    320);
 
@@ -79,4 +78,4 @@ void multi_eval_epic(const char *dfname, const char *cfname = 0)
   cv->cd(10); reco->hwl()->Draw();
   cv->cd(11); reco->hvtx()->Draw();
   cv->cd(12); reco->hri()->Draw();
-} // multi_eval_epic()
+} // multi_eval_ftbf()

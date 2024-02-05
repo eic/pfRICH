@@ -7,8 +7,6 @@
 #include "G4OpticalPhysics.hh"
 
 #define _GEANT_SOURCE_CODE_
-#include "DetectorConstruction.h"
-#include "PrimaryGeneratorAction.h"
 #include "RunAction.h"
 #include "CherenkovEvent.h"
 #include "CherenkovSteppingAction.h"
@@ -17,7 +15,7 @@
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
 
-#include <tuning.h>
+#include <share.h>
 
 // This is indeed a cut'n'paste from one of the GEANT examples (as well as 
 // quite the rest of the stuff in this file); let it be;
@@ -31,7 +29,6 @@ namespace {
 #include <TFile.h>
 #include <TTree.h>
 
-#include <CherenkovRadiator.h>
 #include <CherenkovDetectorCollection.h>
 
 // -------------------------------------------------------------------------------------
@@ -89,13 +86,6 @@ int main(int argc, char** argv)
 
   // Set mandatory initialization classes
   //
-  // Detector construction
-  auto construction = new DetectorConstruction(geometry);
-  {
-    geometry->AddNewDetector("pfRICH");
-
-    runManager->SetUserInitialization(construction);
-  }
   // Physics list
   {
     G4VModularPhysicsList* physicsList = new FTFP_BERT;
@@ -105,8 +95,9 @@ int main(int argc, char** argv)
     runManager->SetUserInitialization(physicsList);
   }
 
+  // Detector construction and user action initialization;
+  setup(runManager, geometry, infile);
   // User action initialization
-  runManager->SetUserAction(new PrimaryGeneratorAction(infile));
   runManager->SetUserAction(new RunAction());
   {
     auto stepping = new CherenkovSteppingAction(geometry, event);
@@ -149,9 +140,10 @@ int main(int argc, char** argv)
     UImanager->ApplyCommand(cmd.Data());
   }
 
-#ifdef _GENERATE_GDML_OUTPUT_
-  construction->ExportGdmlFile();
-#endif
+  // FIXME: sort this out later;
+  //#ifdef _GENERATE_GDML_OUTPUT_
+  //construction->ExportGdmlFile();
+  //#endif
 
   // Job termination
   delete visManager;
@@ -165,3 +157,4 @@ int main(int argc, char** argv)
 } // main() 
 
 // -------------------------------------------------------------------------------------
+

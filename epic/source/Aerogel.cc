@@ -10,17 +10,19 @@
 #define _GEANT_SOURCE_CODE_
 #include <G4Object.h>
 
-#include <tuning.h>
+#include <epic.h>
 
 #include <CherenkovDetectorCollection.h>
 #include <G4RadiatorMaterial.h>
 
-#include <DetectorConstruction.h>
+#include <EpicDetectorConstruction.h>
 
 // -------------------------------------------------------------------------------------
 
-void DetectorConstruction::DefineAerogel(CherenkovDetector *cdet, G4UnionSolid *flange)
+void EpicDetectorConstruction::DefineAerogel(CherenkovDetector *cdet, DarkBox *dbox, G4UnionSolid *flange)
 {
+  auto gvmother = dbox->m_gas_volume_phys->GetLogicalVolume();
+
   // FIXME: yes, for now hardcoded; FIXME: GDML export does not like 8 pieces in the inner layer.
   // namely it produces a visible spike in xray.C scan at 45 degrees; ok, make them 9;
   const unsigned adim[_AEROGEL_BAND_COUNT_] = {9, 14, 20};
@@ -34,7 +36,7 @@ void DetectorConstruction::DefineAerogel(CherenkovDetector *cdet, G4UnionSolid *
 #ifdef _AEROGEL_1_ 
     if (!il) {
       agthick = _AEROGEL_THICKNESS_1_;
-      aerogel   = _m_Aerogel[_AEROGEL_1_];
+      aerogel   = m_Aerogel[_AEROGEL_1_];
     } //if
 #else
     if (!il) continue;
@@ -42,7 +44,7 @@ void DetectorConstruction::DefineAerogel(CherenkovDetector *cdet, G4UnionSolid *
 #ifdef _AEROGEL_2_ 
     if ( il) {
       agthick = _AEROGEL_THICKNESS_2_;
-      aerogel = _m_Aerogel[_AEROGEL_2_];
+      aerogel = m_Aerogel[_AEROGEL_2_];
     } //if
 #else
     if ( il) continue;
@@ -108,19 +110,14 @@ void DetectorConstruction::DefineAerogel(CherenkovDetector *cdet, G4UnionSolid *
 	    // This of course assumes that optical surfaces are the same (no relative tilts between bands, etc);
 	    m_Geometry->AddRadiatorLogicalVolume(radiator, ag_log);
 	  
-#if 1//_MBUDGET_
 	  new G4PVPlacement(rZ, G4ThreeVector(0.0, 0.0, m_gzOffset), ag_log, ag_name.Data(), 
-			    m_gas_volume_log, false, counter);
-#endif
-#if 1//_MBUDGET_
+			    gvmother, false, counter);
 	  new G4PVPlacement(rZ, G4ThreeVector(0.0, 0.0, m_gzOffset), sp_log, sp_name.Data(), 
-			    m_gas_volume_log, false, counter);
-#endif
+			    gvmother, false, counter);
 	} //for ia
       } //for ir
       
       // Then the radial spacers;
-#if 1//_MBUDGET_
       {
 	double accu = m_r0min;
 	
@@ -142,17 +139,17 @@ void DetectorConstruction::DefineAerogel(CherenkovDetector *cdet, G4UnionSolid *
 	    sp_log = new G4LogicalVolume(sp_shape, _AEROGEL_SPACER_MATERIAL_, sp_name.Data(),   0, 0, 0);
 	  } //if
 	  
-	  new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, m_gzOffset), sp_log, sp_name.Data(), m_gas_volume_log, false, 0);
+	  new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, m_gzOffset), sp_log, sp_name.Data(), 
+			    gvmother, false, 0);
 	  
 	  accu += thickness + rheight;
 	} //for ir
-      }
-#endif	    
+      }  
       
       // FIXME: not really needed that big between the two layers?;
       m_gzOffset += agthick/2 + _BUILDING_BLOCK_CLEARANCE_;
     }
   } //for il
-} // DetectorConstruction::DefineAerogel()
+} // EpicDetectorConstruction::DefineAerogel()
 
 // -------------------------------------------------------------------------------------

@@ -2,10 +2,10 @@
 // ? export LD_LIBRARY_PATH=/home/ayk/eic/EicSandbox/build/lib:${LD_LIBRARY_PATH}
 //   export LD_LIBRARY_PATH=/home/ayk/eic/irt/build/lib:${LD_LIBRARY_PATH}
 //
-//   root -l './hit-map-epic.C("pfrich.root")'
+//   root -l './hit-map-tstand.C("pfrich.root")'
 //
 
-void hit_map_epic(const char *dfname, const char *cfname = 0)
+void hit_map_tstand(const char *dfname, const char *cfname = 0)
 {
   auto fcfg  = new TFile(cfname ? cfname : dfname);
   auto geometry = dynamic_cast<CherenkovDetectorCollection*>(fcfg->Get("CherenkovDetectorCollection"));
@@ -29,12 +29,12 @@ void hit_map_epic(const char *dfname, const char *cfname = 0)
 	for(auto photon: history->Photons()) {
 	  if (!photon->WasDetected() ) continue;
 
+	  printf("Here!\n");
 	  TVector3 phx = photon->GetDetectionPosition();
 	  hxy->Fill(phx.X(), phx.Y());
 	} //for photon
       } //for rhistory
     } //for particle
-    //#endif
   } //for ev
 
   gStyle->SetOptStat(0);
@@ -44,4 +44,4 @@ void hit_map_epic(const char *dfname, const char *cfname = 0)
   hxy->GetXaxis()->SetTitleOffset(1.20);
   hxy->GetYaxis()->SetTitleOffset(1.40);
   hxy->Draw("COL");
-} // hit_map_epic()
+} // hit_map_tstand()

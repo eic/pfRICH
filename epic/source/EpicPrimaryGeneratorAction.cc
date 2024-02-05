@@ -1,8 +1,9 @@
 
-#include "PrimaryGeneratorAction.h"
+#include "EpicPrimaryGeneratorAction.h"
 
 #include "G4Event.hh"
 #include "G4ParticleTable.hh"
+#include "G4SystemOfUnits.hh"
 
 #if defined(HEPMC3)
 #include "HepMC3/GenEvent.h"
@@ -11,12 +12,14 @@
 using namespace HepMC3;
 #endif
 
-// May be pion and electron as well, see tuning.h;
+#include <epic.h>
+
+// May be pion and electron as well, see epic.h;
 static G4ParticleDefinition *pion, *kaon;
 
 // -------------------------------------------------------------------------------------
 
-PrimaryGeneratorAction::PrimaryGeneratorAction(const char *hepmc)
+EpicPrimaryGeneratorAction::EpicPrimaryGeneratorAction(const char *hepmc)
   : G4VUserPrimaryGeneratorAction()
 {
   fParticleGun = new G4ParticleGun(1);
@@ -44,18 +47,18 @@ PrimaryGeneratorAction::PrimaryGeneratorAction(const char *hepmc)
 #endif
   fParticleGun->SetParticleMomentum(_PRIMARY_PARTICLE_MOMENTUM_);
 
-} // PrimaryGeneratorAction::PrimaryGeneratorAction()
+} // EpicPrimaryGeneratorAction::EpicPrimaryGeneratorAction()
 
 // -------------------------------------------------------------------------------------
 
-PrimaryGeneratorAction::~PrimaryGeneratorAction()
+EpicPrimaryGeneratorAction::~EpicPrimaryGeneratorAction()
 {
   delete fParticleGun;
-} // PrimaryGeneratorAction::~PrimaryGeneratorAction()
+} // EpicPrimaryGeneratorAction::~EpicPrimaryGeneratorAction()
 
 // -------------------------------------------------------------------------------------
 
-void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
+void EpicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 { 
 #if defined(HEPMC3)
   if (m_hepmc_input) {
@@ -123,6 +126,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     
     fParticleGun->GeneratePrimaryVertex(anEvent);
   }
-} // PrimaryGeneratorAction::GeneratePrimaries()
+} // EpicPrimaryGeneratorAction::GeneratePrimaries()
 
 // -------------------------------------------------------------------------------------

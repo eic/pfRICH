@@ -10,16 +10,16 @@
 #define _GEANT_SOURCE_CODE_
 #include <G4Object.h>
 
-#include <tuning.h>
+#include <epic.h>
 
 #include <CherenkovDetectorCollection.h>
 #include <G4RadiatorMaterial.h>
 
-#include <DetectorConstruction.h>
+#include <EpicDetectorConstruction.h>
 
 // -------------------------------------------------------------------------------------
 
-void DetectorConstruction::DefineAcrylic(CherenkovDetector *cdet, G4UnionSolid *flange)
+void EpicDetectorConstruction::DefineAcrylic(CherenkovDetector *cdet, DarkBox *dbox, G4UnionSolid *flange)
 {
 #ifdef _ACRYLIC_THICKNESS_
   double acthick = _ACRYLIC_THICKNESS_;
@@ -41,10 +41,11 @@ void DetectorConstruction::DefineAcrylic(CherenkovDetector *cdet, G4UnionSolid *
       ;
   }
   
-  new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, m_gzOffset), ac_log, "Acrylic", m_gas_volume_log, false, 0);
+  new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, m_gzOffset), ac_log, "Acrylic", 
+		    dbox->m_gas_volume_phys->GetLogicalVolume(), false, 0);
   
   m_gzOffset += acthick/2 + _BUILDING_BLOCK_CLEARANCE_;
 #endif
-} // DetectorConstruction::DefineAcrylic()
+} // EpicDetectorConstruction::DefineAcrylic()
 
 // -------------------------------------------------------------------------------------

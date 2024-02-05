@@ -48,15 +48,24 @@ include_directories(
 
   ${PROJECT_SOURCE_DIR}/include 
   ${PROJECT_SOURCE_DIR}/g4irt/include 
+
+  ${PROJECT_SOURCE_DIR}/share/include 
+  ${PROJECT_SOURCE_DIR}/epic/include 
+  ${PROJECT_SOURCE_DIR}/ftbf/include 
+  ${PROJECT_SOURCE_DIR}/tstand/include 
 )
 
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.h )
+file(GLOB SHARE_HEADERS ${PROJECT_SOURCE_DIR}/share/include/*.h)
+file(GLOB EPIC_HEADERS  ${PROJECT_SOURCE_DIR}/epic/include/*.h)
+file(GLOB FTBF_HEADERS  ${PROJECT_SOURCE_DIR}/ftbf/include/*.h)
 
 SET(G4IRT_LIB g4irt)
-SET(PFRICH_EXE pfrich)
-#set(XML_EXE xmlreader)
+SET(SHARE_LIB pfrich-share)
+SET(EPIC_EXE pfrich-epic)
+SET(FTBF_EXE pfrich-ftbf)
+SET(TSTAND_EXE pfrich-tstand)
 
-SET( G4IRT_SRC
+SET( G4IRT_SOURCES
    ${PROJECT_SOURCE_DIR}/g4irt/source/G4Object.cc
    ${PROJECT_SOURCE_DIR}/g4irt/source/G4RadiatorMaterial.cc
    ${PROJECT_SOURCE_DIR}/g4irt/source/CherenkovMirror.cc
@@ -64,52 +73,86 @@ SET( G4IRT_SRC
    ${PROJECT_SOURCE_DIR}/g4irt/source/CherenkovStackingAction.cc
 )
 
-SET( sources
-   ${PROJECT_SOURCE_DIR}/source/TofPetMultiColumn.cc
-   ${PROJECT_SOURCE_DIR}/source/MagneticField.cc
-   ${PROJECT_SOURCE_DIR}/source/Materials.cc
-   ${PROJECT_SOURCE_DIR}/source/PrimaryGeneratorAction.cc
-   ${PROJECT_SOURCE_DIR}/source/RunAction.cc
+SET( SHARE_SOURCES
+   ${PROJECT_SOURCE_DIR}/pfRICH.cc
 
-   ${PROJECT_SOURCE_DIR}/source/Vessel.cc
-   ${PROJECT_SOURCE_DIR}/source/Aerogel.cc
-   ${PROJECT_SOURCE_DIR}/source/Acrylic.cc
-   ${PROJECT_SOURCE_DIR}/source/Mirrors.cc
-   ${PROJECT_SOURCE_DIR}/source/PhotonDetectors.cc
-   ${PROJECT_SOURCE_DIR}/source/DetectorConstruction.cc
+   ${PROJECT_SOURCE_DIR}/share/source/TofPetMultiColumn.cc
+
+   ${PROJECT_SOURCE_DIR}/share/source/Materials.cc
+   ${PROJECT_SOURCE_DIR}/share/source/RunAction.cc
+   ${PROJECT_SOURCE_DIR}/share/source/AsphericLens.cc
+
+   ${PROJECT_SOURCE_DIR}/share/source/HRPPD.cc
+   ${PROJECT_SOURCE_DIR}/share/source/DetectorConstruction.cc
 )
 
-SET( XML_SRC
-   ${PROJECT_SOURCE_DIR}/source/XmlReader.cc
+SET( EPIC_SOURCES
+   ${PROJECT_SOURCE_DIR}/epic/source/Vessel.cc
+   ${PROJECT_SOURCE_DIR}/epic/source/Aerogel.cc
+   ${PROJECT_SOURCE_DIR}/epic/source/Acrylic.cc
+   ${PROJECT_SOURCE_DIR}/epic/source/Mirrors.cc
+   ${PROJECT_SOURCE_DIR}/epic/source/MagneticField.cc
+
+   ${PROJECT_SOURCE_DIR}/epic/source/EpicSetup.cc
+   ${PROJECT_SOURCE_DIR}/epic/source/EpicDetectorConstruction.cc
+   ${PROJECT_SOURCE_DIR}/epic/source/EpicPrimaryGeneratorAction.cc
 )
 
-ADD_LIBRARY( ${G4IRT_LIB} SHARED ${G4IRT_SRC} )
+SET( FTBF_SOURCES
+   #${PROJECT_SOURCE_DIR}/share/source/AsphericLens.cc
+
+   ${PROJECT_SOURCE_DIR}/ftbf/source/FTBFSetup.cc
+   ${PROJECT_SOURCE_DIR}/ftbf/source/FTBFDetectorConstruction.cc
+   ${PROJECT_SOURCE_DIR}/ftbf/source/FTBFPrimaryGeneratorAction.cc
+)
+
+SET( TSTAND_SOURCES
+   #${PROJECT_SOURCE_DIR}/share/source/AsphericLens.cc
+   # FIXME: unify, please;
+   #${PROJECT_SOURCE_DIR}/tstand/source/TestStandAsphericLens.cc
+
+   ${PROJECT_SOURCE_DIR}/tstand/source/TestStandSetup.cc
+   #${PROJECT_SOURCE_DIR}/tstand/source/TestStandPhotonDetectors.cc
+   ${PROJECT_SOURCE_DIR}/tstand/source/TestStandDetectorConstruction.cc
+   ${PROJECT_SOURCE_DIR}/tstand/source/TestStandPrimaryGeneratorAction.cc
+)
+
+ADD_LIBRARY( ${G4IRT_LIB} SHARED ${G4IRT_SOURCES} )
 TARGET_LINK_LIBRARIES(${G4IRT_LIB} ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} -L${IRT}/lib IRT)
+
+ADD_LIBRARY( ${SHARE_LIB} SHARED ${SHARE_SOURCES} )
+TARGET_LINK_LIBRARIES(${SHARE_LIB} ${Geant4_LIBRARIES})
 
 #----------------------------------------------------------------------------
 
-add_executable(${PFRICH_EXE} pfRICH.cc ${sources} ${headers})
-target_link_libraries(${PFRICH_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB}) 
+add_executable(${EPIC_EXE} ${EPIC_SOURCES} ${SHARE_HEADERS} ${EPIC_HEADERS})
+target_link_libraries(${EPIC_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
+add_executable(${FTBF_EXE} ${FTBF_SOURCES} ${SHARE_HEADERS} ${FTBF_HEADERS})
+target_link_libraries(${FTBF_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
+add_executable(${TSTAND_EXE} ${TSTAND_SOURCES} ${SHARE_HEADERS} ${TSTAND_HEADERS})
+target_link_libraries(${TSTAND_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
+
 if(DEFINED BMF)
   SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBMF")
-  target_link_libraries(${PFRICH_EXE} -L${BMF}/lib bmf)
+  target_link_libraries(${EPIC_EXE} -L${BMF}/lib bmf)
 endif()
 if(DEFINED HEPMC3)
   SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHEPMC3")
-  target_link_libraries(${PFRICH_EXE} -L${HEPMC3}/lib -L${HEPMC3}/lib64 HepMC3)
+  target_link_libraries(${EPIC_EXE} -L${HEPMC3}/lib -L${HEPMC3}/lib64 HepMC3)
 endif()
 if(DEFINED XERCES)
   SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXERCES")
-  target_link_libraries(${PFRICH_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
+  target_link_libraries(${EPIC_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
+  target_link_libraries(${FTBF_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
+  # FIXME: this stuff is only needed for aerogel;
+  target_link_libraries(${TSTAND_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
 endif()
 
 #----------------------------------------------------------------------------
 
-#add_executable( xmlreader ${XML_SRC})
-#target_link_libraries( xmlreader xerces-c)
-
-#----------------------------------------------------------------------------
-
-install(TARGETS ${PFRICH_EXE}   DESTINATION bin)
-install(TARGETS ${G4IRT_LIB}    DESTINATION lib)
+install(TARGETS ${EPIC_EXE}   DESTINATION bin)
+install(TARGETS ${FTBF_EXE}   DESTINATION bin)
+install(TARGETS ${TSTAND_EXE} DESTINATION bin)
+install(TARGETS ${G4IRT_LIB}  DESTINATION lib)
+install(TARGETS ${SHARE_LIB}  DESTINATION lib)
 

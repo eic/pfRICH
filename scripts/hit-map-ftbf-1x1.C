@@ -2,10 +2,10 @@
 // ? export LD_LIBRARY_PATH=/home/ayk/eic/EicSandbox/build/lib:${LD_LIBRARY_PATH}
 //   export LD_LIBRARY_PATH=/home/ayk/eic/irt/build/lib:${LD_LIBRARY_PATH}
 //
-//   root -l './hit-map-epic.C("pfrich.root")'
+//   root -l './hit-map-ftbf-1x1.C("pfrich.root")'
 //
 
-void hit_map_epic(const char *dfname, const char *cfname = 0)
+void hit_map_ftbf_1x1(const char *dfname, const char *cfname = 0)
 {
   auto fcfg  = new TFile(cfname ? cfname : dfname);
   auto geometry = dynamic_cast<CherenkovDetectorCollection*>(fcfg->Get("CherenkovDetectorCollection"));
@@ -16,7 +16,9 @@ void hit_map_epic(const char *dfname, const char *cfname = 0)
 
   int nEvents = t->GetEntries();
 
-  auto hxy = new TH2D("hxy", "", 650, -650., 650., 650, -650.0, 650.);
+  unsigned dim = 32;
+  double pitch = 3.25, size = dim*pitch;
+  auto hxy = new TH2D("hxy", "", dim, -size/2, size/2, dim, -size/2, size/2);
 
   for(unsigned ev=0; ev<nEvents; ev++) {
     t->GetEntry(ev);
@@ -30,11 +32,11 @@ void hit_map_epic(const char *dfname, const char *cfname = 0)
 	  if (!photon->WasDetected() ) continue;
 
 	  TVector3 phx = photon->GetDetectionPosition();
-	  hxy->Fill(phx.X(), phx.Y());
+	  //printf("%f\n", phx.Z());
+	  if (phx.Z() > -1000) hxy->Fill(phx.X(), phx.Y());
 	} //for photon
       } //for rhistory
     } //for particle
-    //#endif
   } //for ev
 
   gStyle->SetOptStat(0);
@@ -43,5 +45,7 @@ void hit_map_epic(const char *dfname, const char *cfname = 0)
   hxy->GetYaxis()->SetTitle("Sensor plane Y, [mm]");
   hxy->GetXaxis()->SetTitleOffset(1.20);
   hxy->GetYaxis()->SetTitleOffset(1.40);
+  //hxy->SetMinimum(3);
+  //hxy->SetMaximum(500);
   hxy->Draw("COL");
-} // hit_map_epic()
+} // hit_map_ftbf_1x1()
