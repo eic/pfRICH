@@ -4,7 +4,7 @@ Standalone ePIC pfRICH GEANT4 simulation codes
   It is assumed that thisroot.sh and geant4.sh were sourced. The latter is 
 not needed to just import already produced ROOT trees.
 
-  In the following installation under /tmp/sandbox is assumed. Define SANDBOX 
+  In the following the installation under /tmp/sandbox is assumed. Define SANDBOX 
 environment variable accordingly if installing in a different directory. 
 
   Make sure 'cmake' is version 3.0 or higher. The following combination is known 
@@ -45,12 +45,12 @@ C++ class variable description):
 Try out example 
 ---------------
 
-```
-cd ${SANDBOX}/pfRICH
+#```
+#cd ${SANDBOX}/pfRICH
 # A pre-uploaded file with 500 events;
-root -l './examples/pfrich.C("examples/pfrich.root")'
-root -l './examples/multi-eval.C("examples/pfrich.root")'
-```
+#root -l './examples/pfrich.C("examples/pfrich.root")'
+#root -l './examples/multi-eval.C("examples/pfrich.root")'
+#```
 
 Installation of the actual GEANT simulation environment requires few more steps (make sure 
 geant.sh was sourced):
@@ -96,8 +96,11 @@ Install pfRICH simulation codes
 ```
 cd ${SANDBOX}/pfRICH
 
-# Create a custom tuning.xx.h file (aka configuration file); use tuning.ak.h as a template;
-cd include && cp tuning.ak.h  tuning.xx.h && ln -s tuning.xx.h tuning.h && cd ..
+# Create links to the default header files; 
+pushd share/include  && ln -s hrppd.default.h  hrppd.h && ln -s share.default.h share.h && popd
+pushd epic/include   && ln -s epic.default.h   epic.h && popd
+pushd ftbf/include   && ln -s ftbf.default.h   ftbf.h && popd
+pushd tstand/include && ln -s tstand.default.h tstand.h && popd
 
 mkdir build && cd build
 # 'BMF' and 'HepMC3' are optional;
@@ -111,17 +114,38 @@ Run examples
 
 ```
 cd ${SANDBOX}/pfRICH
-./build/pfrich -s 1000
+./build/pfrich-epic -m macro/vis-epic.mac
 
-root -l 'examples/pfrich.C("pfrich.root")'
+./build/pfrich-epic -o pfrich-epic.root -s 1000
+root -l 'scripts/hit-map-epic.C("pfrich-epic.root")'
+root -l 'scripts/multi-eval-epic.C("pfrich-epic.root")'
 
-./build/pfrich -m examples/vis.mac
+./build/pfrich-ftbf -m macro/vis-ftbf.mac
+
+# Will take quite some time because of the optical photon tracing in the lens radiator;
+./build/pfrich-ftbf -o pfrich-ftbf.root -s 1000
+root -l 'scripts/hit-map-ftbf-1x1.C("pfrich-ftbf.root")'
+root -l 'scripts/hit-map-ftbf-2x2.C("pfrich-ftbf.root")'
+#root -l 'scripts/multi-eval-ftbf.C("pfrich.root")'
+```
+
+Customize your environment
+--------------------------
 
 ```
+# Consider creating your local copies of the repository header files, which you may want to change,
+# and pointing links like share.h to them, like:
+cd ${SANDBOX}/pfRICH
+pushd epic/include && rm epic.h && cp epic.default.h epic.xx.h && ln -s epic.xx.h epic.h && popd
+
+# Then you can edit epic.xx.h locally without being affected by possible changes in epic.default.h
+# which would overwrite your local changes after next pull
+```
+
 Automation
 ----------
-```
-Inside pfRICH directory run
-`bash ./scripts/cc/AutomatedSimulationChain.sh`
-It will display all the features with an example.
-```
+#```
+#Inside pfRICH directory run
+#`bash ./scripts/cc/AutomatedSimulationChain.sh`
+#It will display all the features with an example.
+#```

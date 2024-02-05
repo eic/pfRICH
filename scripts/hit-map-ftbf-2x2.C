@@ -45,6 +45,6 @@ void hit_map_ftbf_2x2(const char *dfname, const char *cfname = 0)
   hxy->GetYaxis()->SetTitle("Sensor plane Y, [mm]");
   hxy->GetXaxis()->SetTitleOffset(1.20);
   hxy->GetYaxis()->SetTitleOffset(1.40);
-  hxy->SetMaximum(300);
+  //hxy->SetMaximum(300);
   hxy->Draw("COL");
 } // hit_map_ftbf_2x2()
