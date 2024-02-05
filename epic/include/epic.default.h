@@ -137,7 +137,7 @@ static const double sign = flip ? -1.0 : 1.0;
 #define _HRPPD_PLATING_LAYER_THICKNESS_    (0.06*mm)
 
 // This needs to be verified (and actually the QE at normal incidence renormalized); 
-#define _BIALKALI_REFRACTIVE_INDEX_           (1.47)
+#define _BIALKALI_REFRACTIVE_INDEX_           (1.76)
 
 // These are some random numbers to the moment; are only important for time-of-flight;
 #define _HRPPD_METALLIZATION_REFLECTIVITY_    (0.80)
