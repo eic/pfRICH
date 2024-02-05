@@ -46,6 +46,7 @@ Try out example
 ---------------
 
 ```
+#  NEED TO UPLOAD NEW ONES
 #cd ${SANDBOX}/pfRICH
 # A pre-uploaded file with 500 events;
 #root -l './examples/pfrich.C("examples/pfrich.root")'
