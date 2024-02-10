@@ -181,24 +181,41 @@ cd ${SANDBOX}/pfRICH
 ./build/pfrich-epic -m macro/vis-epic.mac
 ```
 
-A GEANT Qt display will appear with a picture similar to the image below. 
+A GEANT Qt display will appear with a picture similar to the image below. It would not hurt to add a bit 
+of functionality to this display (like a "Next event button"). Feel free to contribute. 
  
 ![](pics/epic-geant-qt.png)
 
+
 ```
+# Generate a file *pfrich-epic.root* with 1000 events
+./build/pfrich-epic -o pfrich-epic.root -s 1000
+
+# See a hit map in the sensor plane;
+root -l 'scripts/hit-map-epic.C("pfrich-epic.root")'
+```
+
+![](pics/epic-hit-map.png)
+
+Consider to uncomment *#define _PRIMARY_PARTICLE_PHI_* in [epic/include/epic.h](epic/include/epic.h), 
+recompile and rerun both commands, in order to see a clear ring. 
+
+```
+root -l 'scripts/reco-epic.C("pfrich-epic.root")'
+```
+
+
 #
 # A Fermilab mockup of a pfRICH detector
 #
-./build/pfrich-epic -o pfrich-epic.root -s 1000
-root -l 'scripts/hit-map-epic.C("pfrich-epic.root")'
-root -l 'scripts/reco-epic.C("pfrich-epic.root")'
-
 ./build/pfrich-ftbf -m macro/vis-ftbf.mac
 
 # Will take quite some time because of the optical photon tracing in the lens radiator;
 ./build/pfrich-ftbf -o pfrich-ftbf.root -s 1000
+
 root -l 'scripts/hit-map-ftbf-1x1.C("pfrich-ftbf.root")'
 root -l 'scripts/hit-map-ftbf-2x2.C("pfrich-ftbf.root")'
+
 # This one is also time consuming; comment "#define _ZCOORD_ASPHERIC_LENS_" in ftbf.default.h", 
 # recompile and re-run ./build/pfrich-ftbf if the lens is of no interest;
 root -l 'scripts/reco-ftbf.C("pfrich-ftbf.root")'
