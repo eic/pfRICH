@@ -188,7 +188,7 @@ of functionality to this display (like a "Next event button"). Feel free to cont
 
 
 ```
-# Generate a file *pfrich-epic.root* with 1000 events
+# Generate a file *pfrich-epic.root* with 1000 7 GeV/c pions at eta = -2.5
 ./build/pfrich-epic -o pfrich-epic.root -s 1000
 
 # See a hit map in the sensor plane;
@@ -207,6 +207,22 @@ root -l 'scripts/reco-epic.C("pfrich-epic.root")'
 
 ![](pics/epic-reco.png)
 
+Top row of plots: reconstructed single photon Cherenkov angle distribution, its equivalent representation as a 
+cumulative chi^2 distribution with one degree of freedom, track-level cumulative chi^2 distribution with N degrees 
+of freedom (over N photons associated with a given track), event-level cumulative chi^2 distribution which is of 
+course identical to the track-level one because there was only one track per events generated. *Cumulative chi^2
+distributions are expected to be reasonably uniform, otherwise something must be fundamentally wrong with the 
+reconstruction procedure*.
+
+Middle row of plots: Cherenkov photon hit count associated with a given track (should look like a 
+Poissonian distribution), pion/kaon (mis)identification rate, the same plot, Cherenkov photon timing resolution 
+(ignore).
+
+Bottom row of plots: Track-level reconstructed Cherenkov angle distribution, wavelength distribution of detected
+photons (a convolution of several effects), empty panel, truth refractive index in aerogel for the detected photons.
+
+
+```
 #
 # A Fermilab mockup of a pfRICH detector
 #
