@@ -177,9 +177,13 @@ Example scripts
 # A full ePIC pfRICH detector
 #
 cd ${SANDBOX}/pfRICH
-# FIXME: may need to click on "Useful tips", then on "viewer-0" in the Qt display;
+# FIXME: may need to click on "Useful tips", then on "viewer-0" in a Qt display;
 ./build/pfrich-epic -m macro/vis-epic.mac
 ```
+
+A GEANT Qt display will appear with a picture similar to the image below. 
+ 
+![](pics/epic-geant-qt.png)
 
 ```
 #
