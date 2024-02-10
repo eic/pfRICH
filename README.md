@@ -7,6 +7,7 @@ Standalone ePIC pfRICH GEANT4 simulation codes
 
  * [Introduction](#introduction)
  * [Prerequisites and installation](#prerequisites-and-installation)
+ * [An example](#try-out-an-example)
 
 Introduction
 ------------
@@ -72,9 +73,9 @@ cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -Wno-dev ..
 make -j8 install
 ```
 
-Download pfRICH repository
---------------------------
-
+#
+# Download pfRICH repository
+#
 ```
 cd ${SANDBOX}
 git clone https://github.com/alexander-kiselev/pfRICH.git
@@ -85,8 +86,8 @@ GEANT simulation pass elsewhere (as long as there were no drastic changes to the
 C++ class variable description):
 
 
-Try out example 
----------------
+Try out an example 
+------------------
 
 ```
 #  TODO: NEED TO UPLOAD NEW ONES
@@ -97,12 +98,12 @@ Try out example
 ```
 
 Installation of the actual GEANT simulation environment requires few more steps (make sure 
-geant.sh was sourced):
+*geant.sh* was sourced!):
 
 
-Install Xerces-c
-----------------
-
+#
+# Install Xerces; YES, DO THIS EVEN IF YOU HAVE A SYSTEM ONE INSTALLED ALREADY
+#
 ```
 cd ${SANDBOX} 
 # Copy over xerces-c-3.2.4.tar.gz (or a similar version) from the Web, unpack;
