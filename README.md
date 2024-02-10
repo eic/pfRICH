@@ -1,7 +1,44 @@
-# pfRICH
+pfRICH
+======
+
 Standalone ePIC pfRICH GEANT4 simulation codes
 
-  It is assumed that thisroot.sh and geant4.sh were sourced. The latter is 
+ Content:
+
+ * [Introduction](#introduction)
+ * [Prerequisites and installation](#prerequisites-and-installation)
+
+Introduction
+------------
+
+  These codes were originally written for ATHENA EIC detector proposal pfRICH in Fall 
+2021. Later on they were adapted for a standalone simulation of ePIC pfRICH, as well as 
+interfaced to the latest (2.0) version if [IRT libraries](https://github.com/eic/irt) . 
+
+  The codes contain a complete ePIC pfRICH detector geometry description, including an IRT-style
+optics representation as a sequence of refractive and reflective boundaries between photon 
+emisson and a detection points. A custom [GEANT stepping function](g4irt/source/CherenkovSteppingAction.cc)
+allows one to fully record history of Cherenkov photon creation and propagation through
+the optical media, as well as keeps track of the daughter-parent relashionships between 
+charged particles and produced optical photons, association between emission vertices and 
+particular Cherenkov light raduiators, etc.
+
+  As of February 2024, the source code is split into four partss: one related to a 
+[complete ePIC pfRICH detector](epic) simulation, one for a 
+[pfRICH mockup](ftbf) simulation for the 2024 Fermilab beam test, one for a BNL HRPPD 
+[test stand](tstand), and a part which is [common](share) for all three different geometries. 
+
+
+Prerequisites and installation
+------------------------------
+
+  It is assumed that a user is familiar with ROOT and GEANT, as well as with the basic
+concepts of Monte-Carlo simulations, Cherenkov ring imaging detector design and event 
+reconstruction goals, as well as the basic principles of Ring Imaging CHerenkov (RICH) 
+particle identification (PID) techniques.
+
+  It is assumed that ROOT and GEANT are installed on host PC, where the codes are supposed to be 
+installed, as well as that "thisroot.sh" and "geant4.sh" were sourced already. GEANT is 
 not needed to just import already produced ROOT trees.
 
   In the following the installation under /tmp/sandbox is assumed. Define SANDBOX 
@@ -9,6 +46,9 @@ environment variable accordingly if installing in a different directory.
 
   Make sure 'cmake' is version 3.0 or higher. The following combination is known 
 to work: SL7, gcc 4.8.5, cmake 3.22.1, ROOT 6.18.04, GEANT 4.10.05.p01 . 
+
+
+<br/>
 
 Define installation area
 ------------------------
