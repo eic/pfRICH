@@ -22,7 +22,7 @@
 namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " pfrich [-m macro ] [-u UIsession] [-r seed] " << G4endl;
+    G4cerr << " pfrich [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-i <input HEPMC3 file>] [-o <output ROOT file>]" << G4endl;
   }
 }
 

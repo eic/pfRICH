@@ -204,7 +204,7 @@ Environment customization
 -------------------------
 
 The code should be started in a *${SANDBOX}/pfRICH* directory, or otherwise in any other one, 
-where exists a link to a *database* subdirectory, which contains MARCO magnet field map (may be 
+where exists a link to a *database* subdirectory, which contains MARCO solenoid field map (may be 
 obsolete!), some of the media refractive index tables, etc. 
 
 Per design, there are no other configuration files, either ASCII or XML ones, in this package.
