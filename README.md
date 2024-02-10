@@ -11,17 +11,18 @@ Standalone ePIC pfRICH GEANT4 simulation codes
 Introduction
 ------------
 
-  These codes were originally written for ATHENA EIC detector proposal pfRICH in Fall 
+  These codes were originally written for the ATHENA EIC detector proposal proximity focusing
+Ring Imaging CHerenkov detector (pfRICH) in Fall 
 2021. Later on they were adapted for a standalone simulation of ePIC pfRICH, as well as 
-interfaced to the latest (2.0) version if [IRT libraries](https://github.com/eic/irt) . 
+interfaced to the latest (2.0) version if [IRT libraries](https://github.com/eic/irt). 
 
-  The codes contain a complete ePIC pfRICH detector geometry description, including an IRT-style
+  The codes contain a complete ePIC pfRICH detector geometry description, including its IRT-style
 optics representation as a sequence of refractive and reflective boundaries between photon 
-emisson and a detection points. A custom [GEANT stepping function](g4irt/source/CherenkovSteppingAction.cc)
+emisson and detection points. A custom [GEANT stepping function](g4irt/source/CherenkovSteppingAction.cc)
 allows one to fully record history of Cherenkov photon creation and propagation through
 the optical media, as well as keeps track of the daughter-parent relashionships between 
 charged particles and produced optical photons, association between emission vertices and 
-particular Cherenkov light raduiators, etc.
+particular Cherenkov light radiators, etc.
 
   As of February 2024, the source code is split into four partss: one related to a 
 [complete ePIC pfRICH detector](epic) simulation, one for a 
@@ -37,8 +38,8 @@ concepts of Monte-Carlo simulations, Cherenkov ring imaging detector design and 
 reconstruction goals, as well as the basic principles of Ring Imaging CHerenkov (RICH) 
 particle identification (PID) techniques.
 
-  It is assumed that ROOT and GEANT are installed on host PC, where the codes are supposed to be 
-installed, as well as that "thisroot.sh" and "geant4.sh" were sourced already. GEANT is 
+  It is assumed that ROOT and GEANT are installed on a host PC, where the codes are supposed to be 
+installed, as well as that *thisroot.sh* and "geant4.sh" were sourced already. GEANT is 
 not needed to just import already produced ROOT trees.
 
   In the following the installation under /tmp/sandbox is assumed. Define SANDBOX 
