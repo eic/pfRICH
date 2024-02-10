@@ -6,8 +6,9 @@ Standalone ePIC pfRICH GEANT4 simulation codes
  Content:
 
  * [Introduction](#introduction)
- * [Prerequisites and installation](#prerequisites-and-installation)
+ * [Prerequisites and basic installation](#prerequisites-and-basic-installation)
  * [An example](#try-out-a-pre-installed-example)
+ * [Full installation](#full-installation)
 
 Introduction
 ------------
@@ -32,8 +33,8 @@ particular Cherenkov light radiators, etc.
 
 <br/>
 
-Prerequisites and installation
-------------------------------
+Prerequisites and basic installation
+------------------------------------
 
   It is assumed that a user is familiar with ROOT and GEANT, as well as with the basic
 concepts of Monte-Carlo simulations, Cherenkov ring imaging detector design and event 
@@ -98,6 +99,11 @@ Try out a pre-installed example
 #root -l './examples/pfrich.C("examples/pfrich.root")'
 #root -l './examples/multi-eval.C("examples/pfrich.root")'
 ```
+
+<br/>
+
+Full installation
+-----------------
 
 Installation of the actual GEANT simulation environment requires few more steps (make sure 
 *geant.sh* was sourced!):
