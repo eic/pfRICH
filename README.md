@@ -181,8 +181,8 @@ cd ${SANDBOX}/pfRICH
 ./build/pfrich-epic -m macro/vis-epic.mac
 ```
 
-A GEANT Qt display will appear with a picture similar to the image below. It would not hurt to add a bit 
-of functionality to this display (like a "Next event button"). Feel free to contribute. 
+A GEANT Qt display will appear with a picture similar to the image below. Use a green button 
+in the Qt display controls to generate more events.  
  
 ![](pics/epic-geant-qt.png)
 
