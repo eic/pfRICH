@@ -7,7 +7,7 @@ Standalone ePIC pfRICH GEANT4 simulation codes
 
  * [Introduction](#introduction)
  * [Prerequisites and installation](#prerequisites-and-installation)
- * [An example](#try-out-a-preinstalled-example)
+ * [An example](#try-out-a-pre-installed-example)
 
 Introduction
 ------------
