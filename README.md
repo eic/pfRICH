@@ -30,6 +30,7 @@ particular Cherenkov light radiators, etc.
 [pfRICH mockup](ftbf) simulation for the 2024 Fermilab beam test, one for a BNL HRPPD 
 [test stand](tstand), and a part which is [common](share) for all three different geometries. 
 
+<br/>
 
 Prerequisites and installation
 ------------------------------
@@ -52,8 +53,6 @@ environment variable accordingly if installing in a different directory.
 GEANT 4.10.05.p01 . 
 
 
-<br/>
-
 ```
 #
 # Define installation area
@@ -73,10 +72,10 @@ cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -Wno-dev ..
 make -j8 install
 ```
 
+```
 #
 # Download pfRICH repository
 #
-```
 cd ${SANDBOX}
 git clone https://github.com/alexander-kiselev/pfRICH.git
 ```
@@ -85,6 +84,7 @@ This is sufficient to import and analyze ROOT trees already produced after pfRIC
 GEANT simulation pass elsewhere (as long as there were no drastic changes to the 
 C++ class variable description):
 
+<br/>
 
 Try out an example 
 ------------------
