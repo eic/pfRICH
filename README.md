@@ -217,18 +217,31 @@ book-keeping (there is no way a reconstruction code can pick up an optical confi
 inconsistent with the GEANT geometry used in this simulation pass). All in all, it is a *development*
 style package, limited in its functionality, and designed just to do the job of implementing and 
 trying out changes in the detector geometry in as simple and efficient way as possible, rather than a 
-versatile solid framework. 
+versatile solid framework with a detector configuration being changed on a time scale of weeks and 
+months. 
+
+One downside of this approach is a necessity to keep track of *your own changes* and do not let them 
+interfere (after a *pull* request) with other changes occasionally happening in the repository. There are 
+presently five "default" C++ header files in the repository: one with an 
+[HRPPD description](share/include/hrppd.default.h), one with [shared parameters](share/include/share.default.h), 
+and one for each of the [epic](epic/include/epic.default.h), [Fermilab](ftbf/include/ftbf.default.h) and 
+BNL [QA station](tstand/include/tstand.default.h) configurations.
 
 
 ```
 # Consider creating your local copies of the repository header files, which you may want to change,
 # and pointing links like share.h to them, like (for a person 'xx'):
 cd ${SANDBOX}/pfRICH
+
 pushd epic/include && rm epic.h && cp epic.default.h epic.xx.h && ln -s epic.xx.h epic.h && popd
 
 # Then you can edit epic.xx.h locally without being affected by possible changes in epic.default.h
 # which would overwrite your local changes after next pull
 ```
+
+It may make sense to look through the above mentioned default header files, which have a certain amount of 
+comments, which allow one to understand what is what. It makes sense to periodically check whether anything 
+was changed in the default configuration header files as compared to your local custom copies.
 
 ```
 #Automation
