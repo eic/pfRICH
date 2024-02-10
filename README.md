@@ -7,8 +7,9 @@ Standalone ePIC pfRICH GEANT4 simulation codes
 
  * [Introduction](#introduction)
  * [Prerequisites and basic installation](#prerequisites-and-basic-installation)
- * [An example](#try-out-a-pre-installed-example)
+ * [Pre-installed example](#pre-installed-example)
  * [Full installation](#full-installation)
+ * [Example scripts](#example-scripts)
 
 Introduction
 ------------
@@ -89,8 +90,8 @@ C++ class variable description):
 
 <br/>
 
-Try out a pre-installed example 
--------------------------------
+Pre-installed example 
+---------------------
 
 ```
 #  TODO: NEED TO UPLOAD NEW ONES
@@ -140,6 +141,7 @@ make -j8 install
 # Install HepMC3 (optional, only needed for a full ePIC pfRICH simulation);
 #
 cd ${SANDBOX}
+
 git clone https://gitlab.cern.ch/hepmc/HepMC3.git
 cd HepMC3 && mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -DHEPMC3_ENABLE_ROOTIO=ON -DHEPMC3_ENABLE_PYTHON=OFF ..
@@ -166,20 +168,30 @@ cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -DIRT=${SANDBOX} -DBMF=${SANDBOX} -DHEPM
 make -j8 install
 ```
 
-Run examples 
-------------
+Example scripts 
+---------------
 
 ```
+#
+# A full ePIC pfRICH detector
+#
 cd ${SANDBOX}/pfRICH
 # FIXME: may need to click on "Useful tips", then on "viewer-0" in the Qt display;
 ./build/pfrich-epic -m macro/vis-epic.mac
+`
 
+`
+#
+# A Fermilab mockup of a pfRICH detector
+#
 ./build/pfrich-epic -o pfrich-epic.root -s 1000
 root -l 'scripts/hit-map-epic.C("pfrich-epic.root")'
 root -l 'scripts/reco-epic.C("pfrich-epic.root")'
 
 ./build/pfrich-ftbf -m macro/vis-ftbf.mac
+`
 
+`
 # Will take quite some time because of the optical photon tracing in the lens radiator;
 ./build/pfrich-ftbf -o pfrich-ftbf.root -s 1000
 root -l 'scripts/hit-map-ftbf-1x1.C("pfrich-ftbf.root")'
