@@ -203,6 +203,9 @@ root -l 'scripts/reco-ftbf.C("pfrich-ftbf.root")'
 Environment customization
 -------------------------
 
+The code should be started in a ${SANDBOX}/pfRICH directory
+
+
 ```
 # Consider creating your local copies of the repository header files, which you may want to change,
 # and pointing links like share.h to them, like (for a person 'xx'):
@@ -213,6 +216,7 @@ pushd epic/include && rm epic.h && cp epic.default.h epic.xx.h && ln -s epic.xx.
 # which would overwrite your local changes after next pull
 ```
 
+```
 #Automation
 #----------
 #
@@ -222,3 +226,4 @@ pushd epic/include && rm epic.h && cp epic.default.h epic.xx.h && ln -s epic.xx.
 #`bash ./scripts/cc/AutomatedSimulationChain.sh`
 #It will display all the features with an example.
 #
+```
