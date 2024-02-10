@@ -255,9 +255,11 @@ saved in the output ROOT tree with the charged particle, optical photon informat
 book-keeping (there is no way a reconstruction code can pick up an optical configuration which is
 inconsistent with the GEANT geometry used in this simulation pass). All in all, it is a *development*
 style package, limited in its functionality, and designed just to do the job of implementing and 
-trying out changes in the detector geometry in as simple and efficient way as possible, rather than a 
-versatile solid framework with a detector configuration being changed on a time scale of weeks and 
-months. 
+trying out changes in the detector geometry *by you* in as simple and efficient way as possible 
+(on a time scale 
+of minutes for a full edit-compile-run-reconstruct sequence for O(10k) events), rather than a 
+versatile solid framework with a detector configuration being changed *by somebody else for you* 
+on a time scale of weeks and months. 
 
 One downside of this approach is a necessity to keep track of *your own changes* and do not let them 
 interfere (after a *pull* request) with other changes occasionally happening in the repository. There are 
@@ -282,7 +284,8 @@ Feel free to store your private header files in the repository (ask for a write 
 and push them to the repository often enough. One can of course just create a git branch where one can modify 
 the default header files directly.
 
-It may make sense to look through the above mentioned default header files, which have a certain amount of 
+It may make sense to look through the above mentioned default header files, line by line. They have a certain 
+amount of 
 comments, which allow one to understand what is what. It makes sense to periodically check whether anything 
 was changed in the default configuration header files as compared to your local custom copies.
 
