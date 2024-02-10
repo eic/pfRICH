@@ -101,10 +101,10 @@ Installation of the actual GEANT simulation environment requires few more steps 
 *geant.sh* was sourced!):
 
 
+```
 #
 # Install Xerces; YES, DO THIS EVEN IF YOU HAVE A SYSTEM ONE INSTALLED ALREADY
 #
-```
 cd ${SANDBOX} 
 # Copy over xerces-c-3.2.4.tar.gz (or a similar version) from the Web, unpack;
 cd xerces-c-3.2.4 && mkdir build && cd build
@@ -113,10 +113,11 @@ make -j8 install
 ```
 
 
-Install BeastMagneticField (optional)
--------------------------------------
 
 ```
+#
+# Install BeastMagneticField (optional)
+#
 cd ${SANDBOX} 
 git clone https://github.com/eic/BeastMagneticField.git
 cd BeastMagneticField && mkdir build && cd build
