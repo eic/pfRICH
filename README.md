@@ -54,6 +54,7 @@ GEANT 4.10.05.p01 .
 <br/>
 
 ```
+#
 # Define installation area
 #
 export SANDBOX=/tmp/sandbox
@@ -61,6 +62,7 @@ export LD_LIBRARY_PATH=${SANDBOX}/lib:${SANDBOX}/lib64:${LD_LIBRARY_PATH}
 ```
 
 ```
+#
 # Install IRT library
 #
 cd ${SANDBOX}
