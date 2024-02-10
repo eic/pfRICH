@@ -216,9 +216,9 @@ pushd epic/include && rm epic.h && cp epic.default.h epic.xx.h && ln -s epic.xx.
 #Automation
 #----------
 #
-#```
+#
 # TODO: UPDATE THIS SECTION
 #Inside pfRICH directory run
 #`bash ./scripts/cc/AutomatedSimulationChain.sh`
 #It will display all the features with an example.
-#```
+#
