@@ -197,7 +197,7 @@ root -l 'scripts/hit-map-epic.C("pfrich-epic.root")'
 
 ![](pics/epic-hit-map.png)
 
-Consider to uncomment *#define __PRIMARY_PARTICLE_PHI__* in [epic/include/epic.default.h](epic/include/epic.default.h), 
+Consider to uncomment *#define PRIMARY_PARTICLE_PHI* in [epic/include/epic.default.h](epic/include/epic.default.h), 
 recompile and rerun both commands, in order to see a clear ring. 
 
 ```
