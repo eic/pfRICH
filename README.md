@@ -7,7 +7,7 @@ Standalone ePIC pfRICH GEANT4 simulation codes
 
  * [Introduction](#introduction)
  * [Prerequisites and installation](#prerequisites-and-installation)
- * [An example](#try-out-an-example)
+ * [An example](#try-out-a-preinstalled-example)
 
 Introduction
 ------------
@@ -66,6 +66,7 @@ export LD_LIBRARY_PATH=${SANDBOX}/lib:${SANDBOX}/lib64:${LD_LIBRARY_PATH}
 # Install IRT library
 #
 cd ${SANDBOX}
+
 git clone -b pfrich https://github.com/eic/irt.git
 cd irt && mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -Wno-dev ..
@@ -77,6 +78,7 @@ make -j8 install
 # Download pfRICH repository
 #
 cd ${SANDBOX}
+
 git clone https://github.com/alexander-kiselev/pfRICH.git
 ```
 
@@ -86,8 +88,8 @@ C++ class variable description):
 
 <br/>
 
-Try out an example 
-------------------
+Try out a pre-installed example 
+-------------------------------
 
 ```
 #  TODO: NEED TO UPLOAD NEW ONES
@@ -106,6 +108,7 @@ Installation of the actual GEANT simulation environment requires few more steps 
 # Install Xerces; YES, DO THIS EVEN IF YOU HAVE A SYSTEM ONE INSTALLED ALREADY
 #
 cd ${SANDBOX} 
+
 # Copy over xerces-c-3.2.4.tar.gz (or a similar version) from the Web, unpack;
 cd xerces-c-3.2.4 && mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -Wno-dev ..
@@ -118,6 +121,7 @@ make -j8 install
 # Install BeastMagneticField (optional, only needed for a full ePIC pfRICH simulation);
 #
 cd ${SANDBOX} 
+
 git clone https://github.com/eic/BeastMagneticField.git
 cd BeastMagneticField && mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -Wno-dev ..
