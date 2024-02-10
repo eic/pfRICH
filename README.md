@@ -203,7 +203,20 @@ root -l 'scripts/reco-ftbf.C("pfrich-ftbf.root")'
 Environment customization
 -------------------------
 
-The code should be started in a ${SANDBOX}/pfRICH directory
+The code should be started in a *${SANDBOX}/pfRICH* directory, or otherwise in any other one, 
+where exists a link to a *database* subdirectory, which contains MARCO magnet field map (may be 
+obsolete!), some of the media refractive index tables, etc. 
+
+Per design, there are no other configuration files, either ASCII or XML ones, in this package.
+All of the configuration changes are made through editing C++ header files and recompiling the 
+executable codes. The rationale behind this paradigm is to have as transparent environment as
+possible, where there is no convoluted path from e.g. changing the detector geometry and propagating 
+this change to the actual simulation pass. Besides this, the optical description of a setup is 
+saved in the output ROOT tree with the charged particle, optical photon information and hits, to simplify 
+book-keeping (there is no way a reconstruction code can pick up an optical configuration which is
+inconsistent with the GEANT geometry used in this simulation pass). All in all, it is a *development*
+style package, limited in its functionality, and designed just to do the job, rather than a 
+versatile solid framework. 
 
 
 ```
