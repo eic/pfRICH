@@ -113,10 +113,9 @@ make -j8 install
 ```
 
 
-
 ```
 #
-# Install BeastMagneticField (optional)
+# Install BeastMagneticField (optional, only needed for a full ePIC pfRICH simulation);
 #
 cd ${SANDBOX} 
 git clone https://github.com/eic/BeastMagneticField.git
@@ -125,10 +124,11 @@ cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -Wno-dev ..
 make -j8 install
 ```
 
-Install HepMC3 (optional)
--------------------------
 
 ```
+#
+# Install HepMC3 (optional, only needed for a full ePIC pfRICH simulation);
+#
 cd ${SANDBOX}
 git clone https://gitlab.cern.ch/hepmc/HepMC3.git
 cd HepMC3 && mkdir build && cd build
@@ -136,10 +136,11 @@ cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -DHEPMC3_ENABLE_ROOTIO=ON -DHEPMC3_ENABL
 make -j8 install
 ```
 
-Install pfRICH simulation codes
--------------------------------
 
 ```
+#
+# Install pfRICH simulation codes
+#
 cd ${SANDBOX}/pfRICH
 
 # Create links to the default header files; 
