@@ -60,10 +60,9 @@ export SANDBOX=/tmp/sandbox
 export LD_LIBRARY_PATH=${SANDBOX}/lib:${SANDBOX}/lib64:${LD_LIBRARY_PATH}
 ```
 
-Install IRT library
--------------------
-
 ```
+# Install IRT library
+#
 cd ${SANDBOX}
 git clone -b pfrich https://github.com/eic/irt.git
 cd irt && mkdir build && cd build
