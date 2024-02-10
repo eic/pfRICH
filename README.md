@@ -239,6 +239,10 @@ pushd epic/include && rm epic.h && cp epic.default.h epic.xx.h && ln -s epic.xx.
 # which would overwrite your local changes after next pull
 ```
 
+Feel free to store your private header files in the repository (ask for a write access if you do not have one),
+and push them to the repository often enough. One can of course just create a git branch where one can modify 
+the default header files directly.
+
 It may make sense to look through the above mentioned default header files, which have a certain amount of 
 comments, which allow one to understand what is what. It makes sense to periodically check whether anything 
 was changed in the default configuration header files as compared to your local custom copies.
