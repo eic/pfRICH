@@ -10,6 +10,7 @@ Standalone ePIC pfRICH GEANT4 simulation codes
  * [Pre-installed example](#pre-installed-example)
  * [Full installation](#full-installation)
  * [Example scripts](#example-scripts)
+ * [Environment customization](#environment-customization)
 
 Introduction
 ------------
@@ -151,7 +152,7 @@ make -j8 install
 
 ```
 #
-# Install pfRICH simulation codes
+# Install pfRICH simulation codes themselves
 #
 cd ${SANDBOX}/pfRICH
 
@@ -178,9 +179,9 @@ Example scripts
 cd ${SANDBOX}/pfRICH
 # FIXME: may need to click on "Useful tips", then on "viewer-0" in the Qt display;
 ./build/pfrich-epic -m macro/vis-epic.mac
-`
+```
 
-`
+```
 #
 # A Fermilab mockup of a pfRICH detector
 #
@@ -189,9 +190,7 @@ root -l 'scripts/hit-map-epic.C("pfrich-epic.root")'
 root -l 'scripts/reco-epic.C("pfrich-epic.root")'
 
 ./build/pfrich-ftbf -m macro/vis-ftbf.mac
-`
 
-`
 # Will take quite some time because of the optical photon tracing in the lens radiator;
 ./build/pfrich-ftbf -o pfrich-ftbf.root -s 1000
 root -l 'scripts/hit-map-ftbf-1x1.C("pfrich-ftbf.root")'
@@ -201,8 +200,8 @@ root -l 'scripts/hit-map-ftbf-2x2.C("pfrich-ftbf.root")'
 root -l 'scripts/reco-ftbf.C("pfrich-ftbf.root")'
 ```
 
-Customize your environment
---------------------------
+Environment customization
+-------------------------
 
 ```
 # Consider creating your local copies of the repository header files, which you may want to change,
@@ -214,12 +213,12 @@ pushd epic/include && rm epic.h && cp epic.default.h epic.xx.h && ln -s epic.xx.
 # which would overwrite your local changes after next pull
 ```
 
-Automation
-----------
-
-```
+#Automation
+#----------
+#
+#```
 # TODO: UPDATE THIS SECTION
 #Inside pfRICH directory run
 #`bash ./scripts/cc/AutomatedSimulationChain.sh`
 #It will display all the features with an example.
-```
+#```
