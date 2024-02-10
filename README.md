@@ -39,22 +39,22 @@ reconstruction goals, as well as the basic principles of Ring Imaging CHerenkov 
 particle identification (PID) techniques.
 
   It is assumed that ROOT and GEANT are installed on a host PC, where the codes are supposed to be 
-installed, as well as that *thisroot.sh* and "geant4.sh" were sourced already. GEANT is 
+installed, as well as that *thisroot.sh* and *geant4.sh* were sourced already. GEANT is 
 not needed to just import already produced ROOT trees.
 
   In the following the installation under /tmp/sandbox is assumed. Define SANDBOX 
 environment variable accordingly if installing in a different directory. 
 
-  Make sure 'cmake' is version 3.0 or higher. The following combination is known 
-to work: SL7, gcc 4.8.5, cmake 3.22.1, ROOT 6.18.04, GEANT 4.10.05.p01 . 
+  Make sure 'cmake' is version 3.0 or higher. 
+
+  The following combination is known to work: SL7, gcc 4.8.5, cmake 3.22.1, ROOT 6.18.04, 
+GEANT 4.10.05.p01 . 
 
 
 <br/>
 
-Define installation area
-------------------------
-
 ```
+#Define installation area
 export SANDBOX=/tmp/sandbox
 export LD_LIBRARY_PATH=${SANDBOX}/lib:${SANDBOX}/lib64:${LD_LIBRARY_PATH}
 ```
