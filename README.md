@@ -197,13 +197,15 @@ root -l 'scripts/hit-map-epic.C("pfrich-epic.root")'
 
 ![](pics/epic-hit-map.png)
 
-Consider to uncomment *#define _PRIMARY_PARTICLE_PHI_* in [epic/include/epic.h](epic/include/epic.h), 
+Consider to uncomment *#define __PRIMARY_PARTICLE_PHI__* in [epic/include/epic.default.h](epic/include/epic.default.h), 
 recompile and rerun both commands, in order to see a clear ring. 
 
 ```
+# Run IRT reconstruction; 
 root -l 'scripts/reco-epic.C("pfrich-epic.root")'
 ```
 
+![](pics/epic-reco.png)
 
 #
 # A Fermilab mockup of a pfRICH detector
