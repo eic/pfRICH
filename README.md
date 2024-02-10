@@ -215,7 +215,8 @@ this change to the actual simulation pass. Besides this, the optical description
 saved in the output ROOT tree with the charged particle, optical photon information and hits, to simplify 
 book-keeping (there is no way a reconstruction code can pick up an optical configuration which is
 inconsistent with the GEANT geometry used in this simulation pass). All in all, it is a *development*
-style package, limited in its functionality, and designed just to do the job, rather than a 
+style package, limited in its functionality, and designed just to do the job of implementing and 
+trying out changes in the detector geometry in as simple and efficient way as possible, rather than a 
 versatile solid framework. 
 
 
