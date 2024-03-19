@@ -24,8 +24,10 @@ void reco_epic(const char *dfname, const char *cfname = 0)
 
   //reco->SetSinglePhotonTimingResolution(0.030);
   //reco->SetQuietMode();
+  reco->AddHypothesis(-11);
   reco->AddHypothesis("pi+");
   reco->AddHypothesis(321);
+  reco->AddHypothesis(2212);
   //reco->IgnoreMcTruthPhotonDirectionSeed();
 
   // Mark all pads hit by "calibration" (above the QE curve) photons as "useless";
@@ -37,7 +39,8 @@ void reco_epic(const char *dfname, const char *cfname = 0)
 
   auto hmatch = new TH1D("hmatch", "PID evaluation correctness",       2,    0,      2);
   //auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        200,  220,    320);
-  auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        40,  270, 290);
+  //auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        40,  270, 290);
+  auto hthtr1 = new TH1D("thtr1", "Cherenkov angle (track)", 580, 0., 290.);
   // For a dual aerogel configuration;
   //auto hthtr2  = new TH1D("thtr2",   "Cherenkov angle (track)",        200,  220,    320);
 
@@ -74,8 +77,41 @@ void reco_epic(const char *dfname, const char *cfname = 0)
   cv->cd(6); reco->hmatch()->SetMinimum(0); reco->hmatch()->Draw();
   cv->cd(7);       hmatch  ->SetMinimum(0);       hmatch  ->Draw();
   cv->cd(8); reco->hdtph()->Fit("gaus");
-  cv->cd(9); hthtr1->Fit("gaus");
+
+  //double cent = (hthtr1->GetMaximumBin() == 1) ? hthtr1->GetMean() : 0.5*hthtr1->GetMaximumBin();
+
+  double maxBinCount = 0.0;
+  int maxBin = 0;
+  for(int bins=5; bins<580; bins++)
+    {
+      if(hthtr1->GetBinContent(bins) > maxBinCount)
+	{
+	  maxBinCount = hthtr1->GetBinContent(bins);
+	  maxBin = bins;
+	}
+    }
+
+  double cent = 0.5*maxBin;
+
+  double fitMin = (cent - 40.0) < 0.0 ? 0.0 : cent - 40.0;
+  double fitMax = (cent + 40.0) > 289.0 ? 289.0 : cent + 40.0;
+
+  cout << cent << " " << fitMin << " " << fitMax << endl;
+
+  TF1 *mygaus = new TF1("mygaus","gaus",fitMin,fitMax);
+  mygaus->SetParameters(hthtr1->GetMaximum(),cent,1.5);
+
+  cv->cd(9); hthtr1->Fit("mygaus","B","",fitMin,fitMax);
+  auto f1 = hthtr1->GetFunction("mygaus");
+
+  //cv->cd(9); hthtr1->Fit("gaus");
+  //auto f1 = hthtr1->GetFunction("gaus");
+
+  cout << "!!!!!!! " << reco->hnpetr()->GetMean() << endl;
+  cout << "%%%%%%% " << f1->GetParameter(1) << endl;
+  cout << "####### " << f1->GetParameter(2) << endl;
   //cv->cd(10); hthtr2->Fit("gaus");
+
   cv->cd(10); reco->hwl()->Draw();
   cv->cd(11); reco->hvtx()->Draw();
   cv->cd(12); reco->hri()->Draw();
