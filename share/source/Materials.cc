@@ -147,18 +147,26 @@ void Materials::DefineMaterials( void )
     unsigned riDim = wl.size();
 
     // FIXME: use constant for now;
-    G4double energy[riDim], refractiveIndex[riDim];
-    for(int iq=riDim-1; iq>=0; iq--) {
-      energy         [iq] =  (1240.0/wl[iq])*eV;
-      printf("%3d -> %7.3f\n", iq, energy[iq]*1E6);
-      refractiveIndex[iq] = ri[iq];
-    } //for iq 
-#if _TODAY_
-    G4MaterialPropertiesTable* fsMPT = new G4MaterialPropertiesTable();
-    fsMPT->AddProperty("RINDEX", energy, refractiveIndex, riDim);
-    
-    m_FusedSilica->SetMaterialPropertiesTable(fsMPT);
-#endif
+    {
+      G4double energy[riDim], refractiveIndex[500];
+      
+      //for(int iq=riDim-1; iq>=0; iq--) {
+      //energy         [iq] =  (1240.0/wl[iq])*eV;
+	//printf("%3d -> %7.3f\n", iq, energy[iq]*1E6);
+	//refractiveIndex[iq] = ri[iq];
+      //} //for iq 
+      for(unsigned iq=0; iq<riDim; iq++) {
+	energy         [iq] =  (1240.0/wl[riDim-iq-1])*eV;
+	//printf("%3d -> %7.3f\n", iq, energy[iq]*1E6);
+	refractiveIndex[iq] =          ri[riDim-iq-1];
+      } //for iq 
+      //#if _TODAY_
+      G4MaterialPropertiesTable* fsMPT = new G4MaterialPropertiesTable();
+      fsMPT->AddProperty("RINDEX", energy, refractiveIndex, riDim);
+      
+      m_FusedSilica->SetMaterialPropertiesTable(fsMPT);
+      //#endif
+    }
   }
 
 #if 1//_TODAY_
