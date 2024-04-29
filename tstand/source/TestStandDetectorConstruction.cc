@@ -94,7 +94,7 @@ G4VPhysicalVolume *TestStandDetectorConstruction::Construct( void )
 				   8.791869E-05, 3.051652E-07, -7.950597E-10, 8.042043E-12, 0.0, 0.0, 2.27*mm);
       
       // Z location is given with respect to the upstream end of the gas volume;
-      lens->Install(m_Geometry, this, cdet, dbox, _ZCOORD_ASPHERIC_LENS_);
+      lens->Install(m_Geometry, this, cdet, dbox, _ZCOORD_ASPHERIC_LENS_, false);
     }
 #endif
 

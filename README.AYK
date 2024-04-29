@@ -1,0 +1,33 @@
+
+. /home/eic/root-6.30.04.install/bin/thisroot.sh
+. /home/eic/geant4-v11.2.1.install/bin/geant4.sh
+
+# IRT
+cmake -DCMAKE_INSTALL_PREFIX=/home/eic -Wno-dev ..
+# pfRICH
+cmake -DCMAKE_INSTALL_PREFIX=/home/eic -DIRT=/home/eic -DXERCES=/home/eic -Wno-dev ..
+
+cd /home/eic/pfRICH
+export LD_LIBRARY_PATH=/home/eic/lib:${LD_LIBRARY_PATH}
+
+./build/pfrich-epic -m macro/vis-epic.mac
+
+# --- Obsolete ----
+
+. /home/eic/root-6.30.04.install/bin/thisroot.sh
+. /home/eic/geant4-v11.2.1.install/bin/geant4.sh
+
+cd /home/eic/pfRICH
+export LD_LIBRARY_PATH=/home/eic/lib:${LD_LIBRARY_PATH}
+
+# --- Obsolete ----
+
+. /home/eic/root-6.18.04.install/bin/thisroot.sh
+. /home/eic/geant4.10.05.p01.install/bin/geant4.sh
+
+cd /home/eic/pfRICH
+export LD_LIBRARY_PATH=/home/eic/irt/build/lib:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=/home/eic/HepMC3/build/lib64:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=/home/eic/BeastMagneticField/build/lib:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=/home/eic/xerces-c-3.2.4/build/lib64:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=/home/eic/pfRICH/build/lib:${LD_LIBRARY_PATH}

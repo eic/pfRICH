@@ -33,7 +33,8 @@ void EpicDetectorConstruction::DefineMirrors(CherenkovDetector *cdet, DarkBox *d
   mlen -= _BUILDING_BLOCK_CLEARANCE_ + _HRPPD_SUPPORT_GRID_BAR_HEIGHT_;
 #endif
   double mpos = m_gzOffset + mlen/2;
-  double r0[2] = {m_r0min, m_r0max}, r1[2] = {_CONICAL_MIRROR_INNER_RADIUS_, _CONICAL_MIRROR_OUTER_RADIUS_};
+  double r0[2] = {m_r0min, m_r0max}, r1[2] = {_CONICAL_MIRROR_DS_INNER_RADIUS_, _CONICAL_MIRROR_DS_OUTER_RADIUS_};
+  //printf("%f %f\n", m_r0min, m_r0max); exit(0);
   
   for(unsigned im=0; im<2; im++) {
     //auto material = im ? m_HalfInch_CF_HoneyComb : m_QuarterInch_CF_HoneyComb;

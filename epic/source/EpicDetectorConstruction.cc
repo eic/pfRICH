@@ -171,9 +171,11 @@ G4VPhysicalVolume *EpicDetectorConstruction::Construct( void )
   
   // min/max radii available for aerogel, mirrors and such; r0min can be an estimate, since a flange
   // cut will be applied at the end to all these shapes anyway;
-  m_r0min = _FLANGE_EPIPE_DIAMETER_/2 + _FLANGE_CLEARANCE_ + 
-    _VESSEL_INNER_WALL_THICKNESS_ + _BUILDING_BLOCK_CLEARANCE_;
-  m_r0max = m_gas_volume_radius - _BUILDING_BLOCK_CLEARANCE_;
+  //m_r0min = _FLANGE_EPIPE_DIAMETER_/2 + _FLANGE_CLEARANCE_ + 
+  //_VESSEL_INNER_WALL_THICKNESS_ + _BUILDING_BLOCK_CLEARANCE_;
+  //m_r0max = m_gas_volume_radius - _BUILDING_BLOCK_CLEARANCE_;
+  m_r0min = _CONICAL_MIRROR_US_INNER_RADIUS_;
+  m_r0max = _CONICAL_MIRROR_US_OUTER_RADIUS_;
   
   // Aerogel;
   DefineAerogel(det, dbox, flange);

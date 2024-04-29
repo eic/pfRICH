@@ -147,18 +147,29 @@ void Materials::DefineMaterials( void )
     unsigned riDim = wl.size();
 
     // FIXME: use constant for now;
-    G4double energy[riDim], refractiveIndex[riDim];
-    for(int iq=riDim-1; iq>=0; iq--) {
-      energy         [iq] =  (1240.0/wl[iq])*eV;
-      refractiveIndex[iq] = ri[iq];
-    } //for iq 
-
-    G4MaterialPropertiesTable* fsMPT = new G4MaterialPropertiesTable();
-    fsMPT->AddProperty("RINDEX", energy, refractiveIndex, riDim);
-    
-    m_FusedSilica->SetMaterialPropertiesTable(fsMPT);
+    {
+      G4double energy[riDim], refractiveIndex[500];
+      
+      //for(int iq=riDim-1; iq>=0; iq--) {
+      //energy         [iq] =  (1240.0/wl[iq])*eV;
+	//printf("%3d -> %7.3f\n", iq, energy[iq]*1E6);
+	//refractiveIndex[iq] = ri[iq];
+      //} //for iq 
+      for(unsigned iq=0; iq<riDim; iq++) {
+	energy         [iq] =  (1240.0/wl[riDim-iq-1])*eV;
+	//printf("%3d -> %7.3f\n", iq, energy[iq]*1E6);
+	refractiveIndex[iq] =          ri[riDim-iq-1];
+      } //for iq 
+      //#if _TODAY_
+      G4MaterialPropertiesTable* fsMPT = new G4MaterialPropertiesTable();
+      fsMPT->AddProperty("RINDEX", energy, refractiveIndex, riDim);
+      
+      m_FusedSilica->SetMaterialPropertiesTable(fsMPT);
+      //#endif
+    }
   }
 
+#if 1//_TODAY_
   // CLAS12 aerogel; two options for now; obviously can add more the same way
   {
     unsigned density[2] = {_AEROGEL_CLAS12_DENSITY_155_MG_CM3_, _AEROGEL_CLAS12_DENSITY_225_MG_CM3_};
@@ -194,7 +205,7 @@ void Materials::DefineMaterials( void )
       aerogel->SetRIChOptics(new g4dRIChAerogel(aerogel));
       // FIXME: tuned model#3 to n ~ 1.02 @ 400ns (which corresponds to 110 mg/cm^3 density);
       aerogel->GetRIChOptics()->setOpticalParams(3);
-      aerogel->GetRIChOptics()->pTable->GetProperty("RINDEX")->SetSpline(true);
+      aerogel->GetRIChOptics()->pTable->GetProperty("RINDEX");//->SetSpline(true);
 #endif
 
       m_Aerogel[density[il]] = aerogel;
@@ -373,7 +384,7 @@ void Materials::DefineMaterials( void )
 #else
     m_Acrylic->SetRIChOptics(new g4dRIChFilter(m_Acrylic));
     m_Acrylic->GetRIChOptics()->setOpticalParams(_ACRYLIC_WL_CUTOFF_);
-    m_Acrylic->GetRIChOptics()->pTable->GetProperty("RINDEX")->SetSpline(true);
+    m_Acrylic->GetRIChOptics()->pTable->GetProperty("RINDEX");//->SetSpline(true);
 #endif
   }
 
@@ -386,7 +397,7 @@ void Materials::DefineMaterials( void )
 
     m_C2F6->SetRIChOptics(new g4dRIChGas(m_C2F6));
     m_C2F6->GetRIChOptics()->setOpticalParams();
-    m_C2F6->GetRIChOptics()->pTable->GetProperty("RINDEX")->SetSpline(true);
+    m_C2F6->GetRIChOptics()->pTable->GetProperty("RINDEX");//->SetSpline(true);
   }
 
   // Bialkali photocathode;
@@ -508,6 +519,7 @@ void Materials::DefineMaterials( void )
     printf("1/2\" HC     : %8.3f [cm],  %8.3f [g/cm^3]\n", half->GetRadlen()         /cm, half         ->GetDensity()/(g/cm3));
     printf("1/4\" HC     : %8.3f [cm],  %8.3f [g/cm^3]\n", quarter->GetRadlen()      /cm, quarter      ->GetDensity()/(g/cm3));
   }
+#endif
 } // Materials::DefineMaterials()
 
 // -------------------------------------------------------------------------------------

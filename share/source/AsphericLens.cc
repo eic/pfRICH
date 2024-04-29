@@ -19,7 +19,7 @@
 void AsphericLens::Install(CherenkovDetectorCollection *geometry, 
 			   DetectorConstruction *detector, CherenkovDetector *cdet, 
 			   DarkBox *dbox,
-			   double zOffset)
+			   double zOffset, bool flip)
 {
   unsigned dim = _ASPHERIC_LENS_SLICE_COUNT_;
   double step = (mDiameter/2)/dim, z[dim+2];
@@ -38,7 +38,7 @@ void AsphericLens::Install(CherenkovDetectorCollection *geometry,
   //double zc = (z[0] + z[dim+1])/2;
   double q = 1.0;
   //G4RotationMatrix *rX = 0;//new G4RotationMatrix(CLHEP::HepRotationX(TMath::Pi()));
-  G4RotationMatrix *rX = new G4RotationMatrix(CLHEP::HepRotationX(TMath::Pi()));
+  G4RotationMatrix *rX = flip ? new G4RotationMatrix(CLHEP::HepRotationX(TMath::Pi())) : 0;
   auto co_tubs = new G4Tubs("QContainer", 0.0, (mDiameter + q)/2, (CT + q)/2, 0.0, 2*TMath::Pi());
   //auto co_log  = new G4LogicalVolume(co_tubs, detector->m_Nitrogen, "Container", 0, 0, 0);
   auto co_log  = new G4LogicalVolume(co_tubs, detector->Nitrogen(), "Container", 0, 0, 0);

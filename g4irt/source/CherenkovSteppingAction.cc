@@ -79,7 +79,12 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
     if (tdef->GetPDGEncoding() > 1000000000) return;
  
     //printf("%d\n", tdef->GetPDGEncoding());
-    auto particle = new ChargedParticle(tdef->GetPDGEncoding());
+    //+auto particle = new ChargedParticle(tdef->GetPDGEncoding());
+    TransientParticle *particle;// = 
+    if (tdef->GetPDGCharge()) 
+      particle = new ChargedParticle(tdef->GetPDGEncoding());
+    else
+      particle = new OpticalPhoton();
     info = AttachUserInfo(track, particle, 0);
 
     // Assume first step is from the vertex?;
@@ -89,7 +94,9 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
     particle->SetVertexMomentum((1/GeV)*TVector3(p.x(), p.y(), p.z()));
     particle->SetVertexTime(vtx->GetGlobalTime()/ns);
 
-    m_EventPtr->AddChargedParticle(particle);
+    //+m_EventPtr->AddChargedParticle(particle);
+    if (particle->IsCharged())
+      m_EventPtr->AddChargedParticle(dynamic_cast<ChargedParticle*>(particle));
   } //if
 
   //printf("Here! %d\n", tdef->GetPDGEncoding());
@@ -146,6 +153,8 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
       // Assign generic information once; FIXME: do it better later;
       if (!photon->GetVertexMomentum().Mag()) {
 	auto parent = dynamic_cast<ChargedParticle*>(info->Parent()); assert(parent);
+
+	//printf("%d\n", parent);
 
 	// Vertex at birth;
 	{
@@ -209,6 +218,7 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 	    if (pd) {
 	      photon->SetPhotonDetector(pd);
 	      
+	      //printf("Here!\n");
 	      //photon->SetVolumeCopy(vto->GetCopyNo());
 	      //>GetTouchable()
 	      //printf("%2d %2d %2d %2d\n", vto->GetCopyNo(), 
@@ -233,6 +243,8 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 		else
 		  photon->SetCalibrationFlag();
 	      } //if
+
+	      if (!info->Parent()) m_EventPtr->AddOrphanPhoton(photon);
 
 	      // For now assume that the photodetector volume absorbs all photons; FIXME: make optional;
 	      track->SetTrackStatus(fStopAndKill);

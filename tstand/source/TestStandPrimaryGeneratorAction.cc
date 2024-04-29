@@ -46,13 +46,22 @@ void TestStandPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     if (sqrt(dx*dx+dy*dy) <= radius) break;
   } //for inf
 
-  double sx = _XSLOPE_AVERAGE_ + G4RandGauss::shoot(0.0, _XSLOPE_SIGMA_);
-  double sy = _YSLOPE_AVERAGE_ + G4RandGauss::shoot(0.0, _YSLOPE_SIGMA_);
-  double norm = sqrt(1.0 + sx*sx + sy*sy);
 
-  fParticleGun->SetParticleMomentumDirection((1/norm)*G4ThreeVector(sx, sy, -1.));
+  double alfa = asin(_FIBER_NA_ / _FIBER_CORE_REFRACTIVE_INDEX_);
+  // FIXME: assume uniform distribution for now?;
+  double theta = acos(UniformRand(-1.0, cos(M_PI - alfa))), phi = UniformRand(0.0, 360.0*degree);
+  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(sin(theta)*cos(phi), 
+							   sin(theta)*sin(phi), 
+							   cos(theta)));
 
-  fParticleGun->SetParticlePosition(G4ThreeVector(_XCOORD_AVERAGE_ + dx, _YCOORD_AVERAGE_ + dy, _ZCOORD_));
+  //double sx = _XSLOPE_AVERAGE_ + G4RandGauss::shoot(0.0, _XSLOPE_SIGMA_);
+  //double sy = _YSLOPE_AVERAGE_ + G4RandGauss::shoot(0.0, _YSLOPE_SIGMA_);
+  //double norm = sqrt(1.0 + sx*sx + sy*sy);
+  //fParticleGun->SetParticleMomentumDirection((1/norm)*G4ThreeVector(sx, sy, -1.));
+
+  fParticleGun->SetParticlePosition(G4ThreeVector(_XCOORD_AVERAGE_ + dx, _YCOORD_AVERAGE_ + dy, 
+						  _FIDUCIAL_VOLUME_OFFSET_ - _FIDUCIAL_VOLUME_LENGTH_/2 + 
+						  _SENSOR_AREA_LENGTH_ - _ZCOORD_));
   
   fParticleGun->SetParticleDefinition(photon);
   fParticleGun->GeneratePrimaryVertex(anEvent);

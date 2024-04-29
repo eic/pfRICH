@@ -25,9 +25,11 @@ void EpicDetectorConstruction::DefineAerogel(CherenkovDetector *cdet, DarkBox *d
 
   // FIXME: yes, for now hardcoded; FIXME: GDML export does not like 8 pieces in the inner layer.
   // namely it produces a visible spike in xray.C scan at 45 degrees; ok, make them 9;
-  const unsigned adim[_AEROGEL_BAND_COUNT_] = {9, 14, 20};
+  //const unsigned adim[_AEROGEL_BAND_COUNT_] = {9, 14, 20};
+  const unsigned adim[_AEROGEL_BAND_COUNT_] = {9, 15, 22, 28};
   double rheight = (m_r0max - m_r0min - (_AEROGEL_BAND_COUNT_-1)*_AEROGEL_SEPARATOR_WALL_THICKNESS_ - 
 		    _AEROGEL_INNER_WALL_THICKNESS_ - _AEROGEL_OUTER_WALL_THICKNESS_) / _AEROGEL_BAND_COUNT_;
+  //printf("%f\n", rheight); exit(0);
   
   // Up to two aerogel layers;
   for(unsigned il=0; il<2; il++) {
@@ -53,18 +55,28 @@ void EpicDetectorConstruction::DefineAerogel(CherenkovDetector *cdet, DarkBox *d
     {
       m_gzOffset += agthick/2;
       
-      // First aerogel sectors and azimuthal spacers;
+      // First place aerogel sectors and azimuthal spacers;
       CherenkovRadiator *radiator = 0;
       for(unsigned ir=0; ir<_AEROGEL_BAND_COUNT_; ir++) {
 	int counter = ir ? -1 : 0;
 	double apitch = 360*degree / adim[ir];
 	double r0 = m_r0min + _AEROGEL_INNER_WALL_THICKNESS_ + ir*(_AEROGEL_SEPARATOR_WALL_THICKNESS_ + rheight);
 	double r1 = r0 + rheight, rm = (r0+r1)/2;
+	// Make footprint size estimate; ideally all pieces should fit into a 140mm x 140mm square area,
+	// or (most optimistically) up to 143-145mm in one dimension; e-mail from Makoto 2024/04/25;
+#if 1
+	{
+	  double alfa = 2*M_PI / adim[ir];
+
+	  double hmin = r0*cos(alfa/2), hmax = r1, wmax = 2*r1*sin(alfa/2);
+	  printf("Band %d -> width %7.1f mm, height %7.1f mm\n", ir, wmax, hmax - hmin); 
+	}
+#endif
 	
-	// Calculate angular space occupied by the spacers and by the tiles; no gas gaps for now;
+	// Calculate angular space occupied by the spacers and by the tiles;
 	// assume that a wegde shape is good enough (GEANT visualization does not like boolean objects), 
-	// rather than creating constant thicjkess azimuthal spacers; just assume that spacer thickness is 
-	// _AEROGEL_FRAME_WALL_THICKNESS_ at r=rm;
+	// rather than creating constant thickness azimuthal spacers; just assume that spacer thickness is 
+	// _AEROGEL_FRAME_WALL_THICKNESS_ at r=rm; FIXME: this is not clean;
 	double l0 = 2*M_PI*rm/adim[ir], l1 = _AEROGEL_SEPARATOR_WALL_THICKNESS_, lsum = l0 + l1;
 	
 	// FIXME: names overlap in several places!;
@@ -72,8 +84,12 @@ void EpicDetectorConstruction::DefineAerogel(CherenkovDetector *cdet, DarkBox *d
 	TString ag_name = "Tmp", sp_name = "Tmp"; 
 	if (ir) ag_name.Form("%s-%d-00", aerogel->GetName().c_str(), ir);
 	if (ir) sp_name.Form("A-Spacer--%d-00",                      ir);
-	G4Tubs *ag_tube  = new G4Tubs(ag_name.Data(), r0, r1, agthick/2, 0*degree, wd0);
-	G4Tubs *sp_tube  = new G4Tubs(sp_name.Data(), r0, r1, agthick/2,      wd0, wd1);
+	double r0real = r0 + _AEROGEL_CLEARANCE_GAP_, r1real = r1 - _AEROGEL_CLEARANCE_GAP_;
+	// Imitate gas gap as angular gap at r=rm; FIXME: this is not clean;
+	double wdg = (_AEROGEL_CLEARANCE_GAP_ / rm) * radian;
+	//printf("wdg: %f\n", wdg);
+	G4Tubs *ag_tube  = new G4Tubs(ag_name.Data(), r0real, r1real, agthick/2, 0*degree + wdg, wd0 - wdg);
+	G4Tubs *sp_tube  = new G4Tubs(sp_name.Data(), r0    , r1    , agthick/2,            wd0,       wd1);
 	
 	for(unsigned ia=0; ia<adim[ir]; ia++) {
 	  G4RotationMatrix *rZ    = new G4RotationMatrix(CLHEP::HepRotationZ(    ia*apitch));
@@ -116,6 +132,7 @@ void EpicDetectorConstruction::DefineAerogel(CherenkovDetector *cdet, DarkBox *d
 			    gvmother, false, counter);
 	} //for ia
       } //for ir
+      //exit(0);
       
       // Then the radial spacers;
       {

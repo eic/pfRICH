@@ -39,7 +39,7 @@ DarkBox(bool pyramids, bool poptics, bool cmoptics):
     m_UsePyramids(pyramids), m_UsePyramidOptics(poptics), m_UseConicalMirrorOptics(cmoptics) {
   // Optical boundaries of the inner and outer conical mirrors; do not want to spoil the 
   // central area (mirro-less) optical path (would happen if define them in situ);
-  m_mboundaries[0] = m_mboundaries[1];
+  m_mboundaries[0] = m_mboundaries[1] = 0;
 };
   ~DarkBox() {};
 
