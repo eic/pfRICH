@@ -155,12 +155,12 @@ protected:
   // add properties to the MaterialPropertiesTable and link to material
   void setMatPropTable(int nEntries) {
       
-    if (scaledN!=NULL) pTable->AddProperty("RINDEX",    scaledE, scaledN, nEntries)->SetSpline(true);
+    if (scaledN!=NULL) pTable->AddProperty("RINDEX",    scaledE, scaledN, nEntries);//->SetSpline(true);
 #ifndef _DISABLE_ABSORPTION_
-    if (scaledA!=NULL) pTable->AddProperty("ABSLENGTH", scaledE, scaledA, nEntries)->SetSpline(true);
+    if (scaledA!=NULL) pTable->AddProperty("ABSLENGTH", scaledE, scaledA, nEntries);//->SetSpline(true);
 #endif
 #ifndef _DISABLE_RAYLEIGH_SCATTERING_
-    if (scaledS!=NULL) pTable->AddProperty("RAYLEIGH",  scaledE, scaledS, nEntries)->SetSpline(true);
+    if (scaledS!=NULL) pTable->AddProperty("RAYLEIGH",  scaledE, scaledS, nEntries);//->SetSpline(true);
 #endif
     //    pTable->AddConstProperty("SCINTILLATIONYIELD", 0. / MeV); // @@@ TBC @@@
     //    pTable->AddConstProperty("RESOLUTIONSCALE", 1.0); // @@@ TBC @@@

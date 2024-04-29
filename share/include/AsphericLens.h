@@ -9,7 +9,7 @@ class CherenkovDetectorCollection;
 #define _ASPHERIC_LENS_
 
 // 300 conical slices is a good enough approximation;
-#define _ASPHERIC_LENS_SLICE_COUNT_ 300
+#define _ASPHERIC_LENS_SLICE_COUNT_ 500//300
 
 // If uncommented, absorb photons which reach this side surface; 
 // FIXME: should probably implement a diffuse scattering?;
@@ -38,7 +38,7 @@ class AsphericLens {
 
   void Install(CherenkovDetectorCollection *geometry,
 	       DetectorConstruction *detector, CherenkovDetector *cdet, DarkBox *dbox,
-	       double zOffset);
+	       double zOffset, bool flip = true);
 
   G4Material *mMaterial;
   double mDiameter, mConvexRadius, mK, mD, mE, mF, mG, mH, mJ, mL, mET;
