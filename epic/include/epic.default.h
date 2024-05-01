@@ -85,8 +85,8 @@
 
 // FIXME: all these thickness values and material definitions need to be revisited;
 //
-// 2*10mil CF + 1/4" HC + 2*10mil CF;
-#define _VESSEL_FRONT_SIDE_THICKNESS_  (0.29*_INCH_)
+// 0.29" -> 1/4" as of 2024/05/01; 
+#define _VESSEL_FRONT_SIDE_THICKNESS_  (0.25*_INCH_)
 // 2*10mil CF + 1/4" HC + 2*10mil CF;
 #define _VESSEL_INNER_WALL_THICKNESS_  (0.29*_INCH_)
 // 2*10mil CF + 1/2" HC + 2*10mil CF;
@@ -94,7 +94,11 @@
 
 // Some moderately optimistic number for aerogel-to-aerogel, aerogel-to-acrylic, 
 // acrylic-to-mirror and such spacing;
-#define _BUILDING_BLOCK_CLEARANCE_          (1.0*mm)
+//#define _BUILDING_BLOCK_CLEARANCE_          (1.0*mm)
+// 2024/05/01: this value allows one to get a mirror length of ~402mm in a no-pyramid case,
+// to match Alex's CAD model; we are not fighting for mismatches between CAD and GEANT to
+// anything better than a couple off mm anyway;
+#define _BUILDING_BLOCK_CLEARANCE_          (0.3*mm)
 
 // Because of the beam pipe flange; 
 #define _HRPPD_CENTRAL_ROW_OFFSET_         (40.0*mm)

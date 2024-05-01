@@ -27,13 +27,25 @@ void EpicDetectorConstruction::DefineMirrors(CherenkovDetector *cdet, DarkBox *d
 {
   const char *names[2] = {"InnerMirror", "OuterMirror"};
   double mlen = dbox->m_gas_volume_length/2 - m_gzOffset - _BUILDING_BLOCK_CLEARANCE_;
+  //printf("%f\n", mlen - _BUILDING_BLOCK_CLEARANCE_ - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_); exit(0);
+  double r1[2] = {_CONICAL_MIRROR_DS_INNER_RADIUS_, _CONICAL_MIRROR_DS_OUTER_RADIUS_};
 #ifdef _USE_PYRAMIDS_
-  mlen -= _BUILDING_BLOCK_CLEARANCE_ + _PYRAMID_MIRROR_HEIGHT_;
+  // Adjust the mirror slope in this case;
+  double dLength = _BUILDING_BLOCK_CLEARANCE_ + _PYRAMID_MIRROR_HEIGHT_;
+  double a[2] = {
+    (_CONICAL_MIRROR_DS_INNER_RADIUS_ - _CONICAL_MIRROR_US_INNER_RADIUS_)/mlen,
+    (_CONICAL_MIRROR_DS_OUTER_RADIUS_ - _CONICAL_MIRROR_US_OUTER_RADIUS_)/mlen};
+  double b[2] = {_CONICAL_MIRROR_US_INNER_RADIUS_, _CONICAL_MIRROR_US_OUTER_RADIUS_};
+  
+  mlen -= dLength;//_BUILDING_BLOCK_CLEARANCE_ + _PYRAMID_MIRROR_HEIGHT_;
+  
+  for(unsigned im=0; im<2; im++)
+    r1[im] = a[im]*mlen + b[im];
 #else
   mlen -= _BUILDING_BLOCK_CLEARANCE_ + _HRPPD_SUPPORT_GRID_BAR_HEIGHT_;
 #endif
   double mpos = m_gzOffset + mlen/2;
-  double r0[2] = {m_r0min, m_r0max}, r1[2] = {_CONICAL_MIRROR_DS_INNER_RADIUS_, _CONICAL_MIRROR_DS_OUTER_RADIUS_};
+  double r0[2] = {m_r0min, m_r0max};//, r1[2] = {_CONICAL_MIRROR_DS_INNER_RADIUS_, _CONICAL_MIRROR_DS_OUTER_RADIUS_};
   //printf("%f %f\n", m_r0min, m_r0max); exit(0);
   
   for(unsigned im=0; im<2; im++) {

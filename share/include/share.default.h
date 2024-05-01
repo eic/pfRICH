@@ -15,7 +15,7 @@
 #define _DISABLE_HRPPD_WINDOW_PHOTONS_
 
 // Call /geometry/test/run if uncommented; activated in '-m' (visualization) mode only;
-//#define _GEOMETRY_CHECK_
+#define _GEOMETRY_CHECK_
 
 // To the rear side of the gas volume; 5cm should be sufficient for EICROC configuration;
 #define _SENSOR_AREA_LENGTH_                (5.0*cm)

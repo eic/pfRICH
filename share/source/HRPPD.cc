@@ -160,13 +160,29 @@ G4LogicalVolume *DetectorConstruction::BuildHRPPD(G4LogicalVolume *wnd_log, G4Bo
   }
 
   {
+#ifdef _USE_HRPPD_24_DATA_
+    const G4int qeEntries = 44;
+    
+    // Create HRPPD QE table; use HRPPD #24 measurements by Alexey (e-mail from 2024/04/29);
+    double WL[qeEntries] = {  200,   210,   220,   230,   240,   250,   260,   270,   280,   290,
+			      300,   310,   320,   330,   340,   350,   360,   370,   380,   390, 
+			      400,   410,   420,   430,   440,   450,   460,   470,   480,   490, 
+			      500,   510,   520,   530,   540,   550,   560,   570,   580,   590, 
+			      600,   610,   620,   630};
+    double QE[qeEntries] = {0.227, 0.277, 0.301, 0.313, 0.322, 0.316, 0.317, 0.304, 0.289, 0.284,
+                            0.286, 0.286, 0.291, 0.305, 0.316, 0.325, 0.327, 0.336, 0.343, 0.334,
+			    0.314, 0.295, 0.269, 0.246, 0.226, 0.206, 0.188, 0.170, 0.156, 0.142,
+                            0.130, 0.119, 0.109, 0.099, 0.091, 0.083, 0.076, 0.070, 0.064, 0.058,
+                            0.053, 0.048, 0.044, 0.040};
+#else                               
     const G4int qeEntries = 26;
     
     // Create HRPPD QE table; use LAPPD #126 from Alexey's March 2022 LAPPD Workshop presentation;
     double WL[qeEntries] = { 160,  180,  200,  220,  240,  260,  280,  300,  320,  340,  360,  380,  400,  
 			     420,  440,  460,  480,  500,  520,  540,  560,  580,  600,  620,  640,  660};
     double QE[qeEntries] = {0.25, 0.26, 0.27, 0.30, 0.32, 0.35, 0.36, 0.36, 0.36, 0.36, 0.37, 0.35, 0.30, 
-			    0.27, 0.24, 0.20, 0.18, 0.15, 0.13, 0.11, 0.10, 0.09, 0.08, 0.07, 0.05, 0.05};
+			    0.27, 0.24, 0.20, 0.18, 0.15, 0.13, 0.11, 0.10, 0.09, 0.08, 0.07, 0.05, 0.05};                       
+#endif
     
     double qemax = 0.0;
     G4double qePhotonEnergy[qeEntries], qeData[qeEntries];
