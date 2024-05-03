@@ -35,7 +35,9 @@ void reco_epic(const char *dfname, const char *cfname = 0)
   // Carelessly remove (0x1 << n)x(0x1 << n) square area "around" these hits;
   reco->SetBlackoutBlowupValue(3);
 
-  auto hmatch = new TH1D("hmatch", "PID evaluation correctness",       2,    0,      2);
+  reco->ImportTrackingSmearing("./database/dtheta_seed_param.reformatted.dat", "./database/dphi_seed_param.reformatted.dat");
+
+  auto hmatch = new TH1D("hmatch", "PID evaluation correctness",       3,    0,      3);
   //auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        200,  220,    320);
   auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        40,  270, 290);
   // For a dual aerogel configuration;
@@ -52,10 +54,12 @@ void reco_epic(const char *dfname, const char *cfname = 0)
       for(auto mcparticle: event->ChargedParticles()) {
 	if (!mcparticle->IsPrimary()) continue;
 
-	if (mcparticle->GetPDG() == mcparticle->GetRecoPdgCode()) {
+	if (mcparticle->GetRecoCherenkovHitCount() <= 3) {
 	  hmatch->Fill(0.5);
-	} else {
+	} else if (mcparticle->GetPDG() == mcparticle->GetRecoPdgCode()) {
 	  hmatch->Fill(1.5);
+	} else {
+	  hmatch->Fill(2.5);
 	} //if	  
 
 	hthtr1->Fill(1000*mcparticle->GetRecoCherenkovAverageTheta(a1));

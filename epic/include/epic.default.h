@@ -14,7 +14,7 @@
 //
 // Optional smearing of primary vertices along the beam line; applies to HEPMC3 input as well;
 // 10cm (proton bunch size) is a reasonable value;
-#define _PRIMARY_VERTEX_SIGMA_               (10*cm)
+#define _PRIMARY_VERTEX_SIGMA_               (35*mm)//(10*cm)
 
 //
 // All this can be overriden by '-i' cmd line switch (HEPMC3 input); also see '-s <statistics>' key;
