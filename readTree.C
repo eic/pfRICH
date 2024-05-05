@@ -27,7 +27,7 @@ void readTree(const char *input, const char *output, const char *output_txt)
 
       TH1D *h_p = new TH1D("p", "", 15, 0.1, 15.1);
       TH1D *h_t = new TH1D("theta", "", 20, 2.7, 3.1);
-      TH1D *h_phi = new TH1D("phi", "", 360, -1.0*TMath::Pi(), TMath::Pi());
+      TH1D *h_phi = new TH1D("phi", "", 360, -1.0 * TMath::Pi(), TMath::Pi());
 
       static Float_t fee[15][20][360], fepi[15][20][360], fek[15][20][360], fep[15][20][360], feb[15][20][360];
       static Float_t fpie[15][20][360], fpipi[15][20][360], fpik[15][20][360], fpip[15][20][360], fpib[15][20][360];
@@ -212,7 +212,7 @@ void readTree(const char *input, const char *output, const char *output_txt)
                         Double_t p = h_p->GetXaxis()->GetBinLowEdge(pbin + 1);
                         Double_t t = h_t->GetXaxis()->GetBinLowEdge(tbin + 1);
                         Double_t phi = h_phi->GetXaxis()->GetBinLowEdge(phibin + 1);
-                        
+
                         if (pbin == 0 && tbin == 0 && phibin == 0)
                         {
                               cout << "truth PID, charge, p, theta, phi, prob(e), prob(pi), prob(k), prob(p), prob(fail)" << endl;
@@ -239,7 +239,6 @@ void readTree(const char *input, const char *output, const char *output_txt)
                         Double_t phi = h_phi->GetXaxis()->GetBinLowEdge(phibin + 1);
 
                         fprintf(filePointer, "11   -1 %f %f %f %f %f %f %f %f\n", p, t, phi, fee[pbin][tbin][phibin], fepi[pbin][tbin][phibin], fek[pbin][tbin][phibin], fep[pbin][tbin][phibin], feb[pbin][tbin][phibin]);
-                        
                   }
             }
       }
@@ -255,11 +254,10 @@ void readTree(const char *input, const char *output, const char *output_txt)
                         Double_t phi = h_phi->GetXaxis()->GetBinLowEdge(phibin + 1);
 
                         fprintf(filePointer, "211  1  %f %f %f %f %f %f %f %f\n", p, t, phi, fpie[pbin][tbin][phibin], fpipi[pbin][tbin][phibin], fpik[pbin][tbin][phibin], fpip[pbin][tbin][phibin], fpib[pbin][tbin][phibin]);
-                        
                   }
             }
       }
-      
+
       for (int pbin = 0; pbin < 15; pbin++)
       {
             for (int tbin = 0; tbin < 20; tbin++)
@@ -271,11 +269,10 @@ void readTree(const char *input, const char *output, const char *output_txt)
                         Double_t phi = h_phi->GetXaxis()->GetBinLowEdge(phibin + 1);
 
                         fprintf(filePointer, "321  1  %f %f %f %f %f %f %f %f\n", p, t, phi, fke[pbin][tbin][phibin], fkpi[pbin][tbin][phibin], fkk[pbin][tbin][phibin], fkp[pbin][tbin][phibin], fkb[pbin][tbin][phibin]);
-                        
                   }
             }
       }
-      
+
       for (int pbin = 0; pbin < 15; pbin++)
       {
             for (int tbin = 0; tbin < 20; tbin++)
@@ -287,10 +284,9 @@ void readTree(const char *input, const char *output, const char *output_txt)
                         Double_t phi = h_phi->GetXaxis()->GetBinLowEdge(phibin + 1);
 
                         fprintf(filePointer, "2212 1 %f %f %f %f %f %f %f %f\n", p, t, phi, fpe[pbin][tbin][phibin], fppi[pbin][tbin][phibin], fpk[pbin][tbin][phibin], fpp[pbin][tbin][phibin], fpb[pbin][tbin][phibin]);
-                        
                   }
             }
-      }                                  
+      }
 
       fclose(filePointer);
       ofile->Write();
