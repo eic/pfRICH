@@ -18,10 +18,10 @@ echo ${fileNameKaon}
 echo ${fileNameProton}
 
 ## Supply absolute path to the hepmc_writer.C script
-root -b -l -q "/yourDir/hepmc_writer.C+(\"${fileNameElectron}\",0,2.70,3.10,0.1,15.0,${NUM})" 
-root -b -l -q "/yourDir/hepmc_writer.C+(\"${fileNamePion}\",1,2.70,3.10,0.1,15.0,${NUM})" 
-root -b -l -q "/yourDir/hepmc_writer.C+(\"${fileNameKaon}\",2,2.70,3.10,0.1,15.0,${NUM})" 
-root -b -l -q "/yourDir/hepmc_writer.C+(\"${fileNameProton}\",3,2.70,3.10,0.1,15.0,${NUM})" 
+root -b -l -q "/yourDir/hepmc_writer.C+(\"${fileNameElectron}\",0,2.65,3.10,0.1,15.0,${NUM})" 
+root -b -l -q "/yourDir/hepmc_writer.C+(\"${fileNamePion}\",1,2.65,3.10,0.1,15.0,${NUM})" 
+root -b -l -q "/yourDir/hepmc_writer.C+(\"${fileNameKaon}\",2,2.65,3.10,0.1,15.0,${NUM})" 
+root -b -l -q "/yourDir/hepmc_writer.C+(\"${fileNameProton}\",3,2.65,3.10,0.1,15.0,${NUM})" 
 
 simuNameElectron=pfRICH-epic_electron_${RUN}.root
 simuNamePion=pfRICH-epic_pion_${RUN}.root
