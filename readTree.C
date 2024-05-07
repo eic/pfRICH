@@ -51,7 +51,7 @@ void readTree(const char *input, const char *output, const char *output_txt)
       Int_t nEntries = (Int_t)ta->GetEntries();
       for (int i = 0; i < nEntries; i++)
       {
-            if (i % 100000 == 0)
+            if (i % 1000000 == 0)
                   cout << "Processing Event " << i << endl;
             ta->GetEntry(i);
 
@@ -63,10 +63,10 @@ void readTree(const char *input, const char *output, const char *output_txt)
 
             if (pbin < 0)
                   continue;
-            if (tbin < 0)
-                  continue;
-            if (phibin < 0)
-                  continue
+            //if (tbin < 0)
+            //    continue;
+            //if (phibin < 0)
+            //      continue;
                   
             if (partPDG == 11) // Look at Thrown Electrons
             {
