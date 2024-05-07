@@ -63,10 +63,10 @@ void readTree(const char *input, const char *output, const char *output_txt)
 
             if (pbin < 0)
                   continue;
-            //if (tbin < 0)
-            //    continue;
-            //if (phibin < 0)
-            //      continue;
+            if (tbin < 0)
+                continue;
+            if (phibin < 0)
+                  continue;
                   
             if (partPDG == 11) // Look at Thrown Electrons
             {
