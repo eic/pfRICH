@@ -1,0 +1,19 @@
+Four scripts are needed to run mass amounts of simulation to create LUTs at RCF:
+
+hepmc_writer.C: This script produces single particle hepmc events over the perscribed kinematic ranges. Input to the GEANT simulator. Should not need to be modified
+
+scripts/reco-epic-LUT.C: This script reads in the output of the GEANT simulation and generates a root tree from which we can generate LUTs and diagnostic plots
+
+runSimu.sh: Master script which will generate hepmc files, run the pfRICH GEANT simulation, and generate the simple analysis root tree. User needs to modify to specify paths to the various scripts
+
+CondorSubmitter.csh: This script generates the condor files which are submitted to the batch system at RCF. The user will need to specify the path to runSimu.sh and the location for log files and also the number of jobs to submit and the number of events to simulate per job (NEVENTS specifies the number of events per species so setting NEVENTS = 1000 will generate 1000 electron events, 1000 pion, events, 1000 kaon events, and 1000 proton events.
+
+The below instructions assume you have a working pfRICH simulation environment at RCF. The output will go directly to the directory you submit from, so this needs to be set up in a location with ample storage (100s to 1000s of GBs).
+
+1. Modify CondorSubmitter.csh and runSimu.sh as described above
+
+2. Run CondorSubmitter.csh to generate a CondorFile
+
+3. Submit the CondorFile to the batch system with the command: condor_submit CondorFile
+
+4. You can check progress with the command: condor_q userName (Seems a job with NEVENTS = 100000 should take between 5.5 adn 6.5 hours
