@@ -1,4 +1,6 @@
 
+# @@@
+
 . /home/eic/root-6.30.04.install/bin/thisroot.sh
 . /home/eic/geant4-v11.2.1.install/bin/geant4.sh
 
