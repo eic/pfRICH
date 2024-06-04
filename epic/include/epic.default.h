@@ -35,7 +35,8 @@
 // -- General ---------------------------------------------------------------------------------
 //
 // Comment out if want to run without MARCO magnetic field;
-#define _USE_MAGNETIC_FIELD_ "./database/MARCO_v.6.4.1.1.3_1.7T_Magnetic_Field_Map_2022_11_14_rad_coords_cm_T.txt"
+#define _USE_MAGNETIC_FIELD_ "MARCO_v.7.6.2.2.11_1.7T_Magnetic_Field_Map_2024_05_02_rad_coords_cm_T.BMap.txt"
+//#define _USE_MAGNETIC_FIELD_ "./database/MARCO_v.6.4.1.1.3_1.7T_Magnetic_Field_Map_2022_11_14_rad_coords_cm_T.txt"
 //#define _USE_MAGNETIC_FIELD_ "./database/MARCO_v.6.4.1.1.3_2T_Magnetic_Field_Map_2022_11_14_rad_coords_cm_T.txt"
 
 // Import other parts of ePIC geometry;
