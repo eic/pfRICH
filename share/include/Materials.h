@@ -35,8 +35,6 @@ class G4RadiatorMaterial;
 
 // -- Acrylic filter --------------------------------------------------------------------------
 //
-// If _ACRYLIC_THICKNESS_ is defined, a single layer right after the aerogel is installed; 
-#define _ACRYLIC_THICKNESS_                 (3.0*mm)
 #define _ACRYLIC_WL_CUTOFF_                 (300*nm)
 
 // Does not need to be precise;

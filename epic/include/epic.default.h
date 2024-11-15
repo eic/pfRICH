@@ -23,11 +23,11 @@
 // Will toggle between the two types if defined;
 //#define _ALTERNATIVE_PARTICLE_TYPE_        ("kaon+")
 
-#define _PRIMARY_PARTICLE_ETA_           (sign*2.50)
+#define _PRIMARY_PARTICLE_ETA_           (sign*2.40)
 //#define _PRIMARY_PARTICLE_ETA_            (sign*1.90)
 // If commented out: uniform phi;
 //#define _PRIMARY_PARTICLE_PHI_         (95*degree)
-//#define _PRIMARY_PARTICLE_PHI_         (90*degree)
+//#define _PRIMARY_PARTICLE_PHI_         (45*degree)
 
 #define _PRIMARY_PARTICLE_MOMENTUM_        (7.0*GeV)
 // --------------------------------------------------------------------------------------------
@@ -35,8 +35,7 @@
 // -- General ---------------------------------------------------------------------------------
 //
 // Comment out if want to run without MARCO magnetic field;
-#define _USE_MAGNETIC_FIELD_ "./database/MARCO_v.6.4.1.1.3_1.7T_Magnetic_Field_Map_2022_11_14_rad_coords_cm_T.txt"
-//#define _USE_MAGNETIC_FIELD_ "./database/MARCO_v.6.4.1.1.3_2T_Magnetic_Field_Map_2022_11_14_rad_coords_cm_T.txt"
+#define _USE_MAGNETIC_FIELD_ "./database/MARCO_v.7.6.2.2.11_1.7T_Magnetic_Field_Map_2024_05_02_rad_coords_(mm)_(T).BMap.txt"
 
 // Import other parts of ePIC geometry;
 //#define _IMPORT_TRACKER_GDML_FILE_ ("./gdml/tracking_only.modified.gdml")
@@ -48,9 +47,9 @@
 
 // -- Mirrors ---------------------------------------------------------------------------------
 //
-// At the downstream (sensor plane) location; upstream radii are calculated automatically;
+// At the downstream (sensor plane) location; 
 #define _CONICAL_MIRROR_DS_INNER_RADIUS_  (120.0*mm)
-#define _CONICAL_MIRROR_DS_OUTER_RADIUS_  (570.0*mm)
+#define _CONICAL_MIRROR_DS_OUTER_RADIUS_  (569.0*mm)
 // Fixed values matching a CAD model, as of 2024/04/29;
 #define _CONICAL_MIRROR_US_INNER_RADIUS_  ( 66.0*mm)
 #define _CONICAL_MIRROR_US_OUTER_RADIUS_  (623.0*mm)
