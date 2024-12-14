@@ -283,6 +283,16 @@ G4VPhysicalVolume *EpicDetectorConstruction::Construct( void )
   ImportGdmlFile(_IMPORT_BEAMPIPE_GDML_FILE_, 12);
 #endif
 
+#ifdef _GENERATE_GDML_OUTPUT_
+  {
+    G4GDMLParser parser;
+  
+    unlink(_GENERATE_GDML_OUTPUT_);
+    parser.Write(_GENERATE_GDML_OUTPUT_, expHall_phys);
+    //parser.Write(_GENERATE_GDML_OUTPUT_, m_fiducial_volume_phys);
+  }
+#endif
+  
   return expHall_phys;
 } // EpicDetectorConstruction::Construct()
 
@@ -295,7 +305,7 @@ void EpicDetectorConstruction::ExportGdmlFile( void )
   
   unlink(_GENERATE_GDML_OUTPUT_);
   //parser.Write(_GENERATE_GDML_OUTPUT_, expHall_phys);
-  parser.Write(_GENERATE_GDML_OUTPUT_, m_fiducial_volume_phys);
+  //+parser.Write(_GENERATE_GDML_OUTPUT_, m_fiducial_volume_phys);
 #endif
 } // EpicDetectorConstruction::ExportGdmlFile()
 

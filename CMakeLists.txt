@@ -53,16 +53,20 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/epic/include 
   ${PROJECT_SOURCE_DIR}/ftbf/include 
   ${PROJECT_SOURCE_DIR}/tstand/include 
+  ${PROJECT_SOURCE_DIR}/simple/include 
 )
 
 file(GLOB SHARE_HEADERS ${PROJECT_SOURCE_DIR}/share/include/*.h)
 file(GLOB EPIC_HEADERS  ${PROJECT_SOURCE_DIR}/epic/include/*.h)
 file(GLOB FTBF_HEADERS  ${PROJECT_SOURCE_DIR}/ftbf/include/*.h)
+file(GLOB TSTAND_HEADERS ${PROJECT_SOURCE_DIR}/tstand/include/*.h)
+file(GLOB SIMPLE_HEADERS ${PROJECT_SOURCE_DIR}/simple/include/*.h)
 
 SET(G4IRT_LIB g4irt)
 SET(SHARE_LIB pfrich-share)
 SET(EPIC_EXE pfrich-epic)
 SET(FTBF_EXE pfrich-ftbf)
+SET(SIMPLE_EXE pfrich-simple)
 SET(TSTAND_EXE pfrich-tstand)
 
 SET( G4IRT_SOURCES
@@ -106,6 +110,12 @@ SET( FTBF_SOURCES
    ${PROJECT_SOURCE_DIR}/ftbf/source/FTBFPrimaryGeneratorAction.cc
 )
 
+SET( SIMPLE_SOURCES
+   ${PROJECT_SOURCE_DIR}/simple/source/SimpleSetup.cc
+   ${PROJECT_SOURCE_DIR}/simple/source/SimpleDetectorConstruction.cc
+   ${PROJECT_SOURCE_DIR}/simple/source/SimplePrimaryGeneratorAction.cc
+)
+
 SET( TSTAND_SOURCES
    #${PROJECT_SOURCE_DIR}/share/source/AsphericLens.cc
    # FIXME: unify, please;
@@ -129,6 +139,8 @@ add_executable(${EPIC_EXE} ${EPIC_SOURCES} ${SHARE_HEADERS} ${EPIC_HEADERS})
 target_link_libraries(${EPIC_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
 add_executable(${FTBF_EXE} ${FTBF_SOURCES} ${SHARE_HEADERS} ${FTBF_HEADERS})
 target_link_libraries(${FTBF_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
+add_executable(${SIMPLE_EXE} ${SIMPLE_SOURCES} ${SHARE_HEADERS} ${SIMPLE_HEADERS})
+target_link_libraries(${SIMPLE_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
 add_executable(${TSTAND_EXE} ${TSTAND_SOURCES} ${SHARE_HEADERS} ${TSTAND_HEADERS})
 target_link_libraries(${TSTAND_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
 
@@ -144,6 +156,7 @@ if(DEFINED XERCES)
   SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXERCES")
   target_link_libraries(${EPIC_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
   target_link_libraries(${FTBF_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
+  target_link_libraries(${SIMPLE_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
   # FIXME: this stuff is only needed for aerogel;
   target_link_libraries(${TSTAND_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
 endif()
@@ -152,6 +165,7 @@ endif()
 
 install(TARGETS ${EPIC_EXE}   DESTINATION bin)
 install(TARGETS ${FTBF_EXE}   DESTINATION bin)
+install(TARGETS ${SIMPLE_EXE} DESTINATION bin)
 install(TARGETS ${TSTAND_EXE} DESTINATION bin)
 install(TARGETS ${G4IRT_LIB}  DESTINATION lib)
 install(TARGETS ${SHARE_LIB}  DESTINATION lib)
