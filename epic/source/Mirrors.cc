@@ -29,7 +29,8 @@ void EpicDetectorConstruction::DefineMirrors(CherenkovDetector *cdet, DarkBox *d
   double mlen = dbox->m_gas_volume_length/2 - m_gzOffset - _BUILDING_BLOCK_CLEARANCE_;
   //printf("%f\n", mlen - _BUILDING_BLOCK_CLEARANCE_ - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_); exit(0);
   double r1[2] = {_CONICAL_MIRROR_DS_INNER_RADIUS_, _CONICAL_MIRROR_DS_OUTER_RADIUS_};
-#ifdef _USE_PYRAMIDS_
+  //#ifdef _USE_PYRAMIDS_
+#if (_USE_PYRAMIDS_ == true)
   // Adjust the mirror slope in this case;
   double dLength = _BUILDING_BLOCK_CLEARANCE_ + _PYRAMID_MIRROR_HEIGHT_;
   double a[2] = {
@@ -58,6 +59,8 @@ void EpicDetectorConstruction::DefineMirrors(CherenkovDetector *cdet, DarkBox *d
       auto mshape = im ? new G4Cons(names[im], r0[im], r0[im] + thickness, r1[im], r1[im] + thickness, 
 				    mlen/2, 0*degree, 360*degree) :
 	new G4Cons(names[im], r0[im] - thickness, r0[im], r1[im] - thickness, r1[im], mlen/2, 0*degree, 360*degree);
+      printf("@M@ %d -> %7.2f %7.2f %7.3f -> slope %7.4f degrees\n", im, r0[im], r1[im], mlen,
+	     atan((r1[im] - r0[im])/mlen)*180/M_PI);
       
       // There should be a cutaway on the inner mirror because of the beam pipe flange;
       G4LogicalVolume *solid_log = 0;

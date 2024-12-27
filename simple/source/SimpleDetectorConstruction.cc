@@ -7,6 +7,7 @@
 #define _GEANT_SOURCE_CODE_
 #include <G4Object.h>
 
+#define _STANDALONE_GEANT_CODE_
 #include <simple.h>
 
 #include "SimpleDetectorConstruction.h"
@@ -188,12 +189,13 @@ G4VPhysicalVolume *SimpleDetectorConstruction::Construct( void )
 
   double fvOffset = _FIDUCIAL_VOLUME_OFFSET_SIMPLE_;
   double fvLength = _FIDUCIAL_VOLUME_LENGTH_SIMPLE_;
+  double fvWidth  = _FIDUCIAL_VOLUME_WIDTH_SIMPLE_, gvWidth = fvWidth - 1*mm, agWidth = gvWidth - 1*mm;
     
   // No conical mirrors and no pyramids;
   auto dbox = new DarkBox(false, false, false);
 
   // Fiducial volume (air); has to be called "PFRICH";
-  auto *fiducial_volume_box = new G4Box("PFRICH", 1300.0*mm/2, 1300.0*mm/2, fvLength/2);
+  auto *fiducial_volume_box = new G4Box("PFRICH", fvWidth/2, fvWidth/2, fvLength/2);
   auto fiducial_volume_log = new G4LogicalVolume(fiducial_volume_box, m_Air,  "PFRICH", 0, 0, 0);
   // All volumes are defined assuming EIC h-going endcap orientation;
   dbox->m_fiducial_volume_phys = 
@@ -204,7 +206,7 @@ G4VPhysicalVolume *SimpleDetectorConstruction::Construct( void )
   // Gas container volume;
   dbox->m_gas_volume_length = fvLength - _VESSEL_FRONT_SIDE_THICKNESS_ - _SENSOR_AREA_LENGTH_;
   double gas_volume_offset = -(_SENSOR_AREA_LENGTH_ - _VESSEL_FRONT_SIDE_THICKNESS_)/2;
-  auto gas_box = new G4Box("GasVolume", 1299.0*mm/2, 1299.0*mm/2, dbox->m_gas_volume_length/2);
+  auto gas_box = new G4Box("GasVolume", gvWidth/2, gvWidth/2, dbox->m_gas_volume_length/2);
   auto gas_volume_log = new G4LogicalVolume(gas_box, _GAS_RADIATOR_,  "GasVolume", 0, 0, 0);
   dbox->m_gas_volume_phys = new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gas_volume_offset), 
 					      gas_volume_log, "GasVolume", fiducial_volume_log, false, 0);
@@ -231,7 +233,7 @@ G4VPhysicalVolume *SimpleDetectorConstruction::Construct( void )
     {
       gzOffset += agthick/2;
 	  
-      auto ag_tube = new G4Box(aerogel->GetName(), 1298.0*mm/2, 1298.0*mm/2, agthick/2);
+      auto ag_tube = new G4Box(aerogel->GetName(), agWidth/2, agWidth/2, agthick/2);
       auto ag_log = new G4LogicalVolume(ag_tube, aerogel, aerogel->GetName(), 0, 0, 0);
       {
 	TVector3 nx(1/**sign*/,0,0), ny(0,-1,0);
@@ -260,7 +262,7 @@ G4VPhysicalVolume *SimpleDetectorConstruction::Construct( void )
       double acthick = _ACRYLIC_THICKNESS_;
       gzOffset += acthick/2;
       
-      auto ac_box  = new G4Box("Acrylic", 1298.0/2, 1298.0*mm/2, acthick/2);
+      auto ac_box  = new G4Box("Acrylic", agWidth/2, agWidth/2, acthick/2);
       auto ac_log = new G4LogicalVolume(ac_box, m_Acrylic,  "Acrylic", 0, 0, 0);
       {
 	TVector3 nx(1/**sign*/,0,0), ny(0,-1,0);

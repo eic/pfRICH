@@ -237,7 +237,8 @@ G4VPhysicalVolume *EpicDetectorConstruction::Construct( void )
       alu_shape = new G4SubtractionSolid("AluFrame", alu_shape, alu_cut, 0, G4ThreeVector(                        0.0, 0.0, 0.0));
       alu_shape = new G4SubtractionSolid("AluFrame", alu_shape, alu_cut, 0, G4ThreeVector(-_HRPPD_CENTRAL_ROW_OFFSET_, 0.0, 0.0));
       
-#ifndef _USE_PYRAMIDS_
+      //#ifndef _USE_PYRAMIDS_
+#if (_USE_PYRAMIDS_ == false)
       G4Box *grid_box = new G4Box("Dummy", dbox->m_PyramidMirrorWidth/2, dbox->m_PyramidMirrorWidth/2, _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2);
       double value = dbox->m_PyramidMirrorWidth - _HRPPD_SUPPORT_GRID_BAR_WIDTH_;
       G4Box *grid_cut = new G4Box("Dummy", value/2, value/2, _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2 + 0.01*mm);
@@ -248,14 +249,16 @@ G4VPhysicalVolume *EpicDetectorConstruction::Construct( void )
 
       // Cuts in the aluminum plate;
       {
-#ifndef _USE_PYRAMIDS_
+	//#ifndef _USE_PYRAMIDS_
+#if (_USE_PYRAMIDS_ == false)
 	unsigned counter = 0;
 #endif
 
 	for(auto xyptr: xycoord) {
 	  alu_shape = new G4SubtractionSolid("AluFrame", alu_shape, alu_cut, 0, G4ThreeVector(xyptr.m_X, xyptr.m_Y, 0.0));
 	  
-#ifndef _USE_PYRAMIDS_
+	  //#ifndef _USE_PYRAMIDS_
+#if (_USE_PYRAMIDS_ == false)
 	  // Yes, they are part of the gas volume;
 	  new G4PVPlacement(0, G4ThreeVector(xyptr.m_X, xyptr.m_Y, dbox->m_gas_volume_length/2 - _HRPPD_SUPPORT_GRID_BAR_HEIGHT_/2), 
 			    grid_log, "SupportGridBar", gas_volume_log, false, counter++);
