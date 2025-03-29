@@ -16,6 +16,9 @@ class G4RadiatorMaterial;
 //#define _DISABLE_RAYLEIGH_SCATTERING_
 //#define _DISABLE_ABSORPTION_
 
+// Create text files which can be cut'n'paste in ePIC optical_materials.xml file; 
+#define _DUMP_SELECTED_MATERIALS_
+
 // Eventually this is a single place where these two are defined;
 #define _INCH_                             (25.4*mm)
 #define _MIL_                          (_INCH_/1000)
@@ -99,6 +102,9 @@ public:
   G4RadiatorMaterial *FusedSilica( void ) { return m_FusedSilica; };
   G4Material *Absorber( void )            { return m_Absorber; };
 
+  static void DumpMaterialProperty(const G4Material *material, const char *property,
+				   double scale, const char *fmt);
+  
  protected:
   void DefineElements( void );
   void DefineMaterials( void );
