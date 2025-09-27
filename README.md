@@ -65,40 +65,11 @@ export SANDBOX=/tmp/sandbox
 export LD_LIBRARY_PATH=${SANDBOX}/lib:${SANDBOX}/lib64:${LD_LIBRARY_PATH}
 ```
 
-```
-#
-# Install IRT library
-#
-cd ${SANDBOX}
-
-git clone -b pfrich https://github.com/eic/irt.git
-cd irt && mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -Wno-dev ..
-make -j8 install
-```
-
-```
-#
-# Download pfRICH repository
-#
-cd ${SANDBOX}
-
-git clone https://github.com/alexander-kiselev/pfRICH.git
-```
-
-This is sufficient to import and analyze ROOT trees already produced after pfRICH 
-GEANT simulation pass elsewhere (as long as there were no drastic changes to the 
-C++ class variable description):
-
 <br/>
 
 
 Installation
 ------------
-
-Installation of the actual GEANT simulation environment requires few more steps (make sure 
-*geant.sh* was sourced!):
-
 
 ```
 #
@@ -138,18 +109,36 @@ cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -DHEPMC3_ENABLE_ROOTIO=ON -DHEPMC3_ENABL
 make -j8 install
 ```
 
+```
+#
+# Install IRT library
+#
+cd ${SANDBOX}
+
+# Yes, we can use an old 'pfrich' branch to start with;
+git clone -b pfrich https://github.com/eic/irt.git
+cd irt && mkdir build && cd build
+cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -Wno-dev ..
+make -j8 install
+```
 
 ```
 #
 # Install pfRICH simulation codes themselves
 #
-cd ${SANDBOX}/pfRICH
+cd ${SANDBOX}
+
+# We use a new 'yale' branch;
+git clone -b yale https://github.com/eic/pfRICH.git
+
+cd pfRICH
 
 # Create links to the default header files; 
 pushd share/include  && ln -s hrppd.default.h  hrppd.h && ln -s share.default.h share.h && popd
 pushd epic/include   && ln -s epic.default.h   epic.h && popd
 pushd ftbf/include   && ln -s ftbf.default.h   ftbf.h && popd
 pushd tstand/include && ln -s tstand.default.h tstand.h && popd
+pushd simple/include && ln -s simple.default.h simple.h && popd
 
 mkdir build && cd build
 # 'BMF' and 'HepMC3' are optional;
@@ -211,23 +200,6 @@ Bottom row of plots: Track-level reconstructed Cherenkov angle distribution, wav
 photons (a convolution of several effects), empty panel, truth refractive index in aerogel for the detected photons.
 
 
-```
-#
-# A Fermilab mockup of a pfRICH detector
-#
-./build/pfrich-ftbf -m macro/vis-ftbf.mac
-
-# Will take quite some time because of the optical photon tracing in the lens radiator;
-./build/pfrich-ftbf -o pfrich-ftbf.root -s 1000
-
-root -l 'scripts/hit-map-ftbf-1x1.C("pfrich-ftbf.root")'
-root -l 'scripts/hit-map-ftbf-2x2.C("pfrich-ftbf.root")'
-
-# This one is also time consuming; comment "#define _ZCOORD_ASPHERIC_LENS_" in ftbf.default.h", 
-# recompile and re-run ./build/pfrich-ftbf if the lens is of no interest;
-root -l 'scripts/reco-ftbf.C("pfrich-ftbf.root")'
-```
-
 Environment customization
 -------------------------
 
@@ -277,15 +249,3 @@ It may make sense to look through the above mentioned default header files, line
 amount of 
 comments, which allow one to understand what is what. It makes sense to periodically check whether anything 
 was changed in the default configuration header files as compared to your local custom copies.
-
-```
-#Automation
-#----------
-#
-#
-# TODO: UPDATE THIS SECTION
-#Inside pfRICH directory run
-#`bash ./scripts/cc/AutomatedSimulationChain.sh`
-#It will display all the features with an example.
-#
-```
