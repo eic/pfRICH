@@ -62,7 +62,7 @@
 
 // -- Aerogel ---------------------------------------------------------------------------------
 //
-#define _AEROGEL_1_ _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_
+#define _AEROGEL_1_ _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_014_
 #define _AEROGEL_THICKNESS_1_               (2.5*cm)
 // --------------------------------------------------------------------------------------------
 

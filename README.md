@@ -84,19 +84,6 @@ make -j8 install
 
 ```
 #
-# Install BeastMagneticField (optional, only needed for a full ePIC pfRICH simulation);
-#
-cd ${SANDBOX} 
-
-git clone https://github.com/eic/BeastMagneticField.git
-cd BeastMagneticField && mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX}/install -Wno-dev ..
-make -j8 install
-```
-
-
-```
-#
 # Install HepMC3 (optional, only needed for a full ePIC pfRICH simulation);
 #
 cd ${SANDBOX}
@@ -140,7 +127,7 @@ pushd simple/include && ln -s simple.default.h simple.h && popd
 
 mkdir build && cd build
 # 'BMF' and 'HepMC3' are optional;
-cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX}/install -DIRT=${SANDBOX} -DBMF=${SANDBOX} -DHEPMC3=${SANDBOX} -DXERCES=${SANDBOX} -Wno-dev ..
+cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX}/install -DIRT=${SANDBOX}/install -DHEPMC3=${SANDBOX}/install -DXERCES=${SANDBOX}/install -Wno-dev ..
 
 make -j8 install
 ```

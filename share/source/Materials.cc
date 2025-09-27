@@ -240,11 +240,11 @@ void Materials::DefineMaterials( void )
     //printf("%d\n", (int)mats.size()); assert(0);
 
     // Prepare for creation of a fake Belle II aerogel with <n> ~ 1.04; 
-    double densities[2] = {0.0, 0.0}, nominal_ri[2] = {1.045, 1.055}, a1040_ri = 1.014;//40;
+    double densities[2] = {0.0, 0.0}, nominal_ri[2] = {1.045, 1.055}, a1014_ri = 1.014;//40;
     // Will be used in several places;
-    double dri10 = nominal_ri[1] - nominal_ri[0], dri20 = a1040_ri - nominal_ri[0];
-    G4RadiatorMaterial *a1040 = 0;
-    std::map<TString, std::vector<double>> e1040, v1040;
+    double dri10 = nominal_ri[1] - nominal_ri[0], dri20 = a1014_ri - nominal_ri[0];
+    G4RadiatorMaterial *a1014 = 0;
+    std::map<TString, std::vector<double>> e1014, v1014;
 
     for(unsigned im=0; im<mats.size(); im++) {
       auto mat = mats[im];
@@ -268,7 +268,7 @@ void Materials::DefineMaterials( void )
 	// FIXME: this is not right (must account for density scaling with <n>);
 	double slope = (densities[1] - densities[0])/dri10;//(nominal_ri[1] - nominal_ri[0]);
 
-	a1040 = new G4RadiatorMaterial("BelleIIAerogel3", (densities[0] + slope*dri20)*g/cm3, elems.size());
+	a1014 = new G4RadiatorMaterial("BelleIIAerogel3", (densities[0] + slope*dri20)*g/cm3, elems.size());
       } //if
       
       for(auto elem: elems) {
@@ -288,11 +288,11 @@ void Materials::DefineMaterials( void )
 	auto ptr = manager->FindOrBuildElement(buffer, false); assert(ptr);
 	aerogel->AddElement(ptr, atof(fraction)*100*perCent);
 
-	if (im) a1040->AddElement(ptr, atof(fraction)*100*perCent);
+	if (im) a1014->AddElement(ptr, atof(fraction)*100*perCent);
       } //for elem
       
       G4MaterialPropertiesTable *mpt     =      new G4MaterialPropertiesTable();
-      G4MaterialPropertiesTable *mpt1040 = im ? new G4MaterialPropertiesTable() : 0;
+      G4MaterialPropertiesTable *mpt1014 = im ? new G4MaterialPropertiesTable() : 0;
       
       auto properties = mat->FindTags("Property");
       for(auto prop: properties) {
@@ -330,15 +330,15 @@ void Materials::DefineMaterials( void )
 	    if (im) {
 	      //printf("@Q@ %s %d %d vs %d\n", name, e1040.size(), e1040[name].size(), counter);
 	      // FIXME: out of range check;
-	      assert(e1040[name][counter] == entry.first  * eV);
+	      assert(e1014[name][counter] == entry.first  * eV);
 	      
 	      //printf("@Q@ %7.3f\n", e1040[name][counter]);
-	      double slope = (entry.second * cff - v1040[name][counter])/dri10;
-	      vbff[counter] = v1040[name][counter] + slope*dri20;
+	      double slope = (entry.second * cff - v1014[name][counter])/dri10;
+	      vbff[counter] = v1014[name][counter] + slope*dri20;
 	    } else {
 	      // Just store <n> ~ 1.045 aerogel parameterization point;
-	      e1040[name].push_back(entry.first  * eV);
-	      v1040[name].push_back(entry.second * cff);
+	      e1014[name].push_back(entry.first  * eV);
+	      v1014[name].push_back(entry.second * cff);
 	    } //if
 
 	    e[counter  ] = entry.first  * eV;
@@ -347,14 +347,14 @@ void Materials::DefineMaterials( void )
 	} 
 	
 	mpt->AddProperty(name, e, v, counter);
-	if (im) mpt1040->AddProperty(name, e, vbff, counter);
+	if (im) mpt1014->AddProperty(name, e, vbff, counter);
       } //for prop
 
       aerogel->SetMaterialPropertiesTable(mpt);
       m_Aerogel[id[im]] = aerogel;
       if (im) {
-	a1040->SetMaterialPropertiesTable(mpt1040);
-	m_Aerogel[_AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_] = a1040;
+	a1014->SetMaterialPropertiesTable(mpt1014);
+	m_Aerogel[_AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_014_] = a1014;
       } //if
     } //for mat
     //printf("%s\n", mat->GetName());
