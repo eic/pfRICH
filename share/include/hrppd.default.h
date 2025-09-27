@@ -67,12 +67,15 @@
 
 // -- QE and Co -------------------------------------------------------------------------------
 //
-#define _USE_HRPPD_24_DATA_
+//#define _USE_HRPPD_24_DATA_
 #ifdef _USE_HRPPD_24_DATA_
 #define _QE_DOWNSCALING_FACTOR_          (30.0/34.3)
 #else
-#define _QE_DOWNSCALING_FACTOR_          (30.0/37.0)
+#define _QE_DOWNSCALING_FACTOR_          (80.0/37.0)
 #endif
+
+// [nm]; an artificial QE shift (assuming HRPPD QE can be tuned towards optical range);
+#define _QE_WAVELENGTH_SHIFT_                (85.0)
 
 // Some reasonably optimistic number; assume that it includes an unknown 
 // HRPPD Collection Efficiency (CE) as well;

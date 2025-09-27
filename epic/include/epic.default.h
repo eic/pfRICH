@@ -14,7 +14,7 @@
 //
 // Optional smearing of primary vertices along the beam line; applies to HEPMC3 input as well;
 // 10cm (proton bunch size) is a reasonable value;
-#define _PRIMARY_VERTEX_SIGMA_               (35*mm)//(10*cm)
+//+#define _PRIMARY_VERTEX_SIGMA_               (35*mm)//(10*cm)
 
 //
 // All this can be overriden by '-i' cmd line switch (HEPMC3 input); also see '-s <statistics>' key;
@@ -23,19 +23,20 @@
 // Will toggle between the two types if defined;
 //#define _ALTERNATIVE_PARTICLE_TYPE_        ("kaon+")
 
-#define _PRIMARY_PARTICLE_ETA_           (sign*2.40)
+#define _PRIMARY_PARTICLE_ETA_           (sign*2.50)//50)
 //#define _PRIMARY_PARTICLE_ETA_            (sign*1.90)
 // If commented out: uniform phi;
-//#define _PRIMARY_PARTICLE_PHI_         (95*degree)
 //#define _PRIMARY_PARTICLE_PHI_         (45*degree)
+//#define _PRIMARY_PARTICLE_PHI_         (90*degree)
 
-#define _PRIMARY_PARTICLE_MOMENTUM_        (7.0*GeV)
+#define _PRIMARY_PARTICLE_MOMENTUM_        (15.0*GeV)
 // --------------------------------------------------------------------------------------------
 
 // -- General ---------------------------------------------------------------------------------
 //
 // Comment out if want to run without MARCO magnetic field;
-#define _USE_MAGNETIC_FIELD_ "./database/MARCO_v.7.6.2.2.11_1.7T_Magnetic_Field_Map_2024_05_02_rad_coords_(mm)_(T).BMap.txt"
+//#define _USE_MAGNETIC_FIELD_ "./database/MARCO_v.6.4.1.1.3_1.7T_Magnetic_Field_Map_2022_11_14_rad_coords_cm_T.txt"
+//#define _USE_MAGNETIC_FIELD_ "./database/MARCO_v.6.4.1.1.3_2T_Magnetic_Field_Map_2022_11_14_rad_coords_cm_T.txt"
 
 // Import other parts of ePIC geometry;
 //#define _IMPORT_TRACKER_GDML_FILE_ ("./gdml/tracking_only.modified.gdml")
@@ -70,7 +71,7 @@
 #define _VESSEL_OUTER_RADIUS_             (650.0*mm)
 
 // Given by the project; see e-mail from Alex Eslinger from 2023/08/16;
-#define _FIDUCIAL_VOLUME_LENGTH_          (491.0*mm)
+#define _FIDUCIAL_VOLUME_LENGTH_          (600.0*mm)
 #define _FIDUCIAL_VOLUME_OFFSET_ (1236.0*mm + _FIDUCIAL_VOLUME_LENGTH_/2)
 
 // Taken from Alex's drawing; 
@@ -125,8 +126,8 @@
 // -- Aerogel ---------------------------------------------------------------------------------
 //
 // Azimuthal segmentation is hardcoded, see DetectorConstruction::Construct();
-//#define _AEROGEL_BAND_COUNT_                     (3)
-#define _AEROGEL_BAND_COUNT_                     (4)
+#define _AEROGEL_BAND_COUNT_                     (3)
+//#define _AEROGEL_BAND_COUNT_                     (4)
 
 // Inner and outer radial walls are thicker;
 #define _AEROGEL_INNER_WALL_THICKNESS_      (1.0*mm)
@@ -139,9 +140,10 @@
 
 // Up to two layers along the beam line; 
 //#define _AEROGEL_1_ _AEROGEL_CLAS12_DENSITY_225_MG_CM3_
+//#define _AEROGEL_1_ _AEROGEL_CLAS12_DENSITY_085_MG_CM3_ //_AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_
 #define _AEROGEL_1_ _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_
 //#define _AEROGEL_1_ _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_
-#define _AEROGEL_THICKNESS_1_               (2.5*cm)
+#define _AEROGEL_THICKNESS_1_                (20*mm)
 //#define _AEROGEL_2_ _AEROGEL_CLAS12_DENSITY_155_MG_CM3_
 //#define _AEROGEL_THICKNESS_2_               (2.0*cm)
 

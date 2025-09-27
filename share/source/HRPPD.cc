@@ -187,7 +187,7 @@ G4LogicalVolume *DetectorConstruction::BuildHRPPD(G4LogicalVolume *wnd_log, G4Bo
     double qemax = 0.0;
     G4double qePhotonEnergy[qeEntries], qeData[qeEntries];
     for(int iq=0; iq<qeEntries; iq++) {
-      qePhotonEnergy[iq] = eV * _MAGIC_CFF_ / (WL[qeEntries - iq - 1] + 0.0);
+      qePhotonEnergy[iq] = eV * _MAGIC_CFF_ / (WL[qeEntries - iq - 1] + _QE_WAVELENGTH_SHIFT_);
       qeData        [iq] =                     QE[qeEntries - iq - 1] * _QE_DOWNSCALING_FACTOR_;
       
       if (qeData[iq] > qemax) qemax = qeData[iq];

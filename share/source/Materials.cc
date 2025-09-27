@@ -172,9 +172,11 @@ void Materials::DefineMaterials( void )
 #if 1//_TODAY_
   // CLAS12 aerogel; two options for now; obviously can add more the same way
   {
-    unsigned density[2] = {_AEROGEL_CLAS12_DENSITY_155_MG_CM3_, _AEROGEL_CLAS12_DENSITY_225_MG_CM3_};
+    const unsigned dim = 4;
+    unsigned density[dim] = {_AEROGEL_CLAS12_DENSITY_085_MG_CM3_, _AEROGEL_CLAS12_DENSITY_110_MG_CM3_, 
+			   _AEROGEL_CLAS12_DENSITY_155_MG_CM3_, _AEROGEL_CLAS12_DENSITY_225_MG_CM3_};
 
-    for(unsigned il=0; il<2; il++) {
+    for(unsigned il=0; il<dim; il++) {
       //if (!density[il]) continue;
 
       TString name; name.Form("Aerogel%03d", density[il]);
@@ -238,7 +240,7 @@ void Materials::DefineMaterials( void )
     //printf("%d\n", (int)mats.size()); assert(0);
 
     // Prepare for creation of a fake Belle II aerogel with <n> ~ 1.04; 
-    double densities[2] = {0.0, 0.0}, nominal_ri[2] = {1.045, 1.055}, a1040_ri = 1.040;
+    double densities[2] = {0.0, 0.0}, nominal_ri[2] = {1.045, 1.055}, a1040_ri = 1.014;//40;
     // Will be used in several places;
     double dri10 = nominal_ri[1] - nominal_ri[0], dri20 = a1040_ri - nominal_ri[0];
     G4RadiatorMaterial *a1040 = 0;
@@ -346,24 +348,8 @@ void Materials::DefineMaterials( void )
 	
 	mpt->AddProperty(name, e, v, counter);
 	if (im) mpt1040->AddProperty(name, e, vbff, counter);
-#if _OFF_
-	if (im) {
-	  char buffer[128];
-	  snprintf(buffer, 128-1, "aerogel-1.040.%s.txt", name);
-	  FILE *fout = fopen(buffer, "w");
-
-	  if (!strcmp(name, "RINDEX"))
-	    for(unsigned iq=0; iq<dim; iq++)
-	      fprintf(fout, "%7.2f*eV %8.3f\n",    e1040[name][iq] / eV, vbff[iq]);
-	  else
-	    for(unsigned iq=0; iq<dim; iq++)
-	      fprintf(fout, "%7.2f*eV %8.3f*mm\n", e1040[name][iq] / eV, vbff[iq]);
-	  
-	  fclose(fout);
-	} //if
-#endif
       } //for prop
-      
+
       aerogel->SetMaterialPropertiesTable(mpt);
       m_Aerogel[id[im]] = aerogel;
       if (im) {
@@ -536,31 +522,6 @@ void Materials::DefineMaterials( void )
     printf("1/4\" HC     : %8.3f [cm],  %8.3f [g/cm^3]\n", quarter->GetRadlen()      /cm, quarter      ->GetDensity()/(g/cm3));
   }
 #endif
-
-#ifdef _DUMP_SELECTED_MATERIALS_
-  {
-    DumpMaterialProperty(m_FusedSilica, "RINDEX", 1/eV, "%7.2f*eV %7.2f");
-  }
-#endif
 } // Materials::DefineMaterials()
-
-// -------------------------------------------------------------------------------------
-
-void Materials::DumpMaterialProperty(const G4Material *material, const char *property,
-				     double scale, const char *fmt)
-{
-  //printf("@@@ %s\n", material->GetName().c_str());
-  char buffer[128];
-  snprintf(buffer, 128-1, "%s.%s.txt", material->GetName().c_str(), property);
-  FILE *fout = fopen(buffer, "w");
-
-  auto mpt = material->GetMaterialPropertiesTable();
-  auto ptr = mpt->GetProperty(property);
-  //printf("@@@ -> %ld\n", ptr->GetVectorLength());
-  for(unsigned iq=0; iq<ptr->GetVectorLength(); iq++)
-    fprintf(fout, fmt, scale*ptr->Energy(iq), (*ptr)[iq]);
-  
-  fclose(fout);
-} // Materials::DumpMaterialProperty()
 
 // -------------------------------------------------------------------------------------
