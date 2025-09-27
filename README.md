@@ -7,8 +7,7 @@ Standalone ePIC pfRICH GEANT4 simulation codes
 
  * [Introduction](#introduction)
  * [Prerequisites and basic installation](#prerequisites-and-basic-installation)
- * [Pre-installed example](#pre-installed-example)
- * [Full installation](#full-installation)
+ * [Installation](#installation)
  * [Example scripts](#example-scripts)
  * [Environment customization](#environment-customization)
 
@@ -93,21 +92,9 @@ C++ class variable description):
 
 <br/>
 
-Pre-installed example 
----------------------
 
-```
-#  TODO: NEED TO UPLOAD NEW ONES
-#cd ${SANDBOX}/pfRICH
-# A pre-uploaded file with 500 events;
-#root -l './examples/pfrich.C("examples/pfrich.root")'
-#root -l './examples/multi-eval.C("examples/pfrich.root")'
-```
-
-<br/>
-
-Full installation
------------------
+Installation
+------------
 
 Installation of the actual GEANT simulation environment requires few more steps (make sure 
 *geant.sh* was sourced!):
