@@ -28,7 +28,7 @@ the optical media, as well as keeps track of the daughter-parent relashionships 
 charged particles and produced optical photons, association between emission vertices and 
 particular Cherenkov light radiators, etc.
 
-  As of February 2024, the source code is split into four partss: one related to a 
+  As of February 2024, the source code is split into four parts: one related to a 
 [complete ePIC pfRICH detector](epic) simulation, one for a 
 [pfRICH mockup](ftbf) simulation for the 2024 Fermilab beam test, one for a BNL HRPPD 
 [test stand](tstand), and a part which is [common](share) for all three different geometries. 
@@ -48,17 +48,19 @@ installed, as well as that *thisroot.sh* and *geant4.sh* were sourced already. G
 not needed to just import already produced ROOT trees.
 
   In the following the installation under /tmp/sandbox is assumed. Define SANDBOX 
-environment variable accordingly if installing in a different directory. 
+environment variable accordingly if installing in a different directory. Be aware that
+working under /tmp directory may be a bad idea in general, in case your OS cleans this
+directory up on a regular basis.
 
   Make sure 'cmake' is version 3.0 or higher. 
 
-  The following combination is known to work: SL7, gcc 4.8.5, cmake 3.22.1, ROOT 6.18.04, 
-GEANT 4.10.05.p01 . 
+  The following combinations are known to work: (1) SL7, gcc 4.8.5, cmake 3.22.1, ROOT 6.18.04, 
+GEANT 4.10.05.p01 , (2) Debian 12, gcc 12.2.0, cmake 3.25.1, ROOT 6.30.04, geant 11.2.1 . 
 
 
 ```
 #
-# Define installation area
+# Define installation area, adjust shared library path
 #
 export SANDBOX=/tmp/sandbox
 export LD_LIBRARY_PATH=${SANDBOX}/lib:${SANDBOX}/lib64:${LD_LIBRARY_PATH}
