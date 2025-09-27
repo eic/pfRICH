@@ -62,10 +62,8 @@ GEANT 4.10.05.p01 , (2) Debian 12, gcc 12.2.0, cmake 3.25.1, ROOT 6.30.04, geant
 # Define installation area, adjust shared library path
 #
 export SANDBOX=/tmp/sandbox
-export LD_LIBRARY_PATH=${SANDBOX}/lib:${SANDBOX}/lib64:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=${SANDBOX}/install/lib:${SANDBOX}/install/lib64:${LD_LIBRARY_PATH}
 ```
-
-<br/>
 
 
 Installation
@@ -79,7 +77,7 @@ cd ${SANDBOX}
 
 # Copy over xerces-c-3.2.4.tar.gz (or a similar version) from the Web, unpack;
 cd xerces-c-3.2.4 && mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -Wno-dev ..
+cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX}/install -Wno-dev ..
 make -j8 install
 ```
 
@@ -92,7 +90,7 @@ cd ${SANDBOX}
 
 git clone https://github.com/eic/BeastMagneticField.git
 cd BeastMagneticField && mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -Wno-dev ..
+cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX}/install -Wno-dev ..
 make -j8 install
 ```
 
@@ -105,7 +103,7 @@ cd ${SANDBOX}
 
 git clone https://gitlab.cern.ch/hepmc/HepMC3.git
 cd HepMC3 && mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -DHEPMC3_ENABLE_ROOTIO=ON -DHEPMC3_ENABLE_PYTHON=OFF ..
+cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX}/install -DHEPMC3_ENABLE_ROOTIO=ON -DHEPMC3_ENABLE_PYTHON=OFF ..
 make -j8 install
 ```
 
@@ -118,7 +116,7 @@ cd ${SANDBOX}
 # Yes, we can use an old 'pfrich' branch to start with;
 git clone -b pfrich https://github.com/eic/irt.git
 cd irt && mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -Wno-dev ..
+cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX}/install -Wno-dev ..
 make -j8 install
 ```
 
@@ -142,7 +140,7 @@ pushd simple/include && ln -s simple.default.h simple.h && popd
 
 mkdir build && cd build
 # 'BMF' and 'HepMC3' are optional;
-cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -DIRT=${SANDBOX} -DBMF=${SANDBOX} -DHEPMC3=${SANDBOX} -DXERCES=${SANDBOX} -Wno-dev ..
+cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX}/install -DIRT=${SANDBOX} -DBMF=${SANDBOX} -DHEPMC3=${SANDBOX} -DXERCES=${SANDBOX} -Wno-dev ..
 
 make -j8 install
 ```
