@@ -34,6 +34,8 @@ Materials::Materials( void ): CherenkovWaveLengthRange(_WLDIM_, _NU_MIN_, _NU_ST
 
 void Materials::DefineElements( void )
 {
+  printf("@@@ Materials::DefineElements() ...\n");
+  
   G4NistManager *manager = G4NistManager::Instance();
 
   m_H  = manager->FindOrBuildElement("H",  false); assert(m_H);
@@ -68,8 +70,187 @@ static double calculate_sapphire_n(double lambda) {
 
 // -------------------------------------------------------------------------------------
 
-void Materials::DefineMaterials( void )
+void Materials::CreateBelleIIAerogel(bool native, unsigned aid, const char *aname, double ri)
 {
+#ifdef XERCES
+  // Belle II aerogel, two types;
+  {
+    unsigned id[2] = {_AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_, _AEROGEL_BELLE_II_LARGE_REFRACTIVE_INDEX_};
+
+    G4NistManager *manager = G4NistManager::Instance();
+
+    //std::string configFile="sample.xml"; 
+
+    // Initialize Xerces infrastructure
+    xercesc::XMLPlatformUtils::Initialize();  
+
+    auto configFileParser = new xercesc::XercesDOMParser;
+    
+    configFileParser->parse( "./database/BelleII.xml");//configFile.c_str() );
+    auto xmlDoc = configFileParser->getDocument();
+
+    // Get the top-level element: Name is "Materials";
+    xercesc::DOMElement* elementRoot = xmlDoc->getDocumentElement();
+
+    auto tree = new XmlTree(elementRoot);
+    //tree->Print();
+    auto mats = tree->FindTags("Material");
+    //printf("%d\n", (int)mats.size()); assert(0);
+
+    // Prepare for creation of a fake Belle II aerogel with <n> ~ 1.04; 
+    //+double densities[2] = {0.0, 0.0}, nominal_ri[2] = {1.045, 1.055}, a1040_ri = 1.040;
+    double densities[2] = {0.0, 0.0}, nominal_ri[2] = {1.045, 1.055};//, a1040_ri = 1.020;
+    // Will be used in several places;
+    double dri10 = nominal_ri[1] - nominal_ri[0], dri20 = /*a1040_ri*/ri - nominal_ri[0];
+    G4RadiatorMaterial *a1040 = 0;
+    std::map<TString, std::vector<double>> e1040, v1040;
+
+    for(unsigned im=0; im<mats.size(); im++) {
+      auto mat = mats[im];
+
+      const XMLCh* xmlch = mat->GetAttribute("name");
+      auto name = xercesc::XMLString::transcode(xmlch);
+	
+      auto dens = mat->FindFirstTag("density");
+      //printf("%s -> %7.4f [g/cm^3]\n", name, atof(dens->GetFirstString()));
+      
+      auto comp = mat->FindFirstTag("Components");
+      auto elems = comp->FindTags("Element");
+      //printf("   %d\n", (int)elems.size());
+      
+      densities[im] = atof(dens->GetFirstString());
+      // FIXME: use densities[] once debugging is over;
+      //if (native) 
+      //auto aerogel = new G4RadiatorMaterial(name, atof(dens->GetFirstString())*g/cm3, elems.size());
+      G4RadiatorMaterial *aerogel =
+	native ? new G4RadiatorMaterial(name, atof(dens->GetFirstString())*g/cm3, elems.size()) : 0;
+
+      // FIXME: assuming that element composition is the same (which is true);
+      if (im) {
+	// FIXME: this is not right (must account for density scaling with <n>);
+	double slope = (densities[1] - densities[0])/dri10;//(nominal_ri[1] - nominal_ri[0]);
+
+	//a1040 = new G4RadiatorMaterial("BelleIIAerogel3", (densities[0] + slope*dri20)*g/cm3, elems.size());
+	a1040 = new G4RadiatorMaterial(aname, (densities[0] + slope*dri20)*g/cm3, elems.size());
+      } //if
+      
+      for(auto elem: elems) {
+	const XMLCh* xmlch = elem->GetAttribute("fraction");
+	auto fraction = xercesc::XMLString::transcode(xmlch);
+	//printf("%7.4f: %s\n", atof(fraction), elem->GetFirstString());
+	char buffer[128];
+	strcpy(buffer, elem->GetFirstString());
+	//printf("%d\n", strlen(buffer));
+	for(unsigned iq=0; iq<strlen(buffer); iq++)
+	  if (buffer[iq] == 10 || buffer[iq] == 32) 
+	    buffer[iq] = 0;
+	//printf("%2d ", buffer[iq]);
+	//printf("\n");
+	//printf("%7.4f: %s\n", atof(fraction), buffer);
+	
+	auto ptr = manager->FindOrBuildElement(buffer, false); assert(ptr);
+	if (aerogel) aerogel->AddElement(ptr, atof(fraction)*100*perCent);
+
+	if (im) a1040->AddElement(ptr, atof(fraction)*100*perCent);
+      } //for elem
+
+      //if (native) 
+      //G4MaterialPropertiesTable *mpt     =      new G4MaterialPropertiesTable();
+      G4MaterialPropertiesTable *mpt = native ? new G4MaterialPropertiesTable() : 0;
+      G4MaterialPropertiesTable *mpt1040 = im ? new G4MaterialPropertiesTable() : 0;
+      
+      auto properties = mat->FindTags("Property");
+      for(auto prop: properties) {
+	const XMLCh* xmlch = prop->GetAttribute("name");
+	auto name = xercesc::XMLString::transcode(xmlch);
+	//printf("%s (%d)\n", name, strlen(name));
+	
+#ifdef _DISABLE_ABSORPTION_
+	if (!strcmp(name, "ABSLENGTH")) continue;
+#endif
+#ifdef _DISABLE_RAYLEIGH_SCATTERING_
+	if (!strcmp(name, "RAYLEIGH")) continue;
+#endif
+
+	auto values = prop->FindTags("value");
+	unsigned dim = values.size();
+	//printf("%d\n", values.size());
+	std::map<double, double> entries;
+	
+	for(auto value: values) {
+	  const XMLCh* xmlch = value->GetAttribute("energy");
+	  auto energy = xercesc::XMLString::transcode(xmlch);
+	  //printf("%7.2f [eV] -> %8.3f\n", atof(energy), atof(value->GetFirstString()));
+	  entries[atof(energy)] = atof(value->GetFirstString());
+	} //for value
+	
+	double cff = strcmp(name, "RINDEX") ? mm : 1.0;
+
+	unsigned counter = 0;
+	double e[dim], v[dim], vbff[dim];
+	for(auto entry: entries) {
+	  //printf("%2d -> %f (%10.7f vs %10.7f .. %10.7f)\n", counter, entry.first, entry.first*eV, _NU_MIN_, _NU_MAX_);
+	  
+	  if (entry.first*eV >= _NU_MIN_ && entry.first*eV <= _NU_MAX_) {
+	    if (im) {
+	      //printf("@Q@ %s %d %d vs %d\n", name, e1040.size(), e1040[name].size(), counter);
+	      // FIXME: out of range check;
+	      assert(e1040[name][counter] == entry.first  * eV);
+	      
+	      //printf("@Q@ %7.3f\n", e1040[name][counter]);
+	      double slope = (entry.second * cff - v1040[name][counter])/dri10;
+	      vbff[counter] = v1040[name][counter] + slope*dri20;
+	    } else {
+	      // Just store <n> ~ 1.045 aerogel parameterization point;
+	      e1040[name].push_back(entry.first  * eV);
+	      v1040[name].push_back(entry.second * cff);
+	    } //if
+
+	    e[counter  ] = entry.first  * eV;
+	    v[counter++] = entry.second * cff;
+	  } //if
+	} 
+
+	if (native) mpt->AddProperty(name, e, v, counter);
+	if (im) mpt1040->AddProperty(name, e, vbff, counter);
+#if _OFF_
+	if (im) {
+	  char buffer[128];
+	  snprintf(buffer, 128-1, "aerogel-1.040.%s.txt", name);
+	  FILE *fout = fopen(buffer, "w");
+
+	  if (!strcmp(name, "RINDEX"))
+	    for(unsigned iq=0; iq<dim; iq++)
+	      fprintf(fout, "%7.2f*eV %8.3f\n",    e1040[name][iq] / eV, vbff[iq]);
+	  else
+	    for(unsigned iq=0; iq<dim; iq++)
+	      fprintf(fout, "%7.2f*eV %8.3f*mm\n", e1040[name][iq] / eV, vbff[iq]);
+	  
+	  fclose(fout);
+	} //if
+#endif
+      } //for prop
+
+      if (native) {
+	aerogel->SetMaterialPropertiesTable(mpt);
+	m_Aerogel[id[im]] = aerogel;
+      } //if
+      if (im) {
+	a1040->SetMaterialPropertiesTable(mpt1040);
+	//+m_Aerogel[_AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_] = a1040;
+	m_Aerogel[aid] = a1040;
+      } //if
+    } //for mat
+    //printf("%s\n", mat->GetName());
+  }
+#endif
+} // Materials::CreateBelleIIAerogel()
+
+// -------------------------------------------------------------------------------------
+
+void Materials::DefineMaterials(double ri3, double ri4)
+{
+  printf("@@@ Materials::DefineMaterials() ...\n");
   {
     G4NistManager *manager = G4NistManager::Instance();
 
@@ -172,11 +353,9 @@ void Materials::DefineMaterials( void )
 #if 1//_TODAY_
   // CLAS12 aerogel; two options for now; obviously can add more the same way
   {
-    const unsigned dim = 4;
-    unsigned density[dim] = {_AEROGEL_CLAS12_DENSITY_085_MG_CM3_, _AEROGEL_CLAS12_DENSITY_110_MG_CM3_, 
-			   _AEROGEL_CLAS12_DENSITY_155_MG_CM3_, _AEROGEL_CLAS12_DENSITY_225_MG_CM3_};
+    unsigned density[2] = {_AEROGEL_CLAS12_DENSITY_155_MG_CM3_, _AEROGEL_CLAS12_DENSITY_225_MG_CM3_};
 
-    for(unsigned il=0; il<dim; il++) {
+    for(unsigned il=0; il<2; il++) {
       //if (!density[il]) continue;
 
       TString name; name.Form("Aerogel%03d", density[il]);
@@ -214,153 +393,10 @@ void Materials::DefineMaterials( void )
     } //for il
   } 
 
-#ifdef XERCES
-  // Belle II aerogel, two types;
-  {
-    unsigned id[2] = {_AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_, _AEROGEL_BELLE_II_LARGE_REFRACTIVE_INDEX_};
-
-    G4NistManager *manager = G4NistManager::Instance();
-
-    //std::string configFile="sample.xml"; 
-
-    // Initialize Xerces infrastructure
-    xercesc::XMLPlatformUtils::Initialize();  
-
-    auto configFileParser = new xercesc::XercesDOMParser;
-    
-    configFileParser->parse( "./database/BelleII.xml");//configFile.c_str() );
-    auto xmlDoc = configFileParser->getDocument();
-
-    // Get the top-level element: Name is "Materials";
-    xercesc::DOMElement* elementRoot = xmlDoc->getDocumentElement();
-
-    auto tree = new XmlTree(elementRoot);
-    //tree->Print();
-    auto mats = tree->FindTags("Material");
-    //printf("%d\n", (int)mats.size()); assert(0);
-
-    // Prepare for creation of a fake Belle II aerogel with <n> ~ 1.04; 
-    double densities[2] = {0.0, 0.0}, nominal_ri[2] = {1.045, 1.055}, a1014_ri = 1.014;//40;
-    // Will be used in several places;
-    double dri10 = nominal_ri[1] - nominal_ri[0], dri20 = a1014_ri - nominal_ri[0];
-    G4RadiatorMaterial *a1014 = 0;
-    std::map<TString, std::vector<double>> e1014, v1014;
-
-    for(unsigned im=0; im<mats.size(); im++) {
-      auto mat = mats[im];
-
-      const XMLCh* xmlch = mat->GetAttribute("name");
-      auto name = xercesc::XMLString::transcode(xmlch);
-	
-      auto dens = mat->FindFirstTag("density");
-      //printf("%s -> %7.4f [g/cm^3]\n", name, atof(dens->GetFirstString()));
-      
-      auto comp = mat->FindFirstTag("Components");
-      auto elems = comp->FindTags("Element");
-      //printf("   %d\n", (int)elems.size());
-      
-      densities[im] = atof(dens->GetFirstString());
-      // FIXME: use densities[] once debugging is over;
-      auto aerogel = new G4RadiatorMaterial(name, atof(dens->GetFirstString())*g/cm3, elems.size());
-
-      // FIXME: assuming that element composition is the same (which is true);
-      if (im) {
-	// FIXME: this is not right (must account for density scaling with <n>);
-	double slope = (densities[1] - densities[0])/dri10;//(nominal_ri[1] - nominal_ri[0]);
-
-	a1014 = new G4RadiatorMaterial("BelleIIAerogel3", (densities[0] + slope*dri20)*g/cm3, elems.size());
-      } //if
-      
-      for(auto elem: elems) {
-	const XMLCh* xmlch = elem->GetAttribute("fraction");
-	auto fraction = xercesc::XMLString::transcode(xmlch);
-	//printf("%7.4f: %s\n", atof(fraction), elem->GetFirstString());
-	char buffer[128];
-	strcpy(buffer, elem->GetFirstString());
-	//printf("%d\n", strlen(buffer));
-	for(unsigned iq=0; iq<strlen(buffer); iq++)
-	  if (buffer[iq] == 10 || buffer[iq] == 32) 
-	    buffer[iq] = 0;
-	//printf("%2d ", buffer[iq]);
-	//printf("\n");
-	//printf("%7.4f: %s\n", atof(fraction), buffer);
-	
-	auto ptr = manager->FindOrBuildElement(buffer, false); assert(ptr);
-	aerogel->AddElement(ptr, atof(fraction)*100*perCent);
-
-	if (im) a1014->AddElement(ptr, atof(fraction)*100*perCent);
-      } //for elem
-      
-      G4MaterialPropertiesTable *mpt     =      new G4MaterialPropertiesTable();
-      G4MaterialPropertiesTable *mpt1014 = im ? new G4MaterialPropertiesTable() : 0;
-      
-      auto properties = mat->FindTags("Property");
-      for(auto prop: properties) {
-	const XMLCh* xmlch = prop->GetAttribute("name");
-	auto name = xercesc::XMLString::transcode(xmlch);
-	//printf("%s (%d)\n", name, strlen(name));
-	
-#ifdef _DISABLE_ABSORPTION_
-	if (!strcmp(name, "ABSLENGTH")) continue;
-#endif
-#ifdef _DISABLE_RAYLEIGH_SCATTERING_
-	if (!strcmp(name, "RAYLEIGH")) continue;
-#endif
-
-	auto values = prop->FindTags("value");
-	unsigned dim = values.size();
-	//printf("%d\n", values.size());
-	std::map<double, double> entries;
-	
-	for(auto value: values) {
-	  const XMLCh* xmlch = value->GetAttribute("energy");
-	  auto energy = xercesc::XMLString::transcode(xmlch);
-	  //printf("%7.2f [eV] -> %8.3f\n", atof(energy), atof(value->GetFirstString()));
-	  entries[atof(energy)] = atof(value->GetFirstString());
-	} //for value
-	
-	double cff = strcmp(name, "RINDEX") ? mm : 1.0;
-
-	unsigned counter = 0;
-	double e[dim], v[dim], vbff[dim];
-	for(auto entry: entries) {
-	  //printf("%2d -> %f (%10.7f vs %10.7f .. %10.7f)\n", counter, entry.first, entry.first*eV, _NU_MIN_, _NU_MAX_);
-	  
-	  if (entry.first*eV >= _NU_MIN_ && entry.first*eV <= _NU_MAX_) {
-	    if (im) {
-	      //printf("@Q@ %s %d %d vs %d\n", name, e1040.size(), e1040[name].size(), counter);
-	      // FIXME: out of range check;
-	      assert(e1014[name][counter] == entry.first  * eV);
-	      
-	      //printf("@Q@ %7.3f\n", e1040[name][counter]);
-	      double slope = (entry.second * cff - v1014[name][counter])/dri10;
-	      vbff[counter] = v1014[name][counter] + slope*dri20;
-	    } else {
-	      // Just store <n> ~ 1.045 aerogel parameterization point;
-	      e1014[name].push_back(entry.first  * eV);
-	      v1014[name].push_back(entry.second * cff);
-	    } //if
-
-	    e[counter  ] = entry.first  * eV;
-	    v[counter++] = entry.second * cff;
-	  } //if
-	} 
-	
-	mpt->AddProperty(name, e, v, counter);
-	if (im) mpt1014->AddProperty(name, e, vbff, counter);
-      } //for prop
-
-      aerogel->SetMaterialPropertiesTable(mpt);
-      m_Aerogel[id[im]] = aerogel;
-      if (im) {
-	a1014->SetMaterialPropertiesTable(mpt1014);
-	m_Aerogel[_AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_014_] = a1014;
-      } //if
-    } //for mat
-    //printf("%s\n", mat->GetName());
-  }
-#endif
-
+  // FIXME: keep track of #define's and actual values; do it better later;
+  CreateBelleIIAerogel(true,  _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag3_, "BelleIIAerogel3", ri3);//1.014);
+  CreateBelleIIAerogel(false, _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag4_, "BelleIIAerogel4", ri4);//1.014);
+  
   {
 #ifdef _ACRYLIC_FIXED_REFRACTIVE_INDEX_ 
     m_Acrylic = new G4RadiatorMaterial("Acrylic",_ACRYLIC_DENSITY_, 3, _ACRYLIC_FIXED_REFRACTIVE_INDEX_);
@@ -522,6 +558,31 @@ void Materials::DefineMaterials( void )
     printf("1/4\" HC     : %8.3f [cm],  %8.3f [g/cm^3]\n", quarter->GetRadlen()      /cm, quarter      ->GetDensity()/(g/cm3));
   }
 #endif
+
+#ifdef _DUMP_SELECTED_MATERIALS_
+  {
+    DumpMaterialProperty(m_FusedSilica, "RINDEX", 1/eV, "%7.2f*eV %7.2f");
+  }
+#endif
 } // Materials::DefineMaterials()
+
+// -------------------------------------------------------------------------------------
+
+void Materials::DumpMaterialProperty(const G4Material *material, const char *property,
+				     double scale, const char *fmt)
+{
+  //printf("@@@ %s\n", material->GetName().c_str());
+  char buffer[128];
+  snprintf(buffer, 128-1, "%s.%s.txt", material->GetName().c_str(), property);
+  FILE *fout = fopen(buffer, "w");
+
+  auto mpt = material->GetMaterialPropertiesTable();
+  auto ptr = mpt->GetProperty(property);
+  //printf("@@@ -> %ld\n", ptr->GetVectorLength());
+  for(unsigned iq=0; iq<ptr->GetVectorLength(); iq++)
+    fprintf(fout, fmt, scale*ptr->Energy(iq), (*ptr)[iq]);
+  
+  fclose(fout);
+} // Materials::DumpMaterialProperty()
 
 // -------------------------------------------------------------------------------------

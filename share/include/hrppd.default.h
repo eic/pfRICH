@@ -71,15 +71,15 @@
 #ifdef _USE_HRPPD_24_DATA_
 #define _QE_DOWNSCALING_FACTOR_          (30.0/34.3)
 #else
-#define _QE_DOWNSCALING_FACTOR_          (80.0/37.0)
+// Assume that Incom can reach ~35% peak QE;
+#define _QE_DOWNSCALING_FACTOR_          (35.0/37.0)
 #endif
 
-// [nm]; an artificial QE shift (assuming HRPPD QE can be tuned towards optical range);
-#define _QE_WAVELENGTH_SHIFT_                (85.0)
+// [nm]; assume that Incom can shift a peak QE by that much without sacrificing the peak value;
+#define _QE_WAVELENGTH_SHIFT_                 (85.0)
 
-// Some reasonably optimistic number; assume that it includes an unknown 
-// HRPPD Collection Efficiency (CE) as well;
-#define _SAFETY_FACTOR_                       (0.70)
+// Assume that Incom can reach CE ~95%;
+#define _SAFETY_FACTOR_                       (0.95)
 
 // This number is 1.00 for HRPPDs (no SiPM-like fill factor or such); keep in place 
 // for historical reasons;

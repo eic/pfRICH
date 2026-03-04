@@ -47,6 +47,8 @@ void EpicDetectorConstruction::DefineAerogel(CherenkovDetector *cdet, DarkBox *d
     if ( il) {
       agthick = _AEROGEL_THICKNESS_2_;
       aerogel = m_Aerogel[_AEROGEL_2_];
+
+      m_gzOffset += _AEROGEL_1_TO_2_GAP_;
     } //if
 #else
     if ( il) continue;

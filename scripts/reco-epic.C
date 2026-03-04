@@ -14,14 +14,12 @@ void reco_epic(const char *dfname, const char *cfname = 0)
   // This only affects the calibration stage;
   //reco->SetDefaultSinglePhotonThetaResolution(0.0040);
   // Sensor active area pixelated will be pixellated NxN in digitization;
-  reco->SetSensorActiveAreaPixellation(64);//24);
+  reco->SetSensorActiveAreaPixellation(48);//24);
   // [rad] (should match SPE sigma) & [ns];
   //auto *a1 = reco->UseRadiator("Aerogel225",      0.0040);
 
   auto *a1 = reco->UseRadiator("BelleIIAerogel3");
-  //auto *a1 = reco->UseRadiator("Aerogel085");
-  //auto *a1 = reco->UseRadiator("BelleIIAerogel3");
-
+  auto *a2 = reco->UseRadiator("BelleIIAerogel4");
 
   //reco->SetSinglePhotonTimingResolution(0.030);
   //reco->SetQuietMode();
@@ -41,9 +39,9 @@ void reco_epic(const char *dfname, const char *cfname = 0)
   auto hmatch = new TH1D("hmatch", "PID evaluation correctness",       3,    0,      3);
   //auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        200,  220,    320);
   //+auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        40,  270, 290);
-  auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        70,  130, 200);
+  auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",       100,  130, 230);
   // For a dual aerogel configuration;
-  //auto hthtr2  = new TH1D("thtr2",   "Cherenkov angle (track)",        200,  220,    320);
+  auto hthtr2  = new TH1D("thtr2",   "Cherenkov angle (track)",     100,  130, 230);
 
   reco->UseAutomaticCalibration();
   // This call is mandatory; second argument: statistics (default: all events);
@@ -65,7 +63,7 @@ void reco_epic(const char *dfname, const char *cfname = 0)
 	} //if	  
 
 	hthtr1->Fill(1000*mcparticle->GetRecoCherenkovAverageTheta(a1));
-	//hthtr2->Fill(1000*mcparticle->GetRecoCherenkovAverageTheta(a2));
+	hthtr2->Fill(1000*mcparticle->GetRecoCherenkovAverageTheta(a2));
       } //for mcparticle
     } //while
   }
@@ -81,8 +79,8 @@ void reco_epic(const char *dfname, const char *cfname = 0)
   cv->cd(7);       hmatch  ->SetMinimum(0);       hmatch  ->Draw();
   cv->cd(8); reco->hdtph()->Fit("gaus");
   cv->cd(9); hthtr1->Fit("gaus");
-  //cv->cd(10); hthtr2->Fit("gaus");
   cv->cd(10); reco->hwl()->Draw();
-  cv->cd(11); reco->hvtx()->Draw();
+  //cv->cd(11); reco->hvtx()->Draw();
+  cv->cd(11); hthtr2->Fit("gaus");
   cv->cd(12); reco->hri()->Draw();
 } // reco_epic()

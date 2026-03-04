@@ -139,13 +139,14 @@
 #define _AEROGEL_CLEARANCE_GAP_             (0.5*mm)
 
 // Up to two layers along the beam line; 
-//#define _AEROGEL_1_ _AEROGEL_CLAS12_DENSITY_225_MG_CM3_
-//#define _AEROGEL_1_ _AEROGEL_CLAS12_DENSITY_085_MG_CM3_ //_AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_
-#define _AEROGEL_1_ _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_014_
-//#define _AEROGEL_1_ _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_
+#define _AEROGEL_1_ _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag3_
+#define _AEROGEL_1_REFRACTIVE_INDEX_         (1.014)
 #define _AEROGEL_THICKNESS_1_                (20*mm)
-//#define _AEROGEL_2_ _AEROGEL_CLAS12_DENSITY_155_MG_CM3_
-//#define _AEROGEL_THICKNESS_2_               (2.0*cm)
+
+#define _AEROGEL_2_ _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag4_
+#define _AEROGEL_2_REFRACTIVE_INDEX_         (1.014)
+#define _AEROGEL_THICKNESS_2_                (17*mm)
+#define _AEROGEL_1_TO_2_GAP_                (100*mm)
 
 // Set to m_Nitrogen and something like <100um thickness, for "clean" studies only;
 #define _AEROGEL_SPACER_MATERIAL_       (m_Absorber)

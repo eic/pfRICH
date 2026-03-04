@@ -16,6 +16,9 @@ class G4RadiatorMaterial;
 //#define _DISABLE_RAYLEIGH_SCATTERING_
 //#define _DISABLE_ABSORPTION_
 
+// Create text files which can be cut'n'paste in ePIC optical_materials.xml file; 
+#define _DUMP_SELECTED_MATERIALS_
+
 // Eventually this is a single place where these two are defined;
 #define _INCH_                             (25.4*mm)
 #define _MIL_                          (_INCH_/1000)
@@ -24,23 +27,20 @@ class G4RadiatorMaterial;
 //
 #define _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_ 0
 #define _AEROGEL_BELLE_II_LARGE_REFRACTIVE_INDEX_ 1
-#define _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_014_  2
-//#define _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_02_  3
+#define _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag3_   2
+#define _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag4_   3
 // FIXME: this does not look nice, but suffices;
-#define _AEROGEL_CLAS12_DENSITY_085_MG_CM3_      85
-#define _AEROGEL_CLAS12_DENSITY_110_MG_CM3_     110
 #define _AEROGEL_CLAS12_DENSITY_155_MG_CM3_     155
 #define _AEROGEL_CLAS12_DENSITY_225_MG_CM3_     225
 
 // If uncommented: fixed refractive index, no attenuation (single-layer CLAS12 config only);
-//#define _AEROGEL_FIXED_REFRACTIVE_INDEX_    (1.014)
+//#define _AEROGEL_FIXED_REFRACTIVE_INDEX_    (1.044)
 // --------------------------------------------------------------------------------------------
 
 // -- Acrylic filter --------------------------------------------------------------------------
 //
-// If _ACRYLIC_THICKNESS_ is defined, a single layer right after the aerogel is installed; 
-#define _ACRYLIC_THICKNESS_                 (3.0*mm)
-#define _ACRYLIC_WL_CUTOFF_                 (375*nm)
+//#define _ACRYLIC_WL_CUTOFF_                 (300*nm)
+#define _ACRYLIC_WL_CUTOFF_                 (325*nm)
 
 // Does not need to be precise;
 #define _ACRYLIC_DENSITY_               (1.18*g/cm3)
@@ -104,9 +104,13 @@ public:
   G4RadiatorMaterial *FusedSilica( void ) { return m_FusedSilica; };
   G4Material *Absorber( void )            { return m_Absorber; };
 
+  static void DumpMaterialProperty(const G4Material *material, const char *property,
+				   double scale, const char *fmt);
+  
  protected:
   void DefineElements( void );
-  void DefineMaterials( void );
+  // Parameters are Belle II aerogel refractive indices ("BelleIIAerogel3" & "BelleIIAerogel4");
+  void DefineMaterials(double ri3 = 1.040, double ri4 = 1.040);
 
   // Basic elements;
   G4Element *m_C, *m_N, *m_O, *m_F, *m_H, *m_Si, *m_K, *m_Na, *m_Sb, *m_Al, *m_Ca;
@@ -123,6 +127,9 @@ public:
 
   G4RadiatorMaterial *m_Nitrogen, *m_Acrylic, *m_FusedSilica, *m_C2F6, *m_Sapphire;
   std::map<unsigned, G4RadiatorMaterial*> m_Aerogel;
+
+private:
+  void CreateBelleIIAerogel(bool native, unsigned id, const char *aname, double ri);
 };
 
 #endif
