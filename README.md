@@ -31,7 +31,9 @@ particular Cherenkov light radiators, etc.
   As of February 2024, the source code is split into four partss: one related to a 
 [complete ePIC pfRICH detector](epic) simulation, one for a 
 [pfRICH mockup](ftbf) simulation for the 2024 Fermilab beam test, one for a BNL HRPPD 
-[test stand](tstand), and a part which is [common](share) for all three different geometries. 
+[test stand](tstand), and a part which is [common](share) for all three different geometries.
+
+  As of March 2026, a [pfRICH mockup](cern) simulation for the 2026 CERN beam test was added.
 
 <br/>
 
@@ -160,6 +162,7 @@ cd ${SANDBOX}/pfRICH
 pushd share/include  && ln -s hrppd.default.h  hrppd.h && ln -s share.default.h share.h && popd
 pushd epic/include   && ln -s epic.default.h   epic.h && popd
 pushd ftbf/include   && ln -s ftbf.default.h   ftbf.h && popd
+pushd cern/include   && ln -s cern.default.h   cern.h && popd
 pushd tstand/include && ln -s tstand.default.h tstand.h && popd
 
 mkdir build && cd build
@@ -239,6 +242,23 @@ root -l 'scripts/hit-map-ftbf-2x2.C("pfrich-ftbf.root")'
 root -l 'scripts/reco-ftbf.C("pfrich-ftbf.root")'
 ```
 
+```
+#
+# A CERN 2026 mockup of a pfRICH detector
+#
+./build/pfrich-cern -m macro/vis-cern.mac
+
+# Will take quite some time because of the optical photon tracing in the lens radiator;
+./build/pfrich-cern -o pfrich-cern.root -s 1000
+
+root -l 'scripts/hit-map-cern-1x1.C("pfrich-cern.root")'
+root -l 'scripts/hit-map-cern-2x2.C("pfrich-cern.root")'
+
+# This one is also time consuming; comment "#define _ZCOORD_ASPHERIC_LENS_" in cern.default.h", 
+# recompile and re-run ./build/pfrich-cern if the lens is of no interest;
+root -l 'scripts/reco-cern.C("pfrich-cern.root")'
+```
+
 Environment customization
 -------------------------
 
@@ -263,10 +283,10 @@ on a time scale of weeks and months.
 
 One downside of this approach is a necessity to keep track of *your own changes* and do not let them 
 interfere (after a *pull* request) with other changes occasionally happening in the repository. There are 
-presently five "default" C++ header files in the repository: one with an 
+presently six "default" C++ header files in the repository: one with an 
 [HRPPD description](share/include/hrppd.default.h), one with [shared parameters](share/include/share.default.h), 
-and one for each of the [epic](epic/include/epic.default.h), [Fermilab](ftbf/include/ftbf.default.h) and 
-BNL [QA station](tstand/include/tstand.default.h) configurations.
+and one for each of the [epic](epic/include/epic.default.h), [Fermilab](ftbf/include/ftbf.default.h),
+[CERN](cern/include/cern.default.h) and BNL [QA station](tstand/include/tstand.default.h) configurations.
 
 
 ```

@@ -97,12 +97,23 @@ void DetectorConstruction::BuildPhotonDetectorMatrix(CherenkovDetector *cdet, Da
 
   CherenkovMirror *pyramid = 0;
   if (dbox->m_UsePyramids) {
+#if 0
+    // Debugging stuff (not sunchronized with optics description); 
+    dbox->m_PyramidMirrorWidth = 120*mm; dbox->m_PyramidMirrorHeight = 35*mm;
+    double active = 90*mm;
+    
+    auto pyra_box = new G4Box("Dummy", dbox->m_PyramidMirrorWidth/2, dbox->m_PyramidMirrorWidth/2, dbox->m_PyramidMirrorHeight/2);
+    auto pyra_cut = new G4Trd("Dummy", dbox->m_PyramidMirrorWidth/2, active/2, dbox->m_PyramidMirrorWidth/2, 
+				active/2, dbox->m_PyramidMirrorHeight/2 + 0.011*mm);
+#else
+    // This was a properly working option;
     auto pyra_box = new G4Box("Dummy", dbox->m_PyramidMirrorWidth/2, dbox->m_PyramidMirrorWidth/2, dbox->m_PyramidMirrorHeight/2);
     auto pyra_cut = new G4Trd("Dummy", dbox->m_PyramidMirrorWidth/2, _HRPPD_ACTIVE_AREA_SIZE_/2, dbox->m_PyramidMirrorWidth/2, 
 			      // FIXME: a mismatch of 11um extra does not hurt IRT ray tracing; NB: contrary to 10um, 11um) does 
 			      // not cause a warning message "BooleanProcessor::createPolyhedron : too many edges" message in 
 			      // the GEANT Qt display; FIXME: why??!;
 				_HRPPD_ACTIVE_AREA_SIZE_/2, dbox->m_PyramidMirrorHeight/2 + 0.011*mm);
+#endif
     auto *pyra_shape = new G4SubtractionSolid("MirrorPyramid", pyra_box, pyra_cut);
     // NB: geometry will be saved in [mm] throughout the code;
     pyramid = new CherenkovMirror(pyra_shape, m_Absorber);

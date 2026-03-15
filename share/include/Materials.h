@@ -28,6 +28,7 @@ class G4RadiatorMaterial;
 #define _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_ 0
 #define _AEROGEL_BELLE_II_LARGE_REFRACTIVE_INDEX_ 1
 #define _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_  2
+#define _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_QQ_  3
 // FIXME: this does not look nice, but suffices;
 #define _AEROGEL_CLAS12_DENSITY_155_MG_CM3_     155
 #define _AEROGEL_CLAS12_DENSITY_225_MG_CM3_     225
@@ -124,6 +125,9 @@ public:
 
   G4RadiatorMaterial *m_Nitrogen, *m_Acrylic, *m_FusedSilica, *m_C2F6, *m_Sapphire;
   std::map<unsigned, G4RadiatorMaterial*> m_Aerogel;
+
+private:
+  void CreateBelleIIAerogel(bool native, unsigned id, const char *aname, double ri);
 };
 
 #endif

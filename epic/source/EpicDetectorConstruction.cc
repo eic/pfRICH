@@ -220,6 +220,7 @@ G4VPhysicalVolume *EpicDetectorConstruction::Construct( void )
       } //for iy
     } //for ix
 
+    
     dbox->DefinePyramidMirrorGeometry(_HRPPD_TILE_SIZE_ + _HRPPD_INSTALLATION_GAP_, _PYRAMID_MIRROR_HEIGHT_);
     BuildPhotonDetectorMatrix(det, dbox, _FIDUCIAL_VOLUME_OFFSET_, 
 			      // FIXME: is this offset correct?; front plate thickness?;

@@ -24,10 +24,10 @@
 //
 // If true, optional funneling mirrors around the HRPPD sensors are installed in 
 // ePIC configuration and in a 2x2 box in FTBF configuration; 
-#define _USE_PYRAMIDS_                          true
+#define _USE_PYRAMIDS_                          false
 
 // May still want to disable the funneling optics in IRT;
-#define _USE_PYRAMID_OPTICS_                    true
+#define _USE_PYRAMID_OPTICS_                    false
 
 // Some "standard" value applied to all mirrors;
 #define _MIRROR_REFLECTIVITY_                 (0.90)

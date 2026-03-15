@@ -69,6 +69,7 @@
 //
 #define _USE_HRPPD_24_DATA_
 #ifdef _USE_HRPPD_24_DATA_
+//+#define _QE_DOWNSCALING_FACTOR_          (30.0/34.3)
 #define _QE_DOWNSCALING_FACTOR_          (30.0/34.3)
 #else
 #define _QE_DOWNSCALING_FACTOR_          (30.0/37.0)
@@ -77,6 +78,7 @@
 // Some reasonably optimistic number; assume that it includes an unknown 
 // HRPPD Collection Efficiency (CE) as well;
 #define _SAFETY_FACTOR_                       (0.70)
+//#define _SAFETY_FACTOR_                       (1.00)
 
 // This number is 1.00 for HRPPDs (no SiPM-like fill factor or such); keep in place 
 // for historical reasons;
