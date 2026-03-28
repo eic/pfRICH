@@ -14,7 +14,7 @@
 //
 #define _PRIMARY_PARTICLE_TYPE_              ("pi+")
 // Will toggle between the two types if defined;
-//#define _ALTERNATIVE_PARTICLE_TYPE_        ("kaon+")
+#define _ALTERNATIVE_PARTICLE_TYPE_        ("kaon+")
 
 // Just something resembling CERN primary beam (400 GeV protons);
 #define _XCOORD_AVERAGE_                   (0.0*mm)
@@ -31,15 +31,16 @@
 // FIXME: has to be non-zero for a reco script to work?!;
 #define _YSLOPE_SIGMA_                   (0.1*mrad)
 
+//#define _PRIMARY_PARTICLE_MOMENTUM_       (180.0*GeV)
 #define _PRIMARY_PARTICLE_MOMENTUM_       (7.0*GeV)
-//#define _PRIMARY_PARTICLE_MOMENTUM_       (3.0*GeV)
 // --------------------------------------------------------------------------------------------
 
 // -- Vessel geometry -------------------------------------------------------------------------
 //
 // Prefer to keep it in sync with the ePIC setup; 450mm allows one to fit photons reflected 
 // off the pyramid mirrors into the 2x2 HRPPD matrix acceptance; 
-#define _FIDUCIAL_VOLUME_LENGTH_2x2_          (491.0*mm)
+//#define _FIDUCIAL_VOLUME_LENGTH_2x2_          (491.0*mm)
+#define _FIDUCIAL_VOLUME_LENGTH_2x2_          (491.0*mm + 0.0*mm)
 //#define _FIDUCIAL_VOLUME_LENGTH_2x2_          (570.0*mm)
 //#define _FIDUCIAL_VOLUME_LENGTH_2x2_          (600.0*mm)
 #define _FIDUCIAL_VOLUME_OFFSET_2x2_ (1236.0*mm + _FIDUCIAL_VOLUME_LENGTH_2x2_/2)
