@@ -32,7 +32,7 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 {
   // Chemical elements and materials;
   DefineElements();
-  DefineMaterials();
+  DefineMaterials();//_AEROGEL_1_REFRACTIVE_INDEX_);
 
   // The experimental hall; FIXME: hardcoded;
   auto expHall_box = new G4Box("PFRICH_World",  200*cm/2, 200*cm/2, 400*cm/2);

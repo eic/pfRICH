@@ -84,7 +84,7 @@ make -j8 install
 #
 cd ${SANDBOX}
 
-git clone https://github.com/alexander-kiselev/pfRICH.git
+git clone https://github.com/eic/pfRICH.git
 ```
 
 This is sufficient to import and analyze ROOT trees already produced after pfRICH 

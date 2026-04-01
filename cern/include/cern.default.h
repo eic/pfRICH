@@ -14,7 +14,7 @@
 //
 #define _PRIMARY_PARTICLE_TYPE_              ("pi+")
 // Will toggle between the two types if defined;
-#define _ALTERNATIVE_PARTICLE_TYPE_        ("kaon+")
+//#define _ALTERNATIVE_PARTICLE_TYPE_        ("kaon+")
 
 // Just something resembling CERN primary beam (400 GeV protons);
 #define _XCOORD_AVERAGE_                   (0.0*mm)
@@ -72,7 +72,9 @@
 
 // -- Aerogel ---------------------------------------------------------------------------------
 //
-#define _AEROGEL_1_ _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_
+//#define _AEROGEL_1_ _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_
+#define _AEROGEL_1_ _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag3_
+#define _AEROGEL_1_REFRACTIVE_INDEX_         (1.040)
 #define _AEROGEL_THICKNESS_1_               (2.5*cm)//(2.5*cm)
 //#define _AEROGEL_2_ _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_
 //#define _AEROGEL_THICKNESS_2_               (1.5*cm)//(2.5*cm)

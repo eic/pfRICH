@@ -27,8 +27,8 @@ class G4RadiatorMaterial;
 //
 #define _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_ 0
 #define _AEROGEL_BELLE_II_LARGE_REFRACTIVE_INDEX_ 1
-#define _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_  2
-#define _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_QQ_  3
+#define _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag3_   2
+#define _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag4_   3
 // FIXME: this does not look nice, but suffices;
 #define _AEROGEL_CLAS12_DENSITY_155_MG_CM3_     155
 #define _AEROGEL_CLAS12_DENSITY_225_MG_CM3_     225
@@ -39,7 +39,8 @@ class G4RadiatorMaterial;
 
 // -- Acrylic filter --------------------------------------------------------------------------
 //
-#define _ACRYLIC_WL_CUTOFF_                 (300*nm)
+//#define _ACRYLIC_WL_CUTOFF_                 (300*nm)
+#define _ACRYLIC_WL_CUTOFF_                 (325*nm)
 
 // Does not need to be precise;
 #define _ACRYLIC_DENSITY_               (1.18*g/cm3)
@@ -108,7 +109,8 @@ public:
   
  protected:
   void DefineElements( void );
-  void DefineMaterials( void );
+  // Parameters are Belle II aerogel refractive indices ("BelleIIAerogel3" & "BelleIIAerogel4");
+  void DefineMaterials(double ri3 = 1.040, double ri4 = 1.040);
 
   // Basic elements;
   G4Element *m_C, *m_N, *m_O, *m_F, *m_H, *m_Si, *m_K, *m_Na, *m_Sb, *m_Al, *m_Ca;

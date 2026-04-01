@@ -248,7 +248,7 @@ void Materials::CreateBelleIIAerogel(bool native, unsigned aid, const char *anam
 
 // -------------------------------------------------------------------------------------
 
-void Materials::DefineMaterials( void )
+void Materials::DefineMaterials(double ri3, double ri4)
 {
   printf("@@@ Materials::DefineMaterials() ...\n");
   {
@@ -393,9 +393,9 @@ void Materials::DefineMaterials( void )
     } //for il
   } 
 
-  CreateBelleIIAerogel(true,  _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_, "BelleIIAerogel3", 1.040);
-  //CreateBelleIIAerogel(true,  _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_, "BelleIIAerogel3", 1.015);
-  //CreateBelleIIAerogel(false, _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_QQ_, "BelleIIAerogel4", 1.015);
+  // FIXME: keep track of #define's and actual values; do it better later;
+  CreateBelleIIAerogel(true,  _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag3_, "BelleIIAerogel3", ri3);//1.014);
+  CreateBelleIIAerogel(false, _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag4_, "BelleIIAerogel4", ri4);//1.014);
   
   {
 #ifdef _ACRYLIC_FIXED_REFRACTIVE_INDEX_ 

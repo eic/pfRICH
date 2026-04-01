@@ -109,7 +109,8 @@ G4VPhysicalVolume *EpicDetectorConstruction::Construct( void )
 {
   // Chemical elements and materials;
   DefineElements();
-  DefineMaterials();
+  //DefineMaterials();
+  DefineMaterials(_AEROGEL_1_REFRACTIVE_INDEX_);//, _AEROGEL_2_REFRACTIVE_INDEX_);
 
   // The experimental hall; FIXME: hardcoded;
   auto *expHall_tube = new G4Tubs("PFRICH_World",  0*cm, 400*cm/2, 1200*cm/2, 0*degree, 360*degree);

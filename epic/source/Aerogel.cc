@@ -25,8 +25,8 @@ void EpicDetectorConstruction::DefineAerogel(CherenkovDetector *cdet, DarkBox *d
 
   // FIXME: yes, for now hardcoded; FIXME: GDML export does not like 8 pieces in the inner layer.
   // namely it produces a visible spike in xray.C scan at 45 degrees; ok, make them 9;
-  //const unsigned adim[_AEROGEL_BAND_COUNT_] = {9, 14, 20};
-  const unsigned adim[_AEROGEL_BAND_COUNT_] = {9, 15, 22, 28};
+  const unsigned adim[_AEROGEL_BAND_COUNT_] = {9, 14, 20};
+  //const unsigned adim[_AEROGEL_BAND_COUNT_] = {9, 15, 22, 28};
   double rheight = (m_r0max - m_r0min - (_AEROGEL_BAND_COUNT_-1)*_AEROGEL_SEPARATOR_WALL_THICKNESS_ - 
 		    _AEROGEL_INNER_WALL_THICKNESS_ - _AEROGEL_OUTER_WALL_THICKNESS_) / _AEROGEL_BAND_COUNT_;
   //printf("%f\n", rheight); exit(0);
@@ -47,6 +47,8 @@ void EpicDetectorConstruction::DefineAerogel(CherenkovDetector *cdet, DarkBox *d
     if ( il) {
       agthick = _AEROGEL_THICKNESS_2_;
       aerogel = m_Aerogel[_AEROGEL_2_];
+
+      m_gzOffset += _AEROGEL_1_TO_2_GAP_;
     } //if
 #else
     if ( il) continue;

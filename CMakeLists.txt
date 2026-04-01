@@ -51,26 +51,26 @@ include_directories(
 
   ${PROJECT_SOURCE_DIR}/share/include 
   ${PROJECT_SOURCE_DIR}/epic/include 
-  ${PROJECT_SOURCE_DIR}/ftbf/include 
+  #${PROJECT_SOURCE_DIR}/ftbf/include 
   ${PROJECT_SOURCE_DIR}/cern/include 
-  ${PROJECT_SOURCE_DIR}/tstand/include 
-  ${PROJECT_SOURCE_DIR}/simple/include 
+  #${PROJECT_SOURCE_DIR}/tstand/include 
+  #${PROJECT_SOURCE_DIR}/simple/include 
 )
 
 file(GLOB SHARE_HEADERS ${PROJECT_SOURCE_DIR}/share/include/*.h)
 file(GLOB EPIC_HEADERS  ${PROJECT_SOURCE_DIR}/epic/include/*.h)
-file(GLOB FTBF_HEADERS  ${PROJECT_SOURCE_DIR}/ftbf/include/*.h)
+#file(GLOB FTBF_HEADERS  ${PROJECT_SOURCE_DIR}/ftbf/include/*.h)
 file(GLOB CERN_HEADERS  ${PROJECT_SOURCE_DIR}/cern/include/*.h)
-file(GLOB TSTAND_HEADERS ${PROJECT_SOURCE_DIR}/tstand/include/*.h)
-file(GLOB SIMPLE_HEADERS ${PROJECT_SOURCE_DIR}/simple/include/*.h)
+#file(GLOB TSTAND_HEADERS ${PROJECT_SOURCE_DIR}/tstand/include/*.h)
+#file(GLOB SIMPLE_HEADERS ${PROJECT_SOURCE_DIR}/simple/include/*.h)
 
 SET(G4IRT_LIB g4irt)
 SET(SHARE_LIB pfrich-share)
 SET(EPIC_EXE pfrich-epic)
-SET(FTBF_EXE pfrich-ftbf)
+#SET(FTBF_EXE pfrich-ftbf)
 SET(CERN_EXE pfrich-cern)
-SET(SIMPLE_EXE pfrich-simple)
-SET(TSTAND_EXE pfrich-tstand)
+#SET(SIMPLE_EXE pfrich-simple)
+#SET(TSTAND_EXE pfrich-tstand)
 
 SET( G4IRT_SOURCES
    ${PROJECT_SOURCE_DIR}/g4irt/source/G4Object.cc
@@ -106,37 +106,37 @@ SET( EPIC_SOURCES
 )
 
 SET( FTBF_SOURCES
-   #${PROJECT_SOURCE_DIR}/share/source/AsphericLens.cc
+   #-${PROJECT_SOURCE_DIR}/share/source/AsphericLens.cc
 
-   ${PROJECT_SOURCE_DIR}/ftbf/source/FTBFSetup.cc
-   ${PROJECT_SOURCE_DIR}/ftbf/source/FTBFDetectorConstruction.cc
-   ${PROJECT_SOURCE_DIR}/ftbf/source/FTBFPrimaryGeneratorAction.cc
+   #${PROJECT_SOURCE_DIR}/ftbf/source/FTBFSetup.cc
+   #${PROJECT_SOURCE_DIR}/ftbf/source/FTBFDetectorConstruction.cc
+   #${PROJECT_SOURCE_DIR}/ftbf/source/FTBFPrimaryGeneratorAction.cc
 )
 
 SET( CERN_SOURCES
-   #${PROJECT_SOURCE_DIR}/share/source/AsphericLens.cc
+   #-${PROJECT_SOURCE_DIR}/share/source/AsphericLens.cc
 
    ${PROJECT_SOURCE_DIR}/cern/source/CERNSetup.cc
    ${PROJECT_SOURCE_DIR}/cern/source/CERNDetectorConstruction.cc
    ${PROJECT_SOURCE_DIR}/cern/source/CERNPrimaryGeneratorAction.cc
 )
 
-SET( SIMPLE_SOURCES
-   ${PROJECT_SOURCE_DIR}/simple/source/SimpleSetup.cc
-   ${PROJECT_SOURCE_DIR}/simple/source/SimpleDetectorConstruction.cc
-   ${PROJECT_SOURCE_DIR}/simple/source/SimplePrimaryGeneratorAction.cc
-)
+#SET( SIMPLE_SOURCES
+#   ${PROJECT_SOURCE_DIR}/simple/source/SimpleSetup.cc
+#   ${PROJECT_SOURCE_DIR}/simple/source/SimpleDetectorConstruction.cc
+#   ${PROJECT_SOURCE_DIR}/simple/source/SimplePrimaryGeneratorAction.cc
+#)
 
-SET( TSTAND_SOURCES
-   #${PROJECT_SOURCE_DIR}/share/source/AsphericLens.cc
+#SET( TSTAND_SOURCES
+   #-${PROJECT_SOURCE_DIR}/share/source/AsphericLens.cc
    # FIXME: unify, please;
-   #${PROJECT_SOURCE_DIR}/tstand/source/TestStandAsphericLens.cc
+   #-${PROJECT_SOURCE_DIR}/tstand/source/TestStandAsphericLens.cc
 
-   ${PROJECT_SOURCE_DIR}/tstand/source/TestStandSetup.cc
-   #${PROJECT_SOURCE_DIR}/tstand/source/TestStandPhotonDetectors.cc
-   ${PROJECT_SOURCE_DIR}/tstand/source/TestStandDetectorConstruction.cc
-   ${PROJECT_SOURCE_DIR}/tstand/source/TestStandPrimaryGeneratorAction.cc
-)
+#   ${PROJECT_SOURCE_DIR}/tstand/source/TestStandSetup.cc
+   #-${PROJECT_SOURCE_DIR}/tstand/source/TestStandPhotonDetectors.cc
+#   ${PROJECT_SOURCE_DIR}/tstand/source/TestStandDetectorConstruction.cc
+#   ${PROJECT_SOURCE_DIR}/tstand/source/TestStandPrimaryGeneratorAction.cc
+#)
 
 ADD_LIBRARY( ${G4IRT_LIB} SHARED ${G4IRT_SOURCES} )
 TARGET_LINK_LIBRARIES(${G4IRT_LIB} ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} -L${IRT}/lib IRT)
@@ -148,14 +148,14 @@ TARGET_LINK_LIBRARIES(${SHARE_LIB} ${Geant4_LIBRARIES} ${G4IRT_LIB})
 
 add_executable(${EPIC_EXE} ${EPIC_SOURCES} ${SHARE_HEADERS} ${EPIC_HEADERS})
 target_link_libraries(${EPIC_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
-add_executable(${FTBF_EXE} ${FTBF_SOURCES} ${SHARE_HEADERS} ${FTBF_HEADERS})
-target_link_libraries(${FTBF_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
+#add_executable(${FTBF_EXE} ${FTBF_SOURCES} ${SHARE_HEADERS} ${FTBF_HEADERS})
+#target_link_libraries(${FTBF_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
 add_executable(${CERN_EXE} ${CERN_SOURCES} ${SHARE_HEADERS} ${CERN_HEADERS})
 target_link_libraries(${CERN_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
-add_executable(${SIMPLE_EXE} ${SIMPLE_SOURCES} ${SHARE_HEADERS} ${SIMPLE_HEADERS})
-target_link_libraries(${SIMPLE_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
-add_executable(${TSTAND_EXE} ${TSTAND_SOURCES} ${SHARE_HEADERS} ${TSTAND_HEADERS})
-target_link_libraries(${TSTAND_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
+#add_executable(${SIMPLE_EXE} ${SIMPLE_SOURCES} ${SHARE_HEADERS} ${SIMPLE_HEADERS})
+#target_link_libraries(${SIMPLE_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
+#add_executable(${TSTAND_EXE} ${TSTAND_SOURCES} ${SHARE_HEADERS} ${TSTAND_HEADERS})
+#target_link_libraries(${TSTAND_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
 
 if(DEFINED BMF)
   SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBMF")
@@ -168,20 +168,20 @@ endif()
 if(DEFINED XERCES)
   SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXERCES")
   target_link_libraries(${EPIC_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
-  target_link_libraries(${FTBF_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
+  #target_link_libraries(${FTBF_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
   target_link_libraries(${CERN_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
-  target_link_libraries(${SIMPLE_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
+  #target_link_libraries(${SIMPLE_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
   # FIXME: this stuff is only needed for aerogel;
-  target_link_libraries(${TSTAND_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
+  #target_link_libraries(${TSTAND_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
 endif()
 
 #----------------------------------------------------------------------------
 
 install(TARGETS ${EPIC_EXE}   DESTINATION bin)
-install(TARGETS ${FTBF_EXE}   DESTINATION bin)
+#install(TARGETS ${FTBF_EXE}   DESTINATION bin)
 install(TARGETS ${CERN_EXE}   DESTINATION bin)
-install(TARGETS ${SIMPLE_EXE} DESTINATION bin)
-install(TARGETS ${TSTAND_EXE} DESTINATION bin)
+#install(TARGETS ${SIMPLE_EXE} DESTINATION bin)
+#install(TARGETS ${TSTAND_EXE} DESTINATION bin)
 install(TARGETS ${G4IRT_LIB}  DESTINATION lib)
 install(TARGETS ${SHARE_LIB}  DESTINATION lib)
 
