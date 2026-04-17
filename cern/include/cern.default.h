@@ -12,10 +12,6 @@
 
 // -- Primary particle(s) ---------------------------------------------------------------------
 //
-#define _PRIMARY_PARTICLE_TYPE_              ("pi+")
-// Will toggle between the two types if defined;
-//#define _ALTERNATIVE_PARTICLE_TYPE_        ("kaon+")
-
 // Just something resembling CERN primary beam (400 GeV protons);
 #define _XCOORD_AVERAGE_                   (0.0*mm)
 #define _XCOORD_SIGMA_                     (0.0*mm)
@@ -31,6 +27,7 @@
 // FIXME: has to be non-zero for a reco script to work?!;
 #define _YSLOPE_SIGMA_                   (0.1*mrad)
 
+// Default momentum
 //#define _PRIMARY_PARTICLE_MOMENTUM_       (180.0*GeV)
 #define _PRIMARY_PARTICLE_MOMENTUM_       (7.0*GeV)
 // --------------------------------------------------------------------------------------------
