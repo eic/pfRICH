@@ -22,7 +22,8 @@
 namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " pfrich [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-i <input HEPMC3 file>] [-o <output ROOT file>] [-mom <momentum in GeV/c>] [-part <pi+ or kaon+>]" << G4endl;
+    G4cerr << " pfrich [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-i <input HEPMC3 file>] [-o <output ROOT file>] << G4endl"<< G4endl;
+    G4cerr << " pfrich-cern [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-i <input HEPMC3 file>] [-o <output ROOT file>] [-mom <momentum in GeV/c>] [-part <pi+ or kaon+>]" << G4endl;
   }
 }
 
@@ -35,12 +36,14 @@ namespace {
 
 int main(int argc, char** argv)
 {
+  bool isCERN = std::string(argv[0]).find("pfrich-cern") != std::string::npos;
+
   // At most 1+4*2 command line arguments;
-  if ( argc > 18 ) {
+  if ( argc > 9 ) {
     PrintUsage();
     return 1;
   } //if
-
+  
   // Parse them;
   G4String macro;
   G4String session;
@@ -61,8 +64,8 @@ int main(int argc, char** argv)
     else if ( G4String(argv[i]) == "-o" )    outfile              = argv[i+1];
     else if ( G4String(argv[i]) == "-r" )    myseed               = atoi(argv[i+1]);
     else if ( G4String(argv[i]) == "-s" )    stat                 = atoi(argv[i+1]);
-    else if ( G4String(argv[i]) == "-mom" )  gPrimaryMomentumGeV  = atoi(argv[i+1]);
-    else if ( G4String(argv[i]) == "-part" ) gPrimaryParticle     = argv[i+1];
+    else if ( isCERN && G4String(argv[i]) == "-mom" )  gPrimaryMomentumGeV  = atoi(argv[i+1]);
+    else if ( isCERN && G4String(argv[i]) == "-part" ) gPrimaryParticle     = argv[i+1];
     else {
       PrintUsage();
       return 1;
