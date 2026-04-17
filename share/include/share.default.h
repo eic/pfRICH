@@ -42,4 +42,6 @@ class CherenkovDetectorCollection;
 
 void setup(G4RunManager *runManager, CherenkovDetectorCollection *geometry, const char *infile);
 
+// -------------------------------------------------------------------------------------------- 
+
 #endif

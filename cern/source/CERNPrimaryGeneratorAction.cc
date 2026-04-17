@@ -1,4 +1,5 @@
 
+#include <string>
 
 #include "G4Event.hh"
 #include "G4ParticleTable.hh"
@@ -7,10 +8,12 @@
 
 #include <cern.h>
 
+#include "CERNrunConfig.h"
+
 #include "CERNPrimaryGeneratorAction.h"
 
 // May be pion and electron as well, see tuning.h;
-static G4ParticleDefinition *pion, *kaon;
+static G4ParticleDefinition *primary;//, *pion, *kaon;
 
 // -------------------------------------------------------------------------------------
 
@@ -23,14 +26,24 @@ CERNPrimaryGeneratorAction::CERNPrimaryGeneratorAction(const char *hepmc)
   fParticleGun->SetParticleTime(0.0*ns);
 
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+  
+  if (gPrimaryParticle == "pi+" || gPrimaryParticle == "kaon+") {
+    primary = particleTable->FindParticle(gPrimaryParticle.c_str());
+  }
+  else {
+    G4cout << "Invalid particle '" << gPrimaryParticle.c_str()
+           << "'. Falling back to pi+." << G4endl;
+    primary = particleTable->FindParticle("pi+");
+  }
+  
+  if (!primary) {
+    G4cerr << "Failed to find particle definition." << G4endl;
+    return;
+  }
+  
+  if (gPrimaryMomentumGeV>0) fParticleGun->SetParticleMomentum(gPrimaryMomentumGeV * GeV);
+  else fParticleGun->SetParticleMomentum(_PRIMARY_PARTICLE_MOMENTUM_);                           //default momentum
 
-  pion = particleTable->FindParticle(_PRIMARY_PARTICLE_TYPE_);
-#ifdef _ALTERNATIVE_PARTICLE_TYPE_
-  kaon = particleTable->FindParticle(_ALTERNATIVE_PARTICLE_TYPE_);
-#else
-  kaon = pion;
-#endif
-  fParticleGun->SetParticleMomentum(_PRIMARY_PARTICLE_MOMENTUM_);
 } // CERNPrimaryGeneratorAction::CERNPrimaryGeneratorAction()
 
 // -------------------------------------------------------------------------------------
@@ -55,10 +68,13 @@ void CERNPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   fParticleGun->SetParticlePosition(G4ThreeVector(x, y, 0.0*cm));
   
   {
-    static unsigned toggle;
+    //static unsigned toggle;
     
     // Re-define every time new even if a single particle type was defined;
-    fParticleGun->SetParticleDefinition((toggle++)%2 ? kaon : pion);
+    G4cout << "Using particle: " << primary->GetParticleName() << G4endl;
+    fParticleGun->SetParticleDefinition(primary);
+    
+    std::cout<<"particle definition: "<<fParticleGun->GetParticleDefinition()->GetParticleName().c_str()<<std::endl;
   }
   
   fParticleGun->GeneratePrimaryVertex(anEvent);

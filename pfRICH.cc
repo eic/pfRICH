@@ -15,14 +15,15 @@
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
 
+#include "CERNrunConfig.h"
 #include <share.h>
-
 // This is indeed a cut'n'paste from one of the GEANT examples (as well as 
 // quite the rest of the stuff in this file); let it be;
 namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " pfrich [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-i <input HEPMC3 file>] [-o <output ROOT file>]" << G4endl;
+    G4cerr << " pfrich [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-i <input HEPMC3 file>] [-o <output ROOT file>] << G4endl"<< G4endl;
+    G4cerr << " pfrich-cern [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-i <input HEPMC3 file>] [-o <output ROOT file>] [-mom <momentum in GeV/c>] [-part <pi+ or kaon+>]" << G4endl;
   }
 }
 
@@ -35,12 +36,14 @@ namespace {
 
 int main(int argc, char** argv)
 {
+  bool isCERN = std::string(argv[0]).find("pfrich-cern") != std::string::npos;
+
   // At most 1+4*2 command line arguments;
   if ( argc > 9 ) {
     PrintUsage();
     return 1;
   } //if
-
+  
   // Parse them;
   G4String macro;
   G4String session;
@@ -53,14 +56,16 @@ int main(int argc, char** argv)
 
   G4long myseed = 345354;
   for ( G4int i=1; i<argc; i=i+2 ) {
-    if      ( G4String(argv[i]) == "-m" ) macro   =      argv[i+1];
-    else if ( G4String(argv[i]) == "-u" ) session =      argv[i+1];
+    if      ( G4String(argv[i]) == "-m" )    macro                = argv[i+1];
+    else if ( G4String(argv[i]) == "-u" )    session              = argv[i+1];
 #if defined(HEPMC3) 
-    else if ( G4String(argv[i]) == "-i" ) infile  =      argv[i+1];
+    else if ( G4String(argv[i]) == "-i" )    infile               = argv[i+1];
 #endif
-    else if ( G4String(argv[i]) == "-o" ) outfile =      argv[i+1];
-    else if ( G4String(argv[i]) == "-r" ) myseed  = atoi(argv[i+1]);
-    else if ( G4String(argv[i]) == "-s" ) stat    = atoi(argv[i+1]);
+    else if ( G4String(argv[i]) == "-o" )    outfile              = argv[i+1];
+    else if ( G4String(argv[i]) == "-r" )    myseed               = atoi(argv[i+1]);
+    else if ( G4String(argv[i]) == "-s" )    stat                 = atoi(argv[i+1]);
+    else if ( isCERN && G4String(argv[i]) == "-mom" )  gPrimaryMomentumGeV  = atoi(argv[i+1]);
+    else if ( isCERN && G4String(argv[i]) == "-part" ) gPrimaryParticle     = argv[i+1];
     else {
       PrintUsage();
       return 1;
