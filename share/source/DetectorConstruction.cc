@@ -20,9 +20,10 @@
 
 // -------------------------------------------------------------------------------------
 
-DetectorConstruction::DetectorConstruction(CherenkovDetectorCollection *geometry): 
+DetectorConstruction::DetectorConstruction(CherenkovDetectorCollection *geometry,const std::string &aerogelTag): 
   G4VUserDetectorConstruction(),
-  m_Geometry(geometry)
+  m_Geometry(geometry),
+  m_AerogelTag(aerogelTag)
 {
 } // DetectorConstruction::DetectorConstruction()
 

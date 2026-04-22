@@ -40,7 +40,7 @@ static const double sign = flip ? -1.0 : 1.0;
 class G4RunManager;
 class CherenkovDetectorCollection;
 
-void setup(G4RunManager *runManager, CherenkovDetectorCollection *geometry, const char *infile);
+void setup(G4RunManager *runManager, CherenkovDetectorCollection *geometry, const char *infile,const G4String &aerogelTag);
 
 // -------------------------------------------------------------------------------------------- 
 

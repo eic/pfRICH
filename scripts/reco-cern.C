@@ -1,6 +1,6 @@
 
 
-void reco_cern(const char *dfname, const char *cfname = 0)
+void reco_cern(const char *dfname,const char* agel="AerogelTSA120_1", const char *cfname = 0)
 {
   auto *reco = new ReconstructionFactory(dfname, cfname, "pfRICH-2x2");
 
@@ -20,7 +20,7 @@ void reco_cern(const char *dfname, const char *cfname = 0)
 
   //auto *a1 = reco->UseRadiator("BelleIIAerogel1");
   //auto *a2 = reco->UseRadiator("BelleIIAerogel2");
-  auto *a1 = reco->UseRadiator("BelleIIAerogel3");
+  auto *a1 = reco->UseRadiator(agel);
   //auto *a2 = reco->UseRadiator("BelleIIAerogel4");
 
   //reco->SetSinglePhotonTimingResolution(0.030);

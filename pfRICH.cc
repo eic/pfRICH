@@ -23,7 +23,7 @@ namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
     G4cerr << " pfrich [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-i <input HEPMC3 file>] [-o <output ROOT file>] << G4endl"<< G4endl;
-    G4cerr << " pfrich-cern [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-i <input HEPMC3 file>] [-o <output ROOT file>] [-mom <momentum in GeV/c>] [-part <pi+ or kaon+>]" << G4endl;
+    G4cerr << " pfrich-cern [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-o <output ROOT file>] [-mom <momentum in GeV/c>] [-part <pi+ or kaon+>] [-agel <agel tile>]" << G4endl;
   }
 }
 
@@ -56,16 +56,23 @@ int main(int argc, char** argv)
 
   G4long myseed = 345354;
   for ( G4int i=1; i<argc; i=i+2 ) {
-    if      ( G4String(argv[i]) == "-m" )    macro                = argv[i+1];
-    else if ( G4String(argv[i]) == "-u" )    session              = argv[i+1];
+    if      ( G4String(argv[i]) == "-m" )              macro                = argv[i+1];
+    else if ( G4String(argv[i]) == "-u" )              session              = argv[i+1];
 #if defined(HEPMC3) 
-    else if ( G4String(argv[i]) == "-i" )    infile               = argv[i+1];
+    else if ( !isCERN && G4String(argv[i]) == "-i" )   infile               = argv[i+1];
 #endif
-    else if ( G4String(argv[i]) == "-o" )    outfile              = argv[i+1];
-    else if ( G4String(argv[i]) == "-r" )    myseed               = atoi(argv[i+1]);
-    else if ( G4String(argv[i]) == "-s" )    stat                 = atoi(argv[i+1]);
+    else if ( G4String(argv[i]) == "-o" )              outfile              = argv[i+1];
+    else if ( G4String(argv[i]) == "-r" )              myseed               = atoi(argv[i+1]);
+    else if ( G4String(argv[i]) == "-s" )              stat                 = atoi(argv[i+1]);
     else if ( isCERN && G4String(argv[i]) == "-mom" )  gPrimaryMomentumGeV  = atoi(argv[i+1]);
     else if ( isCERN && G4String(argv[i]) == "-part" ) gPrimaryParticle     = argv[i+1];
+    else if ( isCERN && G4String(argv[i]) == "-agel" ) {
+      gAerogel1=argv[i+1];
+      if (gAerogel1!= "tsa114_3" && gAerogel1!= "tsa120_1" &&  gAerogel1!= "tsa120_2") {
+	G4cerr<<"Available aerogel options: tsa114_3, tsa120_1 or tsa120_2"<<G4endl;     
+	return 1;
+      }
+    }
     else {
       PrintUsage();
       return 1;
@@ -101,7 +108,7 @@ int main(int argc, char** argv)
   }
 
   // Detector construction and user action initialization;
-  setup(runManager, geometry, infile);
+  setup(runManager, geometry, infile,gAerogel1);
   // User action initialization
   runManager->SetUserAction(new RunAction());
   {

@@ -1,5 +1,6 @@
-
+#include <string>
 #include <map>
+#include <vector>
 
 #include "G4SystemOfUnits.hh"
 
@@ -25,16 +26,52 @@ class G4RadiatorMaterial;
 
 // -- Aerogel ---------------------------------------------------------------------------------
 //
+extern std::string gAerogel1;   //commend line option
+
 #define _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_ 0
 #define _AEROGEL_BELLE_II_LARGE_REFRACTIVE_INDEX_ 1
 #define _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag3_   2
 #define _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag4_   3
+
+#define _AEROGEL_TSA88_1                          4 //"TSA88_1" 
+#define	_AEROGEL_TSA114_3                         5 //"TSA114_3"
+#define	_AEROGEL_TSA120_1                         6 //"TSA120_1"
+#define	_AEROGEL_TSA120_2                         7 //"TSA120_2"
+
 // FIXME: this does not look nice, but suffices;
 #define _AEROGEL_CLAS12_DENSITY_155_MG_CM3_     155
 #define _AEROGEL_CLAS12_DENSITY_225_MG_CM3_     225
 
 // If uncommented: fixed refractive index, no attenuation (single-layer CLAS12 config only);
 //#define _AEROGEL_FIXED_REFRACTIVE_INDEX_    (1.044)
+
+struct AerogelConfig
+{
+  unsigned id;
+  std::string name;
+  double thickness_mm;
+  double density_gcm3;
+  double refractive_index;
+  std::vector<G4double> photon_energies;
+  std::vector<G4double> absorption_lengths_mm;
+
+  AerogelConfig(unsigned id_,
+                std::string name_,
+                double thickness_mm_,
+                double density_gcm3_,
+                double refractive_index_,
+                std::vector<G4double> photon_energies_,
+                std::vector<G4double> absorption_lengths_mm_)
+    : id(id_),
+      name(std::move(name_)),
+      thickness_mm(thickness_mm_),
+      density_gcm3(density_gcm3_),
+      refractive_index(refractive_index_),
+      photon_energies(std::move(photon_energies_)),
+      absorption_lengths_mm(std::move(absorption_lengths_mm_))
+  {}
+};
+
 // --------------------------------------------------------------------------------------------
 
 // -- Acrylic filter --------------------------------------------------------------------------
@@ -110,7 +147,11 @@ public:
  protected:
   void DefineElements( void );
   // Parameters are Belle II aerogel refractive indices ("BelleIIAerogel3" & "BelleIIAerogel4");
-  void DefineMaterials(double ri3 = 1.040, double ri4 = 1.040);
+  //void DefineMaterials(double ri3 = 1.040, double ri4 = 1.040);
+  void DefineMaterials(const G4String &aerogelTag = "", double ri3 = 1.040, double ri4 = 1.040);
+
+  void BuildAerogel(const AerogelConfig &cfg);
+  static const AerogelConfig &GetAerogelConfig(const std::string &tag);
 
   // Basic elements;
   G4Element *m_C, *m_N, *m_O, *m_F, *m_H, *m_Si, *m_K, *m_Na, *m_Sb, *m_Al, *m_Ca;
@@ -126,8 +167,12 @@ public:
   G4Material *m_FR4, *m_Water, *m_Copper, *m_Silicon, *m_Delrin, *m_PEEK;
 
   G4RadiatorMaterial *m_Nitrogen, *m_Acrylic, *m_FusedSilica, *m_C2F6, *m_Sapphire;
+  //std::map<unsigned, G4RadiatorMaterial*> m_Aerogel;
   std::map<unsigned, G4RadiatorMaterial*> m_Aerogel;
-
+  std::map<unsigned, double> m_AerogelThicknessMM;
+  double GetAerogelThickness(unsigned id) const;
+  unsigned GetAerogelId(const G4String &tag);
+  
 private:
   void CreateBelleIIAerogel(bool native, unsigned id, const char *aname, double ri);
 };

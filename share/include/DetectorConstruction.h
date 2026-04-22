@@ -59,7 +59,7 @@ DarkBox(bool pyramids, bool poptics, bool cmoptics):
 class DetectorConstruction : public Materials, public G4VUserDetectorConstruction
 {
 public:
-  DetectorConstruction(CherenkovDetectorCollection *geometry);
+  DetectorConstruction(CherenkovDetectorCollection *geometry,const std::string &aerogelTag);
   virtual ~DetectorConstruction() {};
 
  protected:
@@ -71,6 +71,7 @@ public:
   void SetColor(G4LogicalVolume *lvol, const G4Colour &color, bool visible = true, bool solid = true);
   
   CherenkovDetectorCollection *m_Geometry;
+  std::string m_AerogelTag;
 
   void BuildPhotonDetectorMatrix(CherenkovDetector *cdet, DarkBox *dbox, double fvzOffset, double wzOffset, 
 				 const std::vector<MisalignedLocation2D> &xycoord);

@@ -70,13 +70,16 @@
 // -- Aerogel ---------------------------------------------------------------------------------
 //
 //#define _AEROGEL_1_ _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_
-#define _AEROGEL_1_ _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag3_
-#define _AEROGEL_1_REFRACTIVE_INDEX_         (1.040)
-#define _AEROGEL_THICKNESS_1_               (2.5*cm)//(2.5*cm)
+//#define _AEROGEL_1_ _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag3_
+//#define _AEROGEL_1_REFRACTIVE_INDEX_         (1.040)
+//#define _AEROGEL_THICKNESS_1_               (2.5*cm)//(2.5*cm)
+
 //#define _AEROGEL_2_ _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_
 //#define _AEROGEL_THICKNESS_2_               (1.5*cm)//(2.5*cm)
 //#define _AEROGEL_2_ _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_
 //#define _AEROGEL_THICKNESS_2_               (2.5*cm)//(2.5*cm)
+
+#define _AEROGEL_1_                  gAerogel1
 // --------------------------------------------------------------------------------------------
 
 // -- Aspheric lens ---------------------------------------------------------------------------

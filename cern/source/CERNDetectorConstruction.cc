@@ -21,8 +21,9 @@
 
 // -------------------------------------------------------------------------------------
 
-CERNDetectorConstruction::CERNDetectorConstruction(CherenkovDetectorCollection *geometry): 
-  DetectorConstruction(geometry)
+CERNDetectorConstruction::CERNDetectorConstruction(CherenkovDetectorCollection *geometry,std::string AerogelTag): 
+  DetectorConstruction(geometry,AerogelTag),
+  aerogelTag(AerogelTag)
 {
 } // CERNDetectorConstruction::CERNDetectorConstruction()
 
@@ -30,17 +31,25 @@ CERNDetectorConstruction::CERNDetectorConstruction(CherenkovDetectorCollection *
 
 G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 {
+  //----------------------------
   // Chemical elements and materials;
+  //----------------------------
   DefineElements();
-  DefineMaterials();//_AEROGEL_1_REFRACTIVE_INDEX_);
+  DefineMaterials(aerogelTag);  //DefineMaterials(aerogelTag, ri3, ri4);
 
-  // The experimental hall; FIXME: hardcoded;
+  //----------------------------
+  // The experimental hall;
+  // FIXME: hardcoded;
+  //----------------------------
   auto expHall_box = new G4Box("PFRICH_World",  200*cm/2, 200*cm/2, 400*cm/2);
   auto expHall_log = new G4LogicalVolume(expHall_box, m_Air, "PFRICH_World", 0, 0, 0);
   auto expHall_phys = new G4PVPlacement(0, G4ThreeVector(), expHall_log, "PFRICH_World", 0, false, 0);
     
   //G4RotationMatrix *rX = new G4RotationMatrix(CLHEP::HepRotationX(TMath::Pi()));
 
+  //----------------------------
+  // box
+  //----------------------------
   for(unsigned idt=0; idt<2; idt++) {
     auto *cdet = m_Geometry->GetDetector(idt ? "pfRICH-2x2" : "pfRICH-1x1");
     //det->SetReadoutCellMask(~0x0);
@@ -85,7 +94,10 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
     
     // A running variable;
     double gzOffset = -dbox->m_gas_volume_length/2 + _BUILDING_BLOCK_CLEARANCE_;
-    
+
+    //----------------------------
+    // Aerogel
+    //----------------------------
     if (idt) {
       // Aerogel, up to two layers;
       for(unsigned il=0; il<2; il++) {
@@ -93,16 +105,19 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 	G4RadiatorMaterial *aerogel = 0;
 #ifdef _AEROGEL_1_ 
 	if (!il) {
-	  agthick = _AEROGEL_THICKNESS_1_;
-	  aerogel   = m_Aerogel[_AEROGEL_1_];
+	  unsigned agelId=GetAerogelId(_AEROGEL_1_);
+	  agthick =  GetAerogelThickness(agelId);
+	  aerogel   = m_Aerogel[agelId];
+	  G4cout<<"_AEROGEL_1_="<<_AEROGEL_1_<<", agelId="<<agelId<<", agthick="<<agthick<<G4endl;
 	} //if
 #else
 	if (!il) continue;
 #endif
 #ifdef _AEROGEL_2_ 
 	if ( il) {
-	  agthick = _AEROGEL_THICKNESS_2_;
-	  aerogel = m_Aerogel[_AEROGEL_2_];
+	  unsigned agelId=GetAerogelId(_AEROGEL_2_);
+	  agthick = GetAerogelThickness(agelId)
+	  aerogel   = m_Aerogel[agelId];
 	} //if
 #else
 	if ( il) continue;
@@ -114,8 +129,8 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 	
 	{
 	  gzOffset += agthick/2;
-	  
-	  auto ag_tube = new G4Box(aerogel->GetName(), 100.0*mm/2, 100.0*mm/2, agthick/2);
+
+	  auto ag_tube = new G4Box(aerogel->GetName(), 100.0*mm/2, 100.0*mm/2,agthick/2);
 	  auto ag_log = new G4LogicalVolume(ag_tube, aerogel, aerogel->GetName(), 0, 0, 0);
 	  {
 	    TVector3 nx(1*sign,0,0), ny(0,-1,0);
@@ -137,8 +152,10 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 	  gzOffset += agthick/2 + _BUILDING_BLOCK_CLEARANCE_;
 	}
       } //for il
-      
+
+      //----------------------------
       // Acrylic filter;
+      //----------------------------
 #ifdef _ACRYLIC_THICKNESS_
       {
 	double acthick = _ACRYLIC_THICKNESS_;
@@ -168,7 +185,9 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
       //+DefineMirrors(det, flange);
     } //if
 
-    // Photon detectors; 
+    //----------------------------
+    // Photon detectors;
+    //----------------------------
     //dbox->DefinePyramidMirrorGeometry(_HRPPD_TILE_SIZE_ + _HRPPD_INSTALLATION_GAP_, _PYRAMID_MIRROR_HEIGHT_);
     dbox->DefinePyramidMirrorGeometry(_HRPPD_INSTALLATION_PITCH_, _PYRAMID_MIRROR_HEIGHT_);
     {

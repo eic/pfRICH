@@ -17,6 +17,140 @@
 #include <XmlTree.h>
 #endif
 
+const AerogelConfig &Materials::GetAerogelConfig(const std::string &tag)
+{
+  // Replace these energies / absorption lengths with your measured values.
+  static const std::vector<G4double> e = {
+    6.199*eV, 6.018*eV, 5.848*eV, 5.687*eV, 5.534*eV, 5.390*eV, 5.253*eV, 5.122*eV, 4.998*eV, 4.880*eV,
+    4.768*eV, 4.660*eV, 4.557*eV, 4.459*eV, 4.364*eV, 4.274*eV, 4.187*eV, 4.104*eV, 4.024*eV, 3.947*eV,
+    3.873*eV, 3.802*eV, 3.733*eV, 3.667*eV, 3.603*eV, 3.541*eV, 3.481*eV, 3.423*eV, 3.368*eV, 3.314*eV,
+    3.261*eV, 3.210*eV, 3.161*eV, 3.114*eV, 3.067*eV, 3.022*eV, 2.979*eV, 2.936*eV, 2.895*eV, 2.855*eV,
+    2.816*eV, 2.778*eV, 2.741*eV, 2.706*eV, 2.671*eV, 2.636*eV, 2.603*eV, 2.571*eV, 2.539*eV, 2.508*eV,
+    2.478*eV, 2.449*eV, 2.420*eV, 2.392*eV, 2.365*eV, 2.338*eV, 2.312*eV, 2.286*eV, 2.261*eV, 2.237*eV,
+    2.213*eV, 2.189*eV, 2.166*eV, 2.144*eV, 2.122*eV, 2.100*eV, 2.079*eV, 2.058*eV, 2.038*eV, 2.018*eV,
+    1.998*eV, 1.979*eV, 1.960*eV, 1.942*eV, 1.924*eV, 1.906*eV, 1.889*eV, 1.872*eV, 1.855*eV, 1.838*eV,
+    1.822*eV, 1.806*eV, 1.790*eV, 1.775*eV, 1.760*eV, 1.745*eV, 1.730*eV, 1.716*eV, 1.702*eV, 1.688*eV,
+    1.674*eV, 1.661*eV, 1.648*eV, 1.634*eV, 1.622*eV, 1.609*eV, 1.597*eV, 1.584*eV, 1.572*eV, 1.560*eV
+  };
+
+
+  static const std::map<std::string, AerogelConfig> cfg = {
+    /*
+      {tag,
+       config{
+         id,
+	 name,
+	 thickness (mm),
+	 density,
+	 refractive index,
+	 photon energy,
+	 absorption length (cm)
+        }
+       },
+     */
+    {"tsa114_3",
+     AerogelConfig{
+       _AEROGEL_TSA114_3,   
+       "AerogelTSA114_3", 
+       25.1,        
+       0.20,        
+       1.0377,      
+       e,
+       {0.17*cm, 0.20*cm, 0.24*cm, 0.28*cm, 0.32*cm, 0.37*cm, 0.43*cm, 0.49*cm, 0.56*cm, 0.63*cm,  
+	0.71*cm, 0.79*cm, 0.89*cm, 0.99*cm, 1.09*cm, 1.21*cm, 1.33*cm, 1.46*cm, 1.60*cm, 1.74*cm,
+	1.90*cm, 2.07*cm, 2.24*cm, 2.43*cm, 2.62*cm, 2.83*cm, 3.04*cm, 3.27*cm, 3.51*cm, 3.77*cm,
+	4.03*cm, 4.31*cm, 4.60*cm, 4.90*cm, 5.22*cm, 5.55*cm, 5.90*cm, 6.26*cm, 6.63*cm, 7.03*cm,
+	7.44*cm, 7.86*cm, 8.30*cm, 8.76*cm, 9.24*cm, 9.73*cm, 10.25*cm, 10.78*cm, 11.33*cm, 11.90*cm,
+	12.49*cm, 13.10*cm, 13.73*cm, 14.39*cm, 15.06*cm, 15.76*cm, 16.48*cm, 17.22*cm, 17.98*cm, 18.77*cm,
+	19.58*cm, 20.41*cm, 21.27*cm, 22.16*cm, 23.06*cm, 24.00*cm, 24.96*cm, 25.94*cm, 26.95*cm, 27.99*cm,
+	29.06*cm, 30.15*cm, 31.27*cm, 32.41*cm, 33.58*cm, 34.78*cm, 36.01*cm, 37.27*cm, 38.56*cm, 39.87*cm,
+	41.21*cm, 42.58*cm, 43.98*cm, 45.41*cm, 46.87*cm, 48.36*cm, 49.88*cm, 51.42*cm, 53.00*cm, 54.60*cm,
+	56.24*cm, 57.90*cm, 59.59*cm, 61.31*cm, 63.06*cm, 64.84*cm, 66.65*cm, 68.49*cm, 70.35*cm, 72.24*cm}
+     }
+    },
+    {"tsa120_1",
+     AerogelConfig{
+       _AEROGEL_TSA120_1,
+       "AerogelTSA120_1",
+       24.5,
+       0.20,
+       1.0404,
+       e,
+       {0.16*cm, 0.19*cm, 0.22*cm, 0.26*cm, 0.30*cm, 0.35*cm, 0.40*cm, 0.46*cm, 0.52*cm, 0.58*cm,
+	0.66*cm, 0.73*cm, 0.82*cm, 0.91*cm, 1.01*cm, 1.11*cm, 1.22*cm, 1.34*cm, 1.46*cm, 1.60*cm,
+	1.74*cm, 1.89*cm, 2.05*cm, 2.22*cm, 2.40*cm, 2.58*cm, 2.78*cm, 2.99*cm, 3.21*cm, 3.44*cm,
+	3.68*cm, 3.93*cm, 4.20*cm, 4.48*cm, 4.77*cm, 5.07*cm, 5.39*cm, 5.72*cm, 6.07*cm, 6.43*cm,
+	6.81*cm, 7.20*cm, 7.61*cm, 8.04*cm, 8.48*cm, 8.94*cm, 9.42*cm, 9.91*cm, 10.43*cm, 10.96*cm,
+	11.52*cm, 12.09*cm, 12.68*cm, 13.30*cm, 13.94*cm, 14.60*cm, 15.28*cm, 15.99*cm, 16.72*cm, 17.47*cm,
+	18.25*cm, 19.05*cm, 19.88*cm, 20.73*cm, 21.62*cm, 22.53*cm, 23.46*cm, 24.43*cm, 25.42*cm, 26.45*cm,
+	27.50*cm, 28.58*cm, 29.70*cm, 30.85*cm, 32.03*cm, 33.24*cm, 34.49*cm, 35.77*cm, 37.08*cm, 38.43*cm,
+	39.82*cm, 41.24*cm, 42.70*cm, 44.19*cm, 45.73*cm, 47.30*cm, 48.91*cm, 50.56*cm, 52.26*cm, 53.99*cm,
+	55.77*cm, 57.59*cm, 59.45*cm, 61.35*cm, 63.30*cm, 65.30*cm, 67.33*cm, 69.42*cm, 71.55*cm, 73.73*cm}
+     }
+    },
+    {"tsa120_2",
+     AerogelConfig{
+       _AEROGEL_TSA120_2,
+       "AerogelTSA120_2",
+       24.8,
+       0.20,
+       1.0401,
+       e,
+       {0.15*cm, 0.18*cm, 0.22*cm, 0.26*cm, 0.30*cm, 0.35*cm, 0.40*cm, 0.46*cm, 0.53*cm, 0.60*cm,
+	0.67*cm, 0.76*cm, 0.85*cm, 0.94*cm, 1.05*cm, 1.16*cm, 1.28*cm, 1.41*cm, 1.54*cm, 1.69*cm,
+	1.84*cm, 2.01*cm, 2.18*cm, 2.36*cm, 2.56*cm, 2.76*cm, 2.98*cm, 3.20*cm, 3.44*cm, 3.69*cm,
+	3.95*cm, 4.23*cm, 4.52*cm, 4.82*cm, 5.14*cm, 5.47*cm, 5.81*cm, 6.17*cm, 6.55*cm, 6.94*cm,
+	7.35*cm, 7.77*cm, 8.22*cm, 8.68*cm, 9.15*cm, 9.65*cm, 10.17*cm, 10.70*cm, 11.26*cm, 11.83*cm,
+	12.43*cm, 13.05*cm, 13.68*cm, 14.34*cm, 15.03*cm, 15.73*cm, 16.46*cm, 17.22*cm, 18.00*cm, 18.80*cm,
+	19.63*cm, 20.48*cm, 21.36*cm, 22.27*cm, 23.20*cm, 24.16*cm, 25.15*cm, 26.17*cm, 27.21*cm, 28.29*cm,
+	29.39*cm, 30.53*cm, 31.69*cm, 32.89*cm, 34.11*cm, 35.37*cm, 36.66*cm, 37.99*cm, 39.34*cm, 40.73*cm,
+	42.16*cm, 43.61*cm, 45.11*cm, 46.63*cm, 48.19*cm, 49.79*cm, 51.42*cm, 53.09*cm, 54.79*cm, 56.54*cm,
+	58.31*cm, 60.13*cm, 61.98*cm, 63.87*cm, 65.80*cm, 67.77*cm, 69.77*cm, 71.81*cm, 73.90*cm, 76.02*cm}
+     }
+    }
+  };
+
+  auto it = cfg.find(tag);
+  if (it == cfg.end())throw std::runtime_error("Unknown aerogel tag: " + tag);
+
+  return it->second;
+}
+// -------------------------------------------------------------------------------------
+
+void Materials::BuildAerogel(const AerogelConfig &cfg)
+{
+  auto *aerogel = new G4RadiatorMaterial(cfg.name.c_str(), cfg.density_gcm3 * g / cm3, 4);
+  aerogel->AddElement(m_Si, 0.45);
+  aerogel->AddElement(m_O,  0.48);
+  aerogel->AddElement(m_H,  0.01);
+  aerogel->AddElement(m_C,  0.06);
+  
+  std::vector<G4double> photonE = cfg.photon_energies;
+  std::vector<G4double> absorption = cfg.absorption_lengths_mm;
+  std::vector<G4double> rindex(photonE.size(), cfg.refractive_index);
+  
+  auto *mpt = new G4MaterialPropertiesTable();
+  mpt->AddProperty("RINDEX", photonE.data(), rindex.data(), photonE.size());
+  mpt->AddProperty("ABSLENGTH", photonE.data(), absorption.data(), photonE.size());
+  aerogel->SetMaterialPropertiesTable(mpt);
+
+  m_Aerogel[cfg.id] = aerogel;
+  m_AerogelThicknessMM[cfg.id] = cfg.thickness_mm;
+}
+// ------------------------------------------------------------------------------------- 
+double Materials::GetAerogelThickness(unsigned id) const
+{
+  auto it = m_AerogelThicknessMM.find(id);
+  if (it == m_AerogelThicknessMM.end()) {
+    throw std::runtime_error("Aerogel thickness not found for id");
+  }
+  return it->second;
+}
+// -------------------------------------------------------------------------------------
+unsigned Materials::GetAerogelId(const G4String &tag)
+{
+  return GetAerogelConfig(tag).id;
+}
 // -------------------------------------------------------------------------------------
 
 Materials::Materials( void ): CherenkovWaveLengthRange(_WLDIM_, _NU_MIN_, _NU_STEP_)
@@ -28,6 +162,7 @@ Materials::Materials( void ): CherenkovWaveLengthRange(_WLDIM_, _NU_MIN_, _NU_ST
 
   m_FakeCarbon_1_g_cm3 = m_HalfInch_CF_HoneyComb = m_QuarterInch_CF_HoneyComb = 0;  
   m_FR4 = m_Water = m_Copper = m_Silicon = m_Delrin = m_PEEK = 0;
+
 } // Materials::Materials()
 
 // -------------------------------------------------------------------------------------
@@ -99,9 +234,13 @@ void Materials::CreateBelleIIAerogel(bool native, unsigned aid, const char *anam
 
     // Prepare for creation of a fake Belle II aerogel with <n> ~ 1.04; 
     //+double densities[2] = {0.0, 0.0}, nominal_ri[2] = {1.045, 1.055}, a1040_ri = 1.040;
-    double densities[2] = {0.0, 0.0}, nominal_ri[2] = {1.045, 1.055};//, a1040_ri = 1.020;
+    double densities[2]  = {0.0, 0.0};
+    double nominal_ri[2] = {1.045, 1.055};//, a1040_ri = 1.020;
+    
     // Will be used in several places;
-    double dri10 = nominal_ri[1] - nominal_ri[0], dri20 = /*a1040_ri*/ri - nominal_ri[0];
+    double dri10 = nominal_ri[1] - nominal_ri[0];
+    double dri20 = /*a1040_ri*/ri - nominal_ri[0];
+    
     G4RadiatorMaterial *a1040 = 0;
     std::map<TString, std::vector<double>> e1040, v1040;
 
@@ -141,6 +280,7 @@ void Materials::CreateBelleIIAerogel(bool native, unsigned aid, const char *anam
 	char buffer[128];
 	strcpy(buffer, elem->GetFirstString());
 	//printf("%d\n", strlen(buffer));
+	
 	for(unsigned iq=0; iq<strlen(buffer); iq++)
 	  if (buffer[iq] == 10 || buffer[iq] == 32) 
 	    buffer[iq] = 0;
@@ -168,6 +308,7 @@ void Materials::CreateBelleIIAerogel(bool native, unsigned aid, const char *anam
 #ifdef _DISABLE_ABSORPTION_
 	if (!strcmp(name, "ABSLENGTH")) continue;
 #endif
+	
 #ifdef _DISABLE_RAYLEIGH_SCATTERING_
 	if (!strcmp(name, "RAYLEIGH")) continue;
 #endif
@@ -244,11 +385,21 @@ void Materials::CreateBelleIIAerogel(bool native, unsigned aid, const char *anam
     //printf("%s\n", mat->GetName());
   }
 #endif
+
+  //Sanity check
+  auto *table = G4Material::GetMaterialTable();
+  for (auto *mat : *table) {
+    if (!mat->GetIonisation()) {
+      G4cout << "Material without ionisation: " << mat->GetName() << G4endl;
+    }
+  }
+ 
 } // Materials::CreateBelleIIAerogel()
 
 // -------------------------------------------------------------------------------------
 
-void Materials::DefineMaterials(double ri3, double ri4)
+//void Materials::DefineMaterials(double ri3, double ri4)
+void Materials::DefineMaterials(const G4String &aerogelTag, double ri3, double ri4)
 {
   printf("@@@ Materials::DefineMaterials() ...\n");
   {
@@ -262,7 +413,9 @@ void Materials::DefineMaterials(double ri3, double ri4)
     m_Silicon  = manager->FindOrBuildMaterial("G4_Si");    assert(m_Silicon);
   }  
 
+  //---------------------
   // Air;
+  //---------------------
   {
     // This will be air without optical properties; looks the easiest way to 
     // cut optical photons at the vessel envelope (and world volume) border;
@@ -272,7 +425,10 @@ void Materials::DefineMaterials(double ri3, double ri4)
     m_Air->AddElement(m_O, 30.*perCent);
   }
 
-  // Nitrogen: n−1=6.8552×10−5+3.243157×10−2144−λ−2
+  //---------------------
+  // Nitrogen:
+  // n−1=6.8552×10−5+3.243157×10−2144−λ−2
+  //---------------------
   {
     m_Nitrogen = new G4RadiatorMaterial("Nitrogen",       1.25*mg/cm3, 1);
 
@@ -292,6 +448,9 @@ void Materials::DefineMaterials(double ri3, double ri4)
     m_Nitrogen->SetMaterialPropertiesTable(nitrogenMPT);
   }
 
+  //---------------------
+  // Sapphire
+  //---------------------
   {
     m_Sapphire = new G4RadiatorMaterial("Sapphire",       3.98*mg/cm3, 2);
 
@@ -314,7 +473,10 @@ void Materials::DefineMaterials(double ri3, double ri4)
     m_Sapphire->SetMaterialPropertiesTable(sapphireMPT);
   }
 
-  // Import UV silica refractive index data;
+  //---------------------
+  // Import UV silica
+  // refractive index data;
+  //---------------------
   {
     auto riTable = new TofPetMultiColumn("./database/RefractiveIndex.txt", '\t');
 
@@ -333,8 +495,8 @@ void Materials::DefineMaterials(double ri3, double ri4)
       
       //for(int iq=riDim-1; iq>=0; iq--) {
       //energy         [iq] =  (1240.0/wl[iq])*eV;
-	//printf("%3d -> %7.3f\n", iq, energy[iq]*1E6);
-	//refractiveIndex[iq] = ri[iq];
+      //printf("%3d -> %7.3f\n", iq, energy[iq]*1E6);
+      //refractiveIndex[iq] = ri[iq];
       //} //for iq 
       for(unsigned iq=0; iq<riDim; iq++) {
 	energy         [iq] =  (1240.0/wl[riDim-iq-1])*eV;
@@ -350,6 +512,9 @@ void Materials::DefineMaterials(double ri3, double ri4)
     }
   }
 
+  //---------------------
+  // Aerogel
+  //---------------------
 #if 1//_TODAY_
   // CLAS12 aerogel; two options for now; obviously can add more the same way
   {
@@ -375,11 +540,13 @@ void Materials::DefineMaterials(double ri3, double ri4)
       // FIXME: use constant for now;
       G4double refractiveIndex[_WLDIM_];
       for(int iq=0; iq<_WLDIM_; iq++)
-      // Tune to the average provided by the parameterization; FIXME: the value is too low;
+	// Tune to the average provided by the parameterization; FIXME: the value is too low;
 	refractiveIndex[iq] = _AEROGEL_FIXED_REFRACTIVE_INDEX_;
       
       G4MaterialPropertiesTable* aerogelMPT = new G4MaterialPropertiesTable();
+      auto [n, t, nE, Ephoton, abslength] = mapAgel[_AEROGEL_1_];
       aerogelMPT->AddProperty("RINDEX", GetPhotonEnergies(), refractiveIndex, _WLDIM_);
+      aerogelMPT->AddProperty("ABSLENGTH",Ephoton, abslength, nE);
       
       aerogel->SetMaterialPropertiesTable(aerogelMPT);
 #else
@@ -394,9 +561,15 @@ void Materials::DefineMaterials(double ri3, double ri4)
   } 
 
   // FIXME: keep track of #define's and actual values; do it better later;
-  CreateBelleIIAerogel(true,  _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag3_, "BelleIIAerogel3", ri3);//1.014);
-  CreateBelleIIAerogel(false, _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag4_, "BelleIIAerogel4", ri4);//1.014);
+  if (!aerogelTag.empty()) BuildAerogel(GetAerogelConfig(aerogelTag));
+  else {
+    CreateBelleIIAerogel(true,  _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag3_, "BelleIIAerogel3", ri3);//1.014);
+    CreateBelleIIAerogel(false, _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag4_, "BelleIIAerogel4", ri4);//1.014);
+  }
   
+  //---------------------
+  // Acrylic
+  //---------------------
   {
 #ifdef _ACRYLIC_FIXED_REFRACTIVE_INDEX_ 
     m_Acrylic = new G4RadiatorMaterial("Acrylic",_ACRYLIC_DENSITY_, 3, _ACRYLIC_FIXED_REFRACTIVE_INDEX_);
@@ -426,7 +599,10 @@ void Materials::DefineMaterials(double ri3, double ri4)
 #endif
   }
 
-  // C2F6 as a gas radiator option;
+  //---------------------
+  // C2F6 as a gas
+  // radiator option;
+  //---------------------
   {
     m_C2F6 = new G4RadiatorMaterial("C2F6", 5.7*mg/cm3, 2);
 
@@ -457,9 +633,11 @@ void Materials::DefineMaterials(double ri3, double ri4)
     m_Bialkali->SetMaterialPropertiesTable(bialkaliMPT);
   }
 
+  //---------------------
   // Ceramic imitation; assume DuPont 951 variety for both the HRPPD anode base plate and the 
   // walls; chemical composition is unknown; it is a "mixture of Al2O3, CaZr03 and glass" at 
   // 3.10 g/cm^3; take CeramTape GC (density 2.87 g/cm^2) as a closest known reference;
+  //---------------------
   {
     m_Ceramic = new G4Material("Ceramic", 3.10*g/cm3, 4);
     
@@ -470,14 +648,20 @@ void Materials::DefineMaterials(double ri3, double ri4)
     m_Ceramic->AddElement(m_Ca,  6.20*perCent);
   }
 
-  // A fake absorber material (without optical properties);
+  //---------------------
+  // A fake absorber material
+  // (without optical properties);
+  //---------------------
   {
     m_Absorber = new G4Material("Absorber", 1.00*g/cm3, 1);
     
     m_Absorber->AddElement(m_C, 1);
   }
 
-  // A fake carbon with 1g/cm^3 density;
+  //---------------------
+  // A fake carbon with
+  // 1g/cm^3 density;
+  //---------------------
   {
     m_FakeCarbon_1_g_cm3 = new G4Material("FakeCarbon", 1.00*g/cm3, 1);
     
@@ -486,7 +670,11 @@ void Materials::DefineMaterials(double ri3, double ri4)
 
   double fake_carbon_rad_length = m_FakeCarbon_1_g_cm3->GetRadlen();
 
-  // 1/2" and 1/4" thick honecomb "materials" of effective density;
+  //---------------------
+  // 1/2" and 1/4" thick
+  // honecomb "materials"
+  // of effective density;
+  //---------------------
   {    
     double core_thickness[2] = {_INCH_/4, _INCH_/2};
     const char *names[2] = {"QuarterInchHoneycomb", "HalfInchHoneyconb"};
@@ -508,7 +696,9 @@ void Materials::DefineMaterials(double ri3, double ri4)
     }  //for iq
   }
 
+  //---------------------
   // A fake carbon fiber with a resonable density to match Prakhar's numbers, see Materials.h;
+  //---------------------
   {
     m_CarbonFiber = new G4Material("CarbonFiber", (1.00*fake_carbon_rad_length/_CF_RAD_LENGTH_)*g/cm3, 1);
     //m_CarbonFiber = new G4Material("CarbonFiber", 1.90*mg/cm3, 1);
@@ -517,13 +707,18 @@ void Materials::DefineMaterials(double ri3, double ri4)
     //printf("@@@ %f\n", m_CarbonFiber->GetRadlen()/mm);
   }
 
+  //---------------------
   // A fake FR4 with a resonable density to match PDG number, see Materials.h;
+  //---------------------
   {
     m_FR4 = new G4Material("FR4", (1.00*fake_carbon_rad_length/_FR4_RAD_LENGTH_)*g/cm3, 1);
     
     m_FR4->AddElement(m_C, 1);
   }
 
+  //---------------------
+  // Delrin
+  //---------------------
   {
     // Well, the only part what matters here is the refractive index; density is fake;
     m_Delrin = new G4Material("Delrin", 1.41*g/cm3, 3);
@@ -533,6 +728,9 @@ void Materials::DefineMaterials(double ri3, double ri4)
     m_Delrin->AddElement(m_O, 1);
   }
 
+  //---------------------
+  // PEEK
+  //---------------------
   {
     // Well, the only part what matters here is the refractive index; density is fake;
     m_PEEK = new G4Material("PEEK", 1.31*g/cm3, 3);
@@ -542,6 +740,7 @@ void Materials::DefineMaterials(double ri3, double ri4)
     m_PEEK->AddElement(m_O,  3);
   }
 
+  //---------------------
   {
     // Manage readable printout;
     auto half = m_HalfInch_CF_HoneyComb, quarter = m_QuarterInch_CF_HoneyComb;

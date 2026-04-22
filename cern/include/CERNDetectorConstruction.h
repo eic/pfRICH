@@ -10,10 +10,13 @@ class CherenkovDetectorCollection;
 class CERNDetectorConstruction : public DetectorConstruction
 {
 public:
-  CERNDetectorConstruction(CherenkovDetectorCollection *geometry);
+  CERNDetectorConstruction(CherenkovDetectorCollection *geometry,std::string AerogelTag);
   virtual ~CERNDetectorConstruction() {};
 
   G4VPhysicalVolume* Construct( void );
+
+private:
+  std::string aerogelTag;
 };
 
 #endif
