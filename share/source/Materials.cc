@@ -20,7 +20,7 @@
 const AerogelConfig &Materials::GetAerogelConfig(const std::string &tag)
 {
   // Replace these energies / absorption lengths with your measured values.
-  static const std::vector<G4double> e = {
+  static const std::vector<G4double> eAbs = {
     6.199*eV, 6.018*eV, 5.848*eV, 5.687*eV, 5.534*eV, 5.390*eV, 5.253*eV, 5.122*eV, 4.998*eV, 4.880*eV,
     4.768*eV, 4.660*eV, 4.557*eV, 4.459*eV, 4.364*eV, 4.274*eV, 4.187*eV, 4.104*eV, 4.024*eV, 3.947*eV,
     3.873*eV, 3.802*eV, 3.733*eV, 3.667*eV, 3.603*eV, 3.541*eV, 3.481*eV, 3.423*eV, 3.368*eV, 3.314*eV,
@@ -30,32 +30,37 @@ const AerogelConfig &Materials::GetAerogelConfig(const std::string &tag)
     2.213*eV, 2.189*eV, 2.166*eV, 2.144*eV, 2.122*eV, 2.100*eV, 2.079*eV, 2.058*eV, 2.038*eV, 2.018*eV,
     1.998*eV, 1.979*eV, 1.960*eV, 1.942*eV, 1.924*eV, 1.906*eV, 1.889*eV, 1.872*eV, 1.855*eV, 1.838*eV,
     1.822*eV, 1.806*eV, 1.790*eV, 1.775*eV, 1.760*eV, 1.745*eV, 1.730*eV, 1.716*eV, 1.702*eV, 1.688*eV,
-    1.674*eV, 1.661*eV, 1.648*eV, 1.634*eV, 1.622*eV, 1.609*eV, 1.597*eV, 1.584*eV, 1.572*eV, 1.560*eV
-  };
+    1.674*eV, 1.661*eV, 1.648*eV, 1.634*eV, 1.622*eV, 1.609*eV, 1.597*eV, 1.584*eV, 1.572*eV, 1.560*eV};
 
-
+  static const std::vector<G4double> eRef = {
+    1.5*eV,  1.675*eV, 1.85*eV, 2.025*eV, 2.2*eV, 2.375*eV, 2.55*eV, 2.725*eV, 2.9*eV, 3.075*eV, 
+    3.25*eV, 3.425*eV, 3.6*eV, 3.775*eV, 3.95*eV, 4.125*eV, 4.3*eV, 4.475*eV, 4.65*eV, 4.825*eV, 
+    5*eV,    5.175*eV, 5.35*eV, 5.525*eV, 5.7*eV, 5.875*eV, 6.05*eV, 6.225*eV, 6.4*eV, 6.575*eV, 
+    6.75*eV, 6.925*eV, 7.1*eV, 7.275*eV, 7.45*eV };
+  
   static const std::map<std::string, AerogelConfig> cfg = {
     /*
       {tag,
-       config{
-         id,
-	 name,
-	 thickness (mm),
-	 density,
-	 refractive index,
-	 photon energy,
-	 absorption length (cm)
-        }
-       },
-     */
+      config{
+      id,
+      name,
+      thickness (mm),
+      density,
+      refractive index,
+      photon energy for absorption length,
+      absorption length (cm),
+      photon energy for refractive index,
+      refractive index
+      }
+      },
+    */
     {"tsa114_3",
      AerogelConfig{
        _AEROGEL_TSA114_3,   
        "AerogelTSA114_3", 
        25.1,        
        0.20,        
-       1.0377,      
-       e,
+       eAbs,
        {0.17*cm, 0.20*cm, 0.24*cm, 0.28*cm, 0.32*cm, 0.37*cm, 0.43*cm, 0.49*cm, 0.56*cm, 0.63*cm,  
 	0.71*cm, 0.79*cm, 0.89*cm, 0.99*cm, 1.09*cm, 1.21*cm, 1.33*cm, 1.46*cm, 1.60*cm, 1.74*cm,
 	1.90*cm, 2.07*cm, 2.24*cm, 2.43*cm, 2.62*cm, 2.83*cm, 3.04*cm, 3.27*cm, 3.51*cm, 3.77*cm,
@@ -65,7 +70,12 @@ const AerogelConfig &Materials::GetAerogelConfig(const std::string &tag)
 	19.58*cm, 20.41*cm, 21.27*cm, 22.16*cm, 23.06*cm, 24.00*cm, 24.96*cm, 25.94*cm, 26.95*cm, 27.99*cm,
 	29.06*cm, 30.15*cm, 31.27*cm, 32.41*cm, 33.58*cm, 34.78*cm, 36.01*cm, 37.27*cm, 38.56*cm, 39.87*cm,
 	41.21*cm, 42.58*cm, 43.98*cm, 45.41*cm, 46.87*cm, 48.36*cm, 49.88*cm, 51.42*cm, 53.00*cm, 54.60*cm,
-	56.24*cm, 57.90*cm, 59.59*cm, 61.31*cm, 63.06*cm, 64.84*cm, 66.65*cm, 68.49*cm, 70.35*cm, 72.24*cm}
+	56.24*cm, 57.90*cm, 59.59*cm, 61.31*cm, 63.06*cm, 64.84*cm, 66.65*cm, 68.49*cm, 70.35*cm, 72.24*cm},
+       eRef,
+       {1.03614, 1.03626, 1.03639, 1.03653, 1.0367, 1.03686, 1.03705, 1.03726, 1.03748, 1.03772, 
+	1.03797, 1.03823, 1.03852, 1.03883, 1.03916, 1.0395, 1.03986, 1.04025, 1.04066, 1.04109, 
+	1.04154, 1.04182, 1.04243, 1.0429, 1.04341, 1.04393, 1.04446, 1.04502, 1.04559, 1.04618, 
+	1.04678, 1.04741, 1.04806, 1.04871, 1.04939}
      }
     },
     {"tsa120_1",
@@ -74,8 +84,7 @@ const AerogelConfig &Materials::GetAerogelConfig(const std::string &tag)
        "AerogelTSA120_1",
        24.5,
        0.20,
-       1.0404,
-       e,
+       eAbs,
        {0.16*cm, 0.19*cm, 0.22*cm, 0.26*cm, 0.30*cm, 0.35*cm, 0.40*cm, 0.46*cm, 0.52*cm, 0.58*cm,
 	0.66*cm, 0.73*cm, 0.82*cm, 0.91*cm, 1.01*cm, 1.11*cm, 1.22*cm, 1.34*cm, 1.46*cm, 1.60*cm,
 	1.74*cm, 1.89*cm, 2.05*cm, 2.22*cm, 2.40*cm, 2.58*cm, 2.78*cm, 2.99*cm, 3.21*cm, 3.44*cm,
@@ -85,7 +94,12 @@ const AerogelConfig &Materials::GetAerogelConfig(const std::string &tag)
 	18.25*cm, 19.05*cm, 19.88*cm, 20.73*cm, 21.62*cm, 22.53*cm, 23.46*cm, 24.43*cm, 25.42*cm, 26.45*cm,
 	27.50*cm, 28.58*cm, 29.70*cm, 30.85*cm, 32.03*cm, 33.24*cm, 34.49*cm, 35.77*cm, 37.08*cm, 38.43*cm,
 	39.82*cm, 41.24*cm, 42.70*cm, 44.19*cm, 45.73*cm, 47.30*cm, 48.91*cm, 50.56*cm, 52.26*cm, 53.99*cm,
-	55.77*cm, 57.59*cm, 59.45*cm, 61.35*cm, 63.30*cm, 65.30*cm, 67.33*cm, 69.42*cm, 71.55*cm, 73.73*cm}
+	55.77*cm, 57.59*cm, 59.45*cm, 61.35*cm, 63.30*cm, 65.30*cm, 67.33*cm, 69.42*cm, 71.55*cm, 73.73*cm},
+       eRef,
+       {1.03884, 1.03896, 1.03908, 1.03922, 1.03939, 1.03956, 1.03975, 1.03996, 1.04018, 1.04042, 
+	1.04067, 1.04094, 1.04123, 1.04153, 1.04186, 1.0422, 1.04257, 1.04296, 1.04337, 1.04379, 
+	1.04425, 1.04453, 1.04514, 1.04562, 1.04612, 1.04664, 1.04718, 1.04774, 1.04831, 1.0489, 
+	1.04951, 1.05014, 1.05078, 1.05144, 1.05212}
      }
     },
     {"tsa120_2",
@@ -94,8 +108,7 @@ const AerogelConfig &Materials::GetAerogelConfig(const std::string &tag)
        "AerogelTSA120_2",
        24.8,
        0.20,
-       1.0401,
-       e,
+       eAbs,
        {0.15*cm, 0.18*cm, 0.22*cm, 0.26*cm, 0.30*cm, 0.35*cm, 0.40*cm, 0.46*cm, 0.53*cm, 0.60*cm,
 	0.67*cm, 0.76*cm, 0.85*cm, 0.94*cm, 1.05*cm, 1.16*cm, 1.28*cm, 1.41*cm, 1.54*cm, 1.69*cm,
 	1.84*cm, 2.01*cm, 2.18*cm, 2.36*cm, 2.56*cm, 2.76*cm, 2.98*cm, 3.20*cm, 3.44*cm, 3.69*cm,
@@ -105,7 +118,12 @@ const AerogelConfig &Materials::GetAerogelConfig(const std::string &tag)
 	19.63*cm, 20.48*cm, 21.36*cm, 22.27*cm, 23.20*cm, 24.16*cm, 25.15*cm, 26.17*cm, 27.21*cm, 28.29*cm,
 	29.39*cm, 30.53*cm, 31.69*cm, 32.89*cm, 34.11*cm, 35.37*cm, 36.66*cm, 37.99*cm, 39.34*cm, 40.73*cm,
 	42.16*cm, 43.61*cm, 45.11*cm, 46.63*cm, 48.19*cm, 49.79*cm, 51.42*cm, 53.09*cm, 54.79*cm, 56.54*cm,
-	58.31*cm, 60.13*cm, 61.98*cm, 63.87*cm, 65.80*cm, 67.77*cm, 69.77*cm, 71.81*cm, 73.90*cm, 76.02*cm}
+	58.31*cm, 60.13*cm, 61.98*cm, 63.87*cm, 65.80*cm, 67.77*cm, 69.77*cm, 71.81*cm, 73.90*cm, 76.02*cm},
+       eRef,
+       {1.03854, 1.03866, 1.03878, 1.03892, 1.03909, 1.03926, 1.03945, 1.03966, 1.03988, 1.04012, 
+	1.04037, 1.04064, 1.04092, 1.04123, 1.04156, 1.0419, 1.04227, 1.04266, 1.04306, 1.04349, 
+	1.04395, 1.04423, 1.04484, 1.04531, 1.04582, 1.04634, 1.04688, 1.04743, 1.04801, 1.0486, 
+	1.04921, 1.04983, 1.05048, 1.05114, 1.05181}
      }
     }
   };
@@ -125,13 +143,19 @@ void Materials::BuildAerogel(const AerogelConfig &cfg)
   aerogel->AddElement(m_H,  0.01);
   aerogel->AddElement(m_C,  0.06);
   
-  std::vector<G4double> photonE = cfg.photon_energies;
-  std::vector<G4double> absorption = cfg.absorption_lengths_mm;
-  std::vector<G4double> rindex(photonE.size(), cfg.refractive_index);
+  std::vector<G4double> photonE_abs = cfg.photon_energies_abs;
+  std::reverse(photonE_abs.begin(), photonE_abs.end());
+
+  std::vector<G4double> absorption = cfg.absorption_lengths_cm;
+  std::reverse(absorption.begin(), absorption.end());
+  
+  std::vector<G4double> photonE_ref = cfg.photon_energies_ref;
+  std::vector<G4double> rindex = cfg.refractive_index;
+    //std::vector<G4double> rindex(photonE.size(), cfg.refractive_index);
   
   auto *mpt = new G4MaterialPropertiesTable();
-  mpt->AddProperty("RINDEX", photonE.data(), rindex.data(), photonE.size());
-  mpt->AddProperty("ABSLENGTH", photonE.data(), absorption.data(), photonE.size());
+  mpt->AddProperty("RINDEX", photonE_ref.data(), rindex.data(), photonE_ref.size());
+  mpt->AddProperty("ABSLENGTH", photonE_abs.data(), absorption.data(), photonE_abs.size());
   aerogel->SetMaterialPropertiesTable(mpt);
 
   m_Aerogel[cfg.id] = aerogel;

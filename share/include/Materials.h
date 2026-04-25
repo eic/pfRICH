@@ -51,24 +51,27 @@ struct AerogelConfig
   std::string name;
   double thickness_mm;
   double density_gcm3;
-  double refractive_index;
-  std::vector<G4double> photon_energies;
-  std::vector<G4double> absorption_lengths_mm;
-
+  std::vector<G4double> photon_energies_abs;
+  std::vector<G4double> absorption_lengths_cm;
+  std::vector<G4double> photon_energies_ref;
+  std::vector<G4double> refractive_index;
+  
   AerogelConfig(unsigned id_,
                 std::string name_,
                 double thickness_mm_,
                 double density_gcm3_,
-                double refractive_index_,
-                std::vector<G4double> photon_energies_,
-                std::vector<G4double> absorption_lengths_mm_)
+                std::vector<G4double> photon_energies_abs_,
+                std::vector<G4double> absorption_lengths_cm_,
+		std::vector<G4double> photon_energies_ref_,
+                std::vector<G4double> refractive_index_)
     : id(id_),
       name(std::move(name_)),
       thickness_mm(thickness_mm_),
       density_gcm3(density_gcm3_),
-      refractive_index(refractive_index_),
-      photon_energies(std::move(photon_energies_)),
-      absorption_lengths_mm(std::move(absorption_lengths_mm_))
+      photon_energies_abs(std::move(photon_energies_abs_)),
+      absorption_lengths_cm(std::move(absorption_lengths_cm_)),
+      photon_energies_ref(std::move(photon_energies_ref_)),
+      refractive_index(std::move(refractive_index_))
   {}
 };
 
