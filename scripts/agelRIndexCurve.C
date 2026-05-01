@@ -152,7 +152,7 @@ double GetScale(TH1F* h,double E,double my_n)
   return my_n/nBelle;
 }
 //----------------------------------------------------------------------------//
-void agelRIndexCurve.C(const char* xmlFile="database/BelleII.xml")
+void agelRIndexCurve(const char* xmlFile="database/BelleII.xml")
 {
   double E=GetEnergy(405);
   double n405[3]={1.0377,1.0404,1.0401};
@@ -244,7 +244,7 @@ void agelRIndexCurve.C(const char* xmlFile="database/BelleII.xml")
   for (i=0;i<3;i++) hn[i]->Draw("same");
   for (i=0;i<3;i++) gr[i]->Draw("psame");
   leg->Draw();
-
+  c->SaveAs("agelRIndex.pdf");
   /*
   TFile* fout = new TFile("BelleII_RINDEX.root", "RECREATE");
   fout->cd();

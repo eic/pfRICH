@@ -67,13 +67,18 @@
 
 // -- QE and Co -------------------------------------------------------------------------------
 //
-#define _USE_HRPPD_24_DATA_
+
+//#define _USE_HRPPD_24_DATA_
+#define _USE_HRPPD_AVERAGE_DATA_
+
 #ifdef _USE_HRPPD_24_DATA_
 //+#define _QE_DOWNSCALING_FACTOR_          (30.0/34.3)
 #define _QE_DOWNSCALING_FACTOR_          (30.0/34.3)
 #else
 #define _QE_DOWNSCALING_FACTOR_          (30.0/37.0)
 #endif
+
+
 
 // Some reasonably optimistic number; assume that it includes an unknown 
 // HRPPD Collection Efficiency (CE) as well;

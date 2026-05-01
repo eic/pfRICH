@@ -222,7 +222,7 @@ root -l 'scripts/reco-ftbf.C("pfrich-ftbf.root")'
 ./build/pfrich-cern -m macro/vis-cern.mac
 
 # Will take quite some time because of the optical photon tracing in the lens radiator;
-./build/pfrich-cern -o pfrich-cern.root -s 1000
+./build/pfrich-cern -mom 7 -part pi+ -agel tsa120_1 -s 1000
 
 root -l 'scripts/hit-map-cern-1x1.C("pfrich-cern.root")'
 root -l 'scripts/hit-map-cern-2x2.C("pfrich-cern.root")'
