@@ -3,6 +3,7 @@
 //
 
 #include "G4SystemOfUnits.hh"
+#include "CERNrunConfig.h"
 
 #ifndef _PFRICH_CERN_
 #define _PFRICH_CERN_
@@ -79,7 +80,7 @@
 //#define _AEROGEL_2_ _AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_
 //#define _AEROGEL_THICKNESS_2_               (2.5*cm)//(2.5*cm)
 
-#define _AEROGEL_1_                  gAerogel1
+#define _AEROGEL_1_                        gAerogel1
 // --------------------------------------------------------------------------------------------
 
 // -- Aspheric lens ---------------------------------------------------------------------------
@@ -90,8 +91,16 @@
 // -- Acrylic filter --------------------------------------------------------------------------
 //
 // If _ACRYLIC_THICKNESS_ is defined, a single layer right after the aerogel is installed; 
-#define _ACRYLIC_THICKNESS_                 (3.0*mm)
+//#define _ACRYLIC_THICKNESS_                 (3.0*mm)
 // --------------------------------------------------------------------------------------------
+
+// -- Borosillicate UV filter -----------------------------------------------------------------
+//
+#define _UVFILTER_                     gBorosilicate
+
+//extern std::map<std::string, int> UVfilterID={{"LP330",0},
+//					      {"LP285",1}};
+// -------------------------------------------------------------------------------------------- 
 
 // -- Mirrors ---------------------------------------------------------------------------------
 //

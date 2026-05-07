@@ -23,7 +23,7 @@ namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
     G4cerr << " pfrich [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-i <input HEPMC3 file>] [-o <output ROOT file>] << G4endl"<< G4endl;
-    G4cerr << " pfrich-cern [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-o <output ROOT file>] [-mom <momentum in GeV/c>] [-part <pi+ or kaon+>] [-agel <agel tile>]" << G4endl;
+    G4cerr << " pfrich-cern [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-o <output ROOT file>] [-mom <momentum in GeV/c>] [-part <pi+ or kaon+>] [-agel <agel tile>] [-uv <LP330 or LP285>]" << G4endl;
   }
 }
 
@@ -39,7 +39,7 @@ int main(int argc, char** argv)
   bool isCERN = std::string(argv[0]).find("pfrich-cern") != std::string::npos;
 
   // At most 1+4*2 command line arguments;
-  if ( argc > 9 ) {
+  if ( argc > 30 ) {
     PrintUsage();
     return 1;
   } //if
@@ -70,6 +70,13 @@ int main(int argc, char** argv)
       gAerogel1=argv[i+1];
       if (gAerogel1!= "tsa114_3" && gAerogel1!= "tsa120_1" &&  gAerogel1!= "tsa120_2") {
 	G4cerr<<"Available aerogel options: tsa114_3, tsa120_1 or tsa120_2"<<G4endl;     
+	return 1;
+      }
+    }
+    else if ( isCERN && G4String(argv[i]) == "-uv" ) {
+      gBorosilicate = argv[i+1];
+      if (gBorosilicate!="LP330" && gBorosilicate!="LP285") {
+	G4cerr<<"Available uv filter options: LP330 or LP285"<<G4endl;
 	return 1;
       }
     }

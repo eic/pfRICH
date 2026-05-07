@@ -157,19 +157,26 @@ public:
   static const AerogelConfig &GetAerogelConfig(const std::string &tag);
 
   // Basic elements;
-  G4Element *m_C, *m_N, *m_O, *m_F, *m_H, *m_Si, *m_K, *m_Na, *m_Sb, *m_Al, *m_Ca;
+  G4Element *m_C, *m_N, *m_O, *m_F, *m_H, *m_Si, *m_K, *m_Na, *m_Sb, *m_Al, *m_Ca, *m_B;
 
   // Materials;
   G4Material *m_Air, *m_Absorber, *m_Bialkali, *m_Aluminum, *m_CarbonFiber, *m_Ceramic, *m_Silver, *m_Titanium;
+
   // Fake carbon to calibrate radiation length of the honeycomb samples; will be created 
   // consisting of pure carbon, density 1g/cm^3; 
   G4Material *m_FakeCarbon_1_g_cm3; 
+
   // A honeycomb sandwich with epoxy glue (10mil+10mil+1/2"+10mil+10mil), or a 1/4"-based combination;
   G4Material *m_HalfInch_CF_HoneyComb, *m_QuarterInch_CF_HoneyComb;  
+
   // FR4 imitation with appropriate rad. length;
   G4Material *m_FR4, *m_Water, *m_Copper, *m_Silicon, *m_Delrin, *m_PEEK;
 
   G4RadiatorMaterial *m_Nitrogen, *m_Acrylic, *m_FusedSilica, *m_C2F6, *m_Sapphire;
+
+  static constexpr std::size_t nUVFilter = 2;
+  G4RadiatorMaterial *m_BorosilicateFilter[nUVFilter];
+
   //std::map<unsigned, G4RadiatorMaterial*> m_Aerogel;
   std::map<unsigned, G4RadiatorMaterial*> m_Aerogel;
   std::map<unsigned, double> m_AerogelThicknessMM;

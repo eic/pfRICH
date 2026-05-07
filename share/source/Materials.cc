@@ -179,10 +179,12 @@ unsigned Materials::GetAerogelId(const G4String &tag)
 
 Materials::Materials( void ): CherenkovWaveLengthRange(_WLDIM_, _NU_MIN_, _NU_STEP_)
 {
-  m_N = m_O = m_C = m_F = m_Si = m_H = m_K = m_Na = m_Sb = m_Al = m_Ca = 0; 
+  m_N = m_O = m_C = m_F = m_Si = m_H = m_K = m_Na = m_Sb = m_Al = m_Ca = m_B = 0; 
 
   m_Air = m_Absorber = m_Bialkali = m_Aluminum = m_CarbonFiber = m_Ceramic = m_Silver = m_Titanium = 0;
   m_Acrylic = m_Nitrogen = m_FusedSilica = m_C2F6 = m_Sapphire = 0;
+
+  for (std::size_t i=0;i<nUVFilter;i++) m_BorosilicateFilter[i] = 0;
 
   m_FakeCarbon_1_g_cm3 = m_HalfInch_CF_HoneyComb = m_QuarterInch_CF_HoneyComb = 0;  
   m_FR4 = m_Water = m_Copper = m_Silicon = m_Delrin = m_PEEK = 0;
@@ -210,6 +212,9 @@ void Materials::DefineElements( void )
   m_Na = manager->FindOrBuildElement("Na", false); assert(m_Na);
   m_K  = manager->FindOrBuildElement("K",  false); assert(m_K);
   m_Sb = manager->FindOrBuildElement("Sb", false); assert(m_Sb);
+
+  m_B  = manager->FindOrBuildElement("B", false); assert(m_B);
+  
 } // Materials::DefineElements()
 
 // -------------------------------------------------------------------------------------
@@ -592,7 +597,7 @@ void Materials::DefineMaterials(const G4String &aerogelTag, double ri3, double r
   }
   
   //---------------------
-  // Acrylic
+  // UV filter
   //---------------------
   {
 #ifdef _ACRYLIC_FIXED_REFRACTIVE_INDEX_ 
@@ -623,6 +628,60 @@ void Materials::DefineMaterials(const G4String &aerogelTag, double ri3, double r
 #endif
   }
 
+  
+  //---------------------
+  // glass uv filter
+  //---------------------
+  {
+    //Ping: make sure the order in the arrays match UVfilterID in cern.default.h !!!
+    
+    std::string UVfilterName[nUVFilter]={"LP330","LP285"};
+    
+    double boroDensity[nUVFilter]={2.2 ,2.23};   // g/cm^3
+    const int nE_boro[nUVFilter]={28,31};
+    
+    double Eboro[nUVFilter][31]={
+      {1.55, 1.59, 1.63, 1.68, 1.72, 1.77, 1.83, 1.88, 1.94, 2.00,
+       2.07, 2.14, 2.22, 2.31, 2.39, 2.49, 2.60, 2.71, 2.84, 2.97,
+       3.13, 3.29, 3.48, 3.69, 3.92, 4.19, 4.85, 6.36},//, 0.00, 0.00},
+      {1.55, 1.59, 1.63, 1.68, 1.72, 1.77, 1.83, 1.88, 1.94, 2.00,
+       2.07, 2.14, 2.22, 2.31, 2.39, 2.49, 2.60, 2.71, 2.84, 2.97,
+       3.13, 3.29, 3.48, 3.69, 3.92, 4.19, 4.50, 4.85, 5.27, 5.76,
+       6.36}};
+    
+    double absLengthBoro[nUVFilter][31]={
+      {1.39, 1.51, 1.49, 1.53, 1.58, 1.60, 1.64, 1.68, 1.71, 1.72,
+       1.79, 1.81, 1.87, 1.90, 1.88, 1.81, 1.72, 1.71, 1.64, 1.59,
+       1.59, 1.33, 1.21, 0.54, 0.13, 0.03, 0.02, 0.03},//, 0.00, 0.00},
+      {10.28, 21.32, 17.68, 13.81, 41.33, 16.27, 24.19, 18.66, 14.41, 10.33,
+       7.12, 6.27, 5.95, 5.95, 5.49, 4.94, 4.30, 4.14, 3.72, 3.57,
+       3.93, 3.40, 1.40, 0.58, 0.33, 0.21, 0.13, 0.05, 0.02, 0.03,
+       0.03}};
+    
+    G4double refractiveIndex[_WLDIM_];
+    for(int iq=0; iq<_WLDIM_; iq++) refractiveIndex[iq] = 1.47;
+
+    //G4Material* m_BorosilicateFilter[nUVFilter];
+    G4MaterialPropertiesTable* borosilicateFilterMPT[nUVFilter];
+    for (std::size_t iUV=0 ; iUV < nUVFilter ; iUV++) {
+      m_BorosilicateFilter[iUV] = new G4RadiatorMaterial(Form("BorosilicateFilter_%s",UVfilterName[iUV].c_str()), boroDensity[iUV], 5);
+      m_BorosilicateFilter[iUV]->AddElement(m_Si, 0.377); // from SiO2
+      m_BorosilicateFilter[iUV]->AddElement(m_O , 0.535); // total oxygen
+      m_BorosilicateFilter[iUV]->AddElement(m_B , 0.040); // from B2O3
+      m_BorosilicateFilter[iUV]->AddElement(m_Na, 0.028); // from Na2O
+      m_BorosilicateFilter[iUV]->AddElement(m_Al, 0.020); // from Al2O3
+      
+      borosilicateFilterMPT[iUV] = new G4MaterialPropertiesTable();
+      borosilicateFilterMPT[iUV]->AddProperty("RINDEX", GetPhotonEnergies(), refractiveIndex,_WLDIM_);
+      borosilicateFilterMPT[iUV]->AddProperty("ABSLENGTH", Eboro[iUV], absLengthBoro[iUV], nE_boro[iUV]);
+
+      m_BorosilicateFilter[iUV]->SetMaterialPropertiesTable(borosilicateFilterMPT[iUV]);
+
+      //std::cout<<"*** built "<<m_BorosilicateFilter[iUV]->GetName()<<std::endl;
+    }
+    
+  }
+  
   //---------------------
   // C2F6 as a gas
   // radiator option;
