@@ -640,7 +640,7 @@ void Materials::DefineMaterials(const G4String &aerogelTag, double ri3, double r
     double boroDensity[nUVFilter]={2.2 ,2.23};   // g/cm^3
     const int nE_boro[nUVFilter]={28,31};
     
-    double Eboro[nUVFilter][31]={
+    double EboroAbs[nUVFilter][31]={
       {1.55, 1.59, 1.63, 1.68, 1.72, 1.77, 1.83, 1.88, 1.94, 2.00,
        2.07, 2.14, 2.22, 2.31, 2.39, 2.49, 2.60, 2.71, 2.84, 2.97,
        3.13, 3.29, 3.48, 3.69, 3.92, 4.19, 4.85, 6.36},//, 0.00, 0.00},
@@ -658,8 +658,19 @@ void Materials::DefineMaterials(const G4String &aerogelTag, double ri3, double r
        3.93, 3.40, 1.40, 0.58, 0.33, 0.21, 0.13, 0.05, 0.02, 0.03,
        0.03}};
     
-    G4double refractiveIndex[_WLDIM_];
-    for(int iq=0; iq<_WLDIM_; iq++) refractiveIndex[iq] = 1.47;
+
+    double EboroRindex[46]={1.58954, 1.65312, 1.78574, 1.833, 1.85051, 1.88914, 1.90745, 1.916, 1.92582, 1.95251,
+      1.9593, 1.97427, 2.02622, 2.08692, 2.10392, 2.11001, 2.14431, 2.27036, 2.28122, 2.33053,
+      2.4098, 2.42821, 2.47128, 2.49716, 2.54066, 2.55059, 2.583, 2.60198, 2.62289, 2.66175,
+      2.70767, 2.80761, 2.84498, 2.98039, 3.06361, 3.40803, 3.49547, 3.53131, 3.53231, 3.67796,
+      3.8149, 4.02546, 4.66106, 4.82429, 4.99936, 5.08132};
+
+    double RIndexBoro[46]={1.45367, 1.45424, 1.45542, 1.45585, 1.45601, 1.45637, 1.45653, 1.45661, 1.45671, 1.45695,
+      1.45702, 1.45716, 1.45765, 1.45824, 1.4584, 1.45846, 1.4588, 1.46008, 1.46019, 1.46071,
+      1.46156, 1.46176, 1.46223, 1.46252, 1.46301, 1.46313, 1.4635, 1.46372, 1.46397, 1.46443,
+      1.46498, 1.46622, 1.4667, 1.46847, 1.46961, 1.47472, 1.47612, 1.47671, 1.47672, 1.47919,
+      1.48164, 1.48564, 1.49968, 1.50383, 1.50855, 1.51086};
+    
 
     //G4Material* m_BorosilicateFilter[nUVFilter];
     G4MaterialPropertiesTable* borosilicateFilterMPT[nUVFilter];
@@ -672,8 +683,8 @@ void Materials::DefineMaterials(const G4String &aerogelTag, double ri3, double r
       m_BorosilicateFilter[iUV]->AddElement(m_Al, 0.020); // from Al2O3
       
       borosilicateFilterMPT[iUV] = new G4MaterialPropertiesTable();
-      borosilicateFilterMPT[iUV]->AddProperty("RINDEX", GetPhotonEnergies(), refractiveIndex,_WLDIM_);
-      borosilicateFilterMPT[iUV]->AddProperty("ABSLENGTH", Eboro[iUV], absLengthBoro[iUV], nE_boro[iUV]);
+      borosilicateFilterMPT[iUV]->AddProperty("RINDEX", EboroRindex,RIndexBoro,46);
+      borosilicateFilterMPT[iUV]->AddProperty("ABSLENGTH", EboroAbs[iUV], absLengthBoro[iUV], nE_boro[iUV]);
 
       m_BorosilicateFilter[iUV]->SetMaterialPropertiesTable(borosilicateFilterMPT[iUV]);
 

@@ -1,5 +1,5 @@
-
-
+void SetHisto(TH1* h);
+//--------------------------------------------------------------------------------//
 void reco_cern(const char *dfname,const char* agel="AerogelTSA120_1", const char *cfname = 0)
 {
   auto *reco = new ReconstructionFactory(dfname, cfname, "pfRICH-2x2");
@@ -64,19 +64,74 @@ void reco_cern(const char *dfname,const char* agel="AerogelTSA120_1", const char
     } //while
   }
 
-  auto cv = new TCanvas("cv", "", 1600, 1000);
+  SetHisto(reco->hthph());
+  SetHisto(reco->hccdfph());
+  SetHisto(reco->hccdftr());
+  SetHisto(reco->hccdfev());
+  SetHisto(reco->hnpetr()); 
+  
+  SetHisto(reco->hmatch());
+  SetHisto(reco->hdtph()); reco->hdtph()->GetXaxis()->SetNdivisions(505);
+  SetHisto(reco->hwl());
+  SetHisto(reco->hvtx());
+  SetHisto(reco->hri()); reco->hri()->GetXaxis()->SetNdivisions(505);
+  SetHisto(hthtr1);
+  SetHisto(hmatch);
+	   
+  auto cv = new TCanvas("cv", "", 1500, 900);
   cv->Divide(4, 3);
-  cv->cd(1); reco->hthph()->Fit("gaus");
-  cv->cd(2); reco->hccdfph()->SetMinimum(0); reco->hccdfph()->Draw();
-  cv->cd(3); reco->hccdftr()->SetMinimum(0); reco->hccdftr()->Draw();
-  cv->cd(4); reco->hccdfev()->SetMinimum(0); reco->hccdfev()->Draw();
-  cv->cd(5); reco->hnpetr()->Draw();
-  cv->cd(6); reco->hmatch()->SetMinimum(0); reco->hmatch()->Draw();
-  cv->cd(7);       hmatch  ->SetMinimum(0);       hmatch  ->Draw();
-  cv->cd(8); reco->hdtph()->Fit("gaus");
-  cv->cd(9); hthtr1->Fit("gaus");
+  cv->cd(1);
+  reco->hthph()->Fit("gaus");
+  
+  cv->cd(2);
+  reco->hccdfph()->SetMinimum(0); reco->hccdfph()->Draw();
+  
+  cv->cd(3);
+  reco->hccdftr()->SetMinimum(0); reco->hccdftr()->Draw();
+  
+  cv->cd(4);
+  reco->hccdfev()->SetMinimum(0); reco->hccdfev()->Draw();
+  
+  cv->cd(5);
+  reco->hnpetr()->GetXaxis()->SetRangeUser(0,reco->hnpetr()->GetMean()+6*reco->hnpetr()->GetRMS());
+  reco->hnpetr()->Draw();
+  
+  cv->cd(6);
+  reco->hmatch()->SetMinimum(0); reco->hmatch()->Draw();
+  
+  cv->cd(7);
+  hmatch  ->SetMinimum(0);
+  hmatch  ->Draw();
+  
+  cv->cd(8);
+  reco->hdtph()->Fit("gaus");
+  
+  cv->cd(9);
+  hthtr1->GetXaxis()->SetRangeUser(hthtr1->GetMean()-5*hthtr1->GetRMS(),hthtr1->GetMean()+5*hthtr1->GetRMS());
+  hthtr1->Fit("gaus");
+  
   //cv->cd(10); hthtr2->Fit("gaus");
-  cv->cd(10); reco->hwl()->Draw();
-  cv->cd(11); reco->hvtx()->Draw();
-  cv->cd(12); reco->hri()->Draw();
+  cv->cd(10);
+  reco->hwl()->Draw();
+  
+  cv->cd(11);
+  reco->hvtx()->Draw();
+  
+  cv->cd(12);
+  reco->hri()->GetXaxis()->SetRangeUser(reco->hri()->GetMean()-5*reco->hri()->GetRMS(),reco->hri()->GetMean()+5*reco->hri()->GetRMS());
+  reco->hri()->Draw();
 } // reco_cern()
+//--------------------------------------------------------------------------------//
+void SetHisto(TH1* h)
+{
+  double s=0.065;
+  
+  h->GetXaxis()->SetNdivisions(510);
+  h->GetXaxis()->SetTitleSize(s);
+  h->GetXaxis()->SetLabelSize(s);
+  
+  h->GetYaxis()->SetNdivisions(510);
+  h->GetYaxis()->SetTitleSize(s);
+  h->GetYaxis()->SetLabelSize(s);
+}
+  
