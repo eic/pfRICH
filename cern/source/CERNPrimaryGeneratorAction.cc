@@ -152,14 +152,18 @@ void CERNPrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
       return;
     }
 
-    const GenParticle *hp = FindIncidentParticle(evt);
-    if (!hp) {
-      G4cerr << "CERNPrimaryGeneratorAction: no particle found in HepMC event." << G4endl;
-      return;
-    }
+    int npart=0;
+    for (const auto& p : evt.particles()) {
+      if (!p) continue;
+      if (p->status() != 1) continue;
 
-    ApplyHepMCParticleToGun(hp, fParticleGun);
-    fParticleGun->GeneratePrimaryVertex(anEvent);
+      ApplyHepMCParticleToGun(p.get(), fParticleGun);
+      fParticleGun->GeneratePrimaryVertex(anEvent);
+
+      npart++;
+    }
+    //cout<<"read in "<<npart<<" particle from hepmc file"<<endl;
+    
     return;
   }
 
