@@ -23,7 +23,7 @@ namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
     G4cerr << " pfrich [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-i <input HEPMC3 file>] [-o <output ROOT file>] << G4endl"<< G4endl;
-    G4cerr << " pfrich-cern [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-o <output ROOT file>] [-mom <momentum in GeV/c>] [-part <pi+ or kaon+>] [-agel <agel tile>] [-uv <LP330 or LP285>]" << G4endl;
+    G4cerr << " pfrich-cern [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-o <output ROOT file>] [-i input.hepmc] [-mom <momentum in GeV/c>] [-part <pi+ or kaon+>] [-agel <agel tile>] [-uv <LP330 or LP285>]" << G4endl;
   }
 }
 
@@ -59,7 +59,7 @@ int main(int argc, char** argv)
     if      ( G4String(argv[i]) == "-m" )              macro                = argv[i+1];
     else if ( G4String(argv[i]) == "-u" )              session              = argv[i+1];
 #if defined(HEPMC3) 
-    else if ( !isCERN && G4String(argv[i]) == "-i" )   infile               = argv[i+1];
+    else if ( G4String(argv[i]) == "-i" )              infile               = argv[i+1];
 #endif
     else if ( G4String(argv[i]) == "-o" )              outfile              = argv[i+1];
     else if ( G4String(argv[i]) == "-r" )              myseed               = atoi(argv[i+1]);

@@ -11,19 +11,28 @@
 
 #include "Randomize.hh"
 
+#include <memory>
+
 class G4Event;
+
+namespace HepMC3 {
+  class ReaderAscii;
+}
 
 class CERNPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
-  public:
-    CERNPrimaryGeneratorAction(const char *hepmc);
-    ~CERNPrimaryGeneratorAction();
+public:
+  CERNPrimaryGeneratorAction(const char *hepmc);
+  ~CERNPrimaryGeneratorAction();
+  
+  void GeneratePrimaries(G4Event*);
+  
+private:
+  G4ParticleGun* fParticleGun;
 
-    void GeneratePrimaries(G4Event*);
-
-  private:
-    G4ParticleGun* fParticleGun;
-
+  std::unique_ptr<HepMC3::ReaderAscii> fReader;
+  bool fUseHepMC{false};
+  
   double UniformRand(double from, double to) {
     return from + (to-from)*G4UniformRand();
   };

@@ -106,12 +106,13 @@ target_link_libraries(${CERN_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_
 
 if(DEFINED BMF)
   SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBMF")
-  target_link_libraries(${EPIC_EXE} -L${BMF}/lib bmf)
+  #target_link_libraries(${EPIC_EXE} -L${BMF}/lib bmf)
 endif()
 
 if(DEFINED HEPMC3)
   SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHEPMC3")
-  target_link_libraries(${EPIC_EXE} -L${HEPMC3}/lib -L${HEPMC3}/lib64 HepMC3)
+#target_link_libraries(${EPIC_EXE} -L${HEPMC3}/lib -L${HEPMC3}/lib64 HepMC3)
+  target_link_libraries(${CERN_EXE} -L${HEPMC3}/lib -L${HEPMC3}/lib64 HepMC3)
 endif()
 
 if(DEFINED XERCES)
