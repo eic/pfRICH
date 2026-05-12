@@ -205,11 +205,13 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
           auto surface = new FlatSurface(sign*(1/mm)*TVector3(0, 0, fvOffset +
                                                               gas_volume_offset + gzOffset), nx, ny);
           m_Geometry->AddFlatRadiator(cdet, "Borosilicate", CherenkovDetector::Upstream,
-                                      0, boro_log, m_BorosilicateFilter[boroID], surface, boroThick[boroID]/mm);
+				      0, boro_log, m_BorosilicateFilter[boroID], surface, boroThick[boroID]/mm)->DisableOpticalPhotonGeneration();
+
+	  //radiatorBoro->DisableOpticalPhotonGeneration(); 
 	}
 
 	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gzOffset), boro_log, "Borosilicate", gas_volume_log, false, 0);
-
+	
         gzOffset += boroThick[boroID]/2 + _BUILDING_BLOCK_CLEARANCE_;
       }
 #endif
