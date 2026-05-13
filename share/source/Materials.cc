@@ -1,4 +1,3 @@
-
 #include "G4Element.hh"
 #include "G4Material.hh"
 #include "G4NistManager.hh"
@@ -650,28 +649,30 @@ void Materials::DefineMaterials(const G4String &aerogelTag, double ri3, double r
        6.36}};
     
     double absLengthBoro[nUVFilter][31]={
-      {1.39, 1.51, 1.49, 1.53, 1.58, 1.60, 1.64, 1.68, 1.71, 1.72,
-       1.79, 1.81, 1.87, 1.90, 1.88, 1.81, 1.72, 1.71, 1.64, 1.59,
-       1.59, 1.33, 1.21, 0.54, 0.13, 0.03, 0.02, 0.03},//, 0.00, 0.00},
-      {10.28, 21.32, 17.68, 13.81, 41.33, 16.27, 24.19, 18.66, 14.41, 10.33,
-       7.12, 6.27, 5.95, 5.95, 5.49, 4.94, 4.30, 4.14, 3.72, 3.57,
-       3.93, 3.40, 1.40, 0.58, 0.33, 0.21, 0.13, 0.05, 0.02, 0.03,
-       0.03}};
+      {1.39*cm, 1.51*cm, 1.49*cm, 1.53*cm, 1.58*cm, 1.60*cm, 1.64*cm, 1.68*cm, 1.71*cm, 1.72*cm,
+       1.79*cm, 1.81*cm, 1.87*cm, 1.90*cm, 1.88*cm, 1.81*cm, 1.72*cm, 1.71*cm, 1.64*cm, 1.59*cm,
+       1.59*cm, 1.33*cm, 1.21*cm, 0.54*cm, 0.13*cm, 0.03*cm, 0.02*cm, 0.03*cm},//, 0.00, 0.00},
+      {10.28*cm, 21.32*cm, 17.68*cm, 13.81*cm, 41.33*cm, 16.27*cm, 24.19*cm, 18.66*cm, 14.41*cm, 10.33*cm,
+       7.12*cm, 6.27*cm, 5.95*cm, 5.95*cm, 5.49*cm, 4.94*cm, 4.30*cm, 4.14*cm, 3.72*cm, 3.57*cm,
+       3.93*cm, 3.40*cm, 1.40*cm, 0.58*cm, 0.33*cm, 0.21*cm, 0.13*cm, 0.05*cm, 0.02*cm, 0.03*cm,
+       0.03*cm}};
+
+    const int nEboroRindex=46;
+    double EboroRindex[nEboroRindex]=
+      {1.5895, 1.6531, 1.7857, 1.8330, 1.8505, 1.8891, 1.9074, 1.9160, 1.9258, 1.9525,
+       1.9593, 1.9743, 2.0262, 2.0869, 2.1039, 2.1100, 2.1443, 2.2704, 2.2812, 2.3305,
+       2.4098, 2.4282, 2.4713, 2.4972, 2.5407, 2.5506, 2.5830, 2.6020, 2.6229, 2.6617,
+       2.7077, 2.8076, 2.8450, 2.9804, 3.0636, 3.4080, 3.4955, 3.5313, 3.5323, 3.6780,
+       3.8149, 4.0255, 4.6611, 4.8243, 4.9994, 5.0813};
     
-
-    double EboroRindex[46]={1.58954, 1.65312, 1.78574, 1.833, 1.85051, 1.88914, 1.90745, 1.916, 1.92582, 1.95251,
-      1.9593, 1.97427, 2.02622, 2.08692, 2.10392, 2.11001, 2.14431, 2.27036, 2.28122, 2.33053,
-      2.4098, 2.42821, 2.47128, 2.49716, 2.54066, 2.55059, 2.583, 2.60198, 2.62289, 2.66175,
-      2.70767, 2.80761, 2.84498, 2.98039, 3.06361, 3.40803, 3.49547, 3.53131, 3.53231, 3.67796,
-      3.8149, 4.02546, 4.66106, 4.82429, 4.99936, 5.08132};
-
-    double RIndexBoro[46]={1.45367, 1.45424, 1.45542, 1.45585, 1.45601, 1.45637, 1.45653, 1.45661, 1.45671, 1.45695,
-      1.45702, 1.45716, 1.45765, 1.45824, 1.4584, 1.45846, 1.4588, 1.46008, 1.46019, 1.46071,
-      1.46156, 1.46176, 1.46223, 1.46252, 1.46301, 1.46313, 1.4635, 1.46372, 1.46397, 1.46443,
-      1.46498, 1.46622, 1.4667, 1.46847, 1.46961, 1.47472, 1.47612, 1.47671, 1.47672, 1.47919,
-      1.48164, 1.48564, 1.49968, 1.50383, 1.50855, 1.51086};
     
-
+    double RIndexBoro[nEboroRindex]=
+      {1.4537, 1.4542, 1.4554, 1.4559, 1.4560, 1.4564, 1.4565, 1.4566, 1.4567, 1.4569,
+       1.4570, 1.4572, 1.4576, 1.4582, 1.4584, 1.4585, 1.4588, 1.4601, 1.4602, 1.4607,
+       1.4616, 1.4618, 1.4622, 1.4625, 1.4630, 1.4631, 1.4635, 1.4637, 1.4640, 1.4644,
+       1.4650, 1.4662, 1.4667, 1.4685, 1.4696, 1.4747, 1.4761, 1.4767, 1.4767, 1.4792,
+       1.4816, 1.4856, 1.4997, 1.5038, 1.5086, 1.5109};
+    
     //G4Material* m_BorosilicateFilter[nUVFilter];
     G4MaterialPropertiesTable* borosilicateFilterMPT[nUVFilter];
     for (std::size_t iUV=0 ; iUV < nUVFilter ; iUV++) {
@@ -683,12 +684,12 @@ void Materials::DefineMaterials(const G4String &aerogelTag, double ri3, double r
       m_BorosilicateFilter[iUV]->AddElement(m_Al, 0.020); // from Al2O3
       
       borosilicateFilterMPT[iUV] = new G4MaterialPropertiesTable();
-      borosilicateFilterMPT[iUV]->AddProperty("RINDEX", EboroRindex,RIndexBoro,46);
+      borosilicateFilterMPT[iUV]->AddProperty("RINDEX", EboroRindex, RIndexBoro, nEboroRindex);
       borosilicateFilterMPT[iUV]->AddProperty("ABSLENGTH", EboroAbs[iUV], absLengthBoro[iUV], nE_boro[iUV]);
 
       m_BorosilicateFilter[iUV]->SetMaterialPropertiesTable(borosilicateFilterMPT[iUV]);
 
-      //std::cout<<"*** built "<<m_BorosilicateFilter[iUV]->GetName()<<std::endl;
+      std::cout<<"*** built "<<m_BorosilicateFilter[iUV]->GetName()<<std::endl;
     }
     
   }
