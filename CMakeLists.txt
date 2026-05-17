@@ -41,7 +41,7 @@ include_directories(
   ${Geant4_INCLUDE_DIR} 
   ${ROOT_INCLUDE_DIRS}	
 
-  ${IRT}/include/IRT 
+  ${IRT}/include 
   ${BMF}/include 
   ${HEPMC3}/include 
   ${XERCES}/include 
@@ -58,7 +58,7 @@ include_directories(
 )
 
 file(GLOB SHARE_HEADERS ${PROJECT_SOURCE_DIR}/share/include/*.h)
-file(GLOB EPIC_HEADERS  ${PROJECT_SOURCE_DIR}/epic/include/*.h)
+#file(GLOB EPIC_HEADERS  ${PROJECT_SOURCE_DIR}/epic/include/*.h)
 #file(GLOB FTBF_HEADERS  ${PROJECT_SOURCE_DIR}/ftbf/include/*.h)
 file(GLOB CERN_HEADERS  ${PROJECT_SOURCE_DIR}/cern/include/*.h)
 #file(GLOB TSTAND_HEADERS ${PROJECT_SOURCE_DIR}/tstand/include/*.h)
@@ -66,9 +66,9 @@ file(GLOB CERN_HEADERS  ${PROJECT_SOURCE_DIR}/cern/include/*.h)
 
 SET(G4IRT_LIB g4irt)
 SET(SHARE_LIB pfrich-share)
-SET(EPIC_EXE pfrich-epic)
+#SET(EPIC_EXE pfrich-epic)
 #SET(FTBF_EXE pfrich-ftbf)
-SET(CERN_EXE pfrich-cern)
+SET(CERN_EXE pfrich-cern-geant)
 #SET(SIMPLE_EXE pfrich-simple)
 #SET(TSTAND_EXE pfrich-tstand)
 
@@ -93,17 +93,17 @@ SET( SHARE_SOURCES
    ${PROJECT_SOURCE_DIR}/share/source/DetectorConstruction.cc
 )
 
-SET( EPIC_SOURCES
-   ${PROJECT_SOURCE_DIR}/epic/source/Vessel.cc
-   ${PROJECT_SOURCE_DIR}/epic/source/Aerogel.cc
-   ${PROJECT_SOURCE_DIR}/epic/source/Acrylic.cc
-   ${PROJECT_SOURCE_DIR}/epic/source/Mirrors.cc
-   ${PROJECT_SOURCE_DIR}/epic/source/MagneticField.cc
+#SET( EPIC_SOURCES
+#   ${PROJECT_SOURCE_DIR}/epic/source/Vessel.cc
+#   ${PROJECT_SOURCE_DIR}/epic/source/Aerogel.cc
+#   ${PROJECT_SOURCE_DIR}/epic/source/Acrylic.cc
+#   ${PROJECT_SOURCE_DIR}/epic/source/Mirrors.cc
+#   ${PROJECT_SOURCE_DIR}/epic/source/MagneticField.cc
 
-   ${PROJECT_SOURCE_DIR}/epic/source/EpicSetup.cc
-   ${PROJECT_SOURCE_DIR}/epic/source/EpicDetectorConstruction.cc
-   ${PROJECT_SOURCE_DIR}/epic/source/EpicPrimaryGeneratorAction.cc
-)
+#   ${PROJECT_SOURCE_DIR}/epic/source/EpicSetup.cc
+#   ${PROJECT_SOURCE_DIR}/epic/source/EpicDetectorConstruction.cc
+#   ${PROJECT_SOURCE_DIR}/epic/source/EpicPrimaryGeneratorAction.cc
+#)
 
 SET( FTBF_SOURCES
    #-${PROJECT_SOURCE_DIR}/share/source/AsphericLens.cc
@@ -139,15 +139,15 @@ SET( CERN_SOURCES
 #)
 
 ADD_LIBRARY( ${G4IRT_LIB} SHARED ${G4IRT_SOURCES} )
-TARGET_LINK_LIBRARIES(${G4IRT_LIB} ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} -L${IRT}/lib IRT)
+TARGET_LINK_LIBRARIES(${G4IRT_LIB} ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} -L${IRT}/lib IRT2)
 
 ADD_LIBRARY( ${SHARE_LIB} SHARED ${SHARE_SOURCES} )
 TARGET_LINK_LIBRARIES(${SHARE_LIB} ${Geant4_LIBRARIES} ${G4IRT_LIB})
 
 #----------------------------------------------------------------------------
 
-add_executable(${EPIC_EXE} ${EPIC_SOURCES} ${SHARE_HEADERS} ${EPIC_HEADERS})
-target_link_libraries(${EPIC_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
+#add_executable(${EPIC_EXE} ${EPIC_SOURCES} ${SHARE_HEADERS} ${EPIC_HEADERS})
+#target_link_libraries(${EPIC_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
 #add_executable(${FTBF_EXE} ${FTBF_SOURCES} ${SHARE_HEADERS} ${FTBF_HEADERS})
 #target_link_libraries(${FTBF_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
 add_executable(${CERN_EXE} ${CERN_SOURCES} ${SHARE_HEADERS} ${CERN_HEADERS})
@@ -157,17 +157,17 @@ target_link_libraries(${CERN_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_
 #add_executable(${TSTAND_EXE} ${TSTAND_SOURCES} ${SHARE_HEADERS} ${TSTAND_HEADERS})
 #target_link_libraries(${TSTAND_EXE} ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${G4IRT_LIB} ${SHARE_LIB}) 
 
-if(DEFINED BMF)
-  SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBMF")
-  target_link_libraries(${EPIC_EXE} -L${BMF}/lib bmf)
-endif()
-if(DEFINED HEPMC3)
-  SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHEPMC3")
-  target_link_libraries(${EPIC_EXE} -L${HEPMC3}/lib -L${HEPMC3}/lib64 HepMC3)
-endif()
+#if(DEFINED BMF)
+#  SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBMF")
+#  target_link_libraries(${EPIC_EXE} -L${BMF}/lib bmf)
+#endif()
+#if(DEFINED HEPMC3)
+#  SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHEPMC3")
+#  target_link_libraries(${EPIC_EXE} -L${HEPMC3}/lib -L${HEPMC3}/lib64 HepMC3)
+#endif()
 if(DEFINED XERCES)
   SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DXERCES")
-  target_link_libraries(${EPIC_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
+  #target_link_libraries(${EPIC_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
   #target_link_libraries(${FTBF_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
   target_link_libraries(${CERN_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
   #target_link_libraries(${SIMPLE_EXE} -L${XERCES}/lib -L${XERCES}/lib64 xerces-c)
@@ -177,7 +177,7 @@ endif()
 
 #----------------------------------------------------------------------------
 
-install(TARGETS ${EPIC_EXE}   DESTINATION bin)
+#install(TARGETS ${EPIC_EXE}   DESTINATION bin)
 #install(TARGETS ${FTBF_EXE}   DESTINATION bin)
 install(TARGETS ${CERN_EXE}   DESTINATION bin)
 #install(TARGETS ${SIMPLE_EXE} DESTINATION bin)

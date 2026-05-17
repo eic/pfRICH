@@ -6,19 +6,17 @@
 #include <G4DataInterpolation.hh>
 
 #define _GEANT_SOURCE_CODE_
-//#include <G4Object.h>
 
 #include <hrppd.h>
-//#include <share.h>
 
 #include "DetectorConstruction.h"
 
 #include <G4RadiatorMaterial.h>
-#include <CherenkovPhotonDetector.h>
+#include <IRT2/CherenkovPhotonDetector.h>
 
 // -------------------------------------------------------------------------------------
 
-G4LogicalVolume *DetectorConstruction::BuildHRPPD(G4LogicalVolume *wnd_log, G4Box *pd_box, CherenkovPhotonDetector *pd)
+G4LogicalVolume *DetectorConstruction::BuildHRPPD(G4LogicalVolume *wnd_log, G4Box *pd_box, IRT2::CherenkovPhotonDetector *pd)
 {
   double pdthick = 0.01*mm;
 

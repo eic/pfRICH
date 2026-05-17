@@ -1,0 +1,18 @@
+{
+	"Radiators": {
+		"Acrylic": {
+			"theta-bins": {}
+		},
+		"BelleIIAerogel3": {
+			"theta-bins": {
+				"35": [ " 22396", "-1258.6", "  -0.01", "   4.91", "1.501700", "1.040239", "1.000305", "1.472290"]
+			}
+		},
+		"GasVolume": {
+			"theta-bins": {}
+		},
+		"QuartzWindow": {
+			"theta-bins": {}
+		}
+	}
+}

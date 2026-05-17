@@ -6,33 +6,33 @@
 #include <G4DataInterpolation.hh>
 #include "G4OpticalPhoton.hh"
 
+#define _GEANT_SOURCE_CODE_
 #include "CherenkovSteppingAction.h"
 
-#define _GEANT_SOURCE_CODE_
-#include <CherenkovEvent.h>
-#include <ReflectionPoint.h>
-#include <CherenkovDetectorCollection.h>
-#include <CherenkovPhotonDetector.h>
+#include <IRT2/CherenkovEvent.h>
+#include <IRT2/ReflectionPoint.h>
+#include <IRT2/CherenkovDetectorCollection.h>
+#include <IRT2/CherenkovPhotonDetector.h>
 #include <G4RadiatorMaterial.h>
 
 // -------------------------------------------------------------------------------------
 
-CherenkovSteppingAction::CherenkovSteppingAction(CherenkovDetectorCollection *geometry, 
-						   CherenkovEvent *event): 
+CherenkovSteppingAction::CherenkovSteppingAction(IRT2::CherenkovDetectorCollection *geometry, 
+						 IRT2::CherenkovEvent *event): 
   G4UserSteppingAction(), m_EventPtr(event), m_Geometry(geometry), m_SeconadriesDisabled(false)
 { 
 } // CherenkovSteppingAction::CherenkovSteppingAction()
 
 // -------------------------------------------------------------------------------------
 
-double CherenkovSteppingAction::GetQE(const CherenkovPhotonDetector *pd, double eph) 
+double CherenkovSteppingAction::GetQE(const IRT2::CherenkovPhotonDetector *pd, double eph) 
 {  
   return pd->CheckQERange(eph) ? pd->GetQE()->CubicSplineInterpolation(eph) : 0.0;
 } // CherenkovSteppingAction::GetQE()
 
 // -------------------------------------------------------------------------------------
 
-double CherenkovSteppingAction::GetAttenuationLength(const CherenkovRadiator *radiator, double eph) 
+double CherenkovSteppingAction::GetAttenuationLength(const IRT2::CherenkovRadiator *radiator, double eph) 
 {  
   auto material = radiator->GetMaterial();
 
@@ -41,7 +41,7 @@ double CherenkovSteppingAction::GetAttenuationLength(const CherenkovRadiator *ra
 
 // -------------------------------------------------------------------------------------
 
-double CherenkovSteppingAction::GetRefractiveIndex(const CherenkovRadiator *radiator, double eph) 
+double CherenkovSteppingAction::GetRefractiveIndex(const IRT2::CherenkovRadiator *radiator, double eph) 
 {  
   auto material = radiator->GetMaterial();
 
@@ -50,8 +50,8 @@ double CherenkovSteppingAction::GetRefractiveIndex(const CherenkovRadiator *radi
 
 // -------------------------------------------------------------------------------------
 
-TransientTrackInformation *CherenkovSteppingAction::AttachUserInfo(G4Track* track, TransientParticle *myself, 
-								   TransientParticle *parent)
+TransientTrackInformation *CherenkovSteppingAction::AttachUserInfo(G4Track* track, IRT2::TransientParticle *myself, 
+								   IRT2::TransientParticle *parent)
 {
   auto info = new TransientTrackInformation(myself, parent);
   track->SetUserInformation(info);
@@ -80,11 +80,11 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
  
     //printf("%d\n", tdef->GetPDGEncoding());
     //+auto particle = new ChargedParticle(tdef->GetPDGEncoding());
-    TransientParticle *particle;// = 
+    IRT2::TransientParticle *particle;// = 
     if (tdef->GetPDGCharge()) 
-      particle = new ChargedParticle(tdef->GetPDGEncoding());
+      particle = new IRT2::ChargedParticle(tdef->GetPDGEncoding());
     else
-      particle = new OpticalPhoton();
+      particle = new IRT2::OpticalPhoton();
     info = AttachUserInfo(track, particle, 0);
 
     // Assume first step is from the vertex?;
@@ -96,7 +96,7 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 
     //+m_EventPtr->AddChargedParticle(particle);
     if (particle->IsCharged())
-      m_EventPtr->AddChargedParticle(dynamic_cast<ChargedParticle*>(particle));
+      m_EventPtr->AddChargedParticle(dynamic_cast<IRT2::ChargedParticle*>(particle));
   } //if
 
   //printf("Here! %d\n", tdef->GetPDGEncoding());
@@ -105,13 +105,13 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
   assert(xfrom && xto);
   G4VPhysicalVolume *vfrom = xfrom->GetPhysicalVolume(), *vto = xto->GetPhysicalVolume();
   if (vfrom && vto) {
-    TransientParticle *pptr = info->Myself();
+    IRT2::TransientParticle *pptr = info->Myself();
     auto lfrom = vfrom->GetLogicalVolume(), lto = vto->GetLogicalVolume();
     auto rfrom = m_Geometry->FindRadiator(lfrom), rto = m_Geometry->FindRadiator(lto);
 
     // Now it can either be a charged particle or an optical photon;
     if (pptr->IsCharged()) {
-      auto particle = dynamic_cast<ChargedParticle*>(pptr);
+      auto particle = dynamic_cast<IRT2::ChargedParticle*>(pptr);
 
       // Once the particle hits a mirror, stop keeping track of it;
       if (!particle->TracingIsStopped()) {
@@ -125,7 +125,7 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 
 	  auto history = particle->FindRadiatorHistory(radiator);
 	  if (!history) {
-	    history = new RadiatorHistory();
+	    history = new IRT2::RadiatorHistory();
 	    particle->StartRadiatorHistory(std::make_pair(radiator, history));
 	  } //if
 	  
@@ -139,7 +139,7 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 	    
 	    auto position = (1/mm) *TVector3(x.x(), x.y(), x.z());
 	    auto momentum = (1/GeV)*TVector3(p.x(), p.y(), p.z()); 
-	    auto trace = new ChargedParticleStep(position, momentum, point->GetGlobalTime()/ns);//, step->GetStepLength()/mm);
+	    auto trace = new IRT2::ChargedParticleStep(position, momentum, point->GetGlobalTime()/ns);//, step->GetStepLength()/mm);
 	    history->AddStep(trace);
 	  } 
 	} //for fb
@@ -147,12 +147,12 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 	if (m_Geometry->FindMirror(lto)) particle->StopTracing();
       } //if
     } else {
-      auto photon = dynamic_cast<OpticalPhoton*>(pptr); assert(photon);
+      auto photon = dynamic_cast<IRT2::OpticalPhoton*>(pptr); assert(photon);
       G4String nfrom = vfrom->GetName(), nto = vto->GetName();
       
       // Assign generic information once; FIXME: do it better later;
       if (!photon->GetVertexMomentum().Mag()) {
-	auto parent = dynamic_cast<ChargedParticle*>(info->Parent()); assert(parent);
+	auto parent = dynamic_cast<IRT2::ChargedParticle*>(info->Parent()); assert(parent);
 
 	//printf("%d\n", parent);
 
@@ -176,10 +176,14 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 	      photon->SetVertexAttenuationLength(GetAttenuationLength(radiator, e));
 	      photon->SetVertexRefractiveIndex (GetRefractiveIndex(radiator, e));
 
+	      auto cdet = m_Geometry->GetDetectorByRadiator(radiator);
+	      for (auto [name, rad] : cdet->Radiators())
+		photon->StoreRefractiveIndex(GetRefractiveIndex(rad, e));
+
 	      auto history = parent->FindRadiatorHistory(radiator);
 	      // FIXME: this happens with the sensor window volumes; why?;
 	      if (!history) {
-		history = new RadiatorHistory();
+		history = new IRT2::RadiatorHistory();
 		parent->StartRadiatorHistory(std::make_pair(radiator, history));
 	      } //if
 	      history->AddOpticalPhoton(photon);
@@ -197,18 +201,18 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 
 	if (m_Geometry->CheckBits(_STORE_REFLECTION_POINTS_) && mirror) {
 	  G4ThreeVector xx = xto->GetPosition(), pp = xto->GetMomentum();
-	  auto reflection = new ReflectionPoint(mirror, vto->GetCopyNo(), 
-						TVector3(xx.x(), xx.y(), xx.z()), 
-						TVector3(pp.x(), pp.y(), pp.z()));
+	  auto reflection = new IRT2::ReflectionPoint(mirror, vto->GetCopyNo(), 
+						      TVector3(xx.x(), xx.y(), xx.z()), 
+						      TVector3(pp.x(), pp.y(), pp.z()));
 	  
 	  photon->AddReflectionPoint(reflection);
 	} else {
 	  if (m_Geometry->CheckBits(_STORE_REFRACTION_POINTS_) && rfrom && rto && rfrom != rto) {
 	    G4ThreeVector xx = xto->GetPosition(), pfrom = xfrom->GetMomentum(), pto = xto->GetMomentum();
-	    auto refraction = new RefractionPoint(rfrom, rto, //vto->GetCopyNo(), 
-						  TVector3(xx.x(), xx.y(), xx.z()), 
-						  TVector3(pfrom.x(), pfrom.y(), pfrom.z()),
-						  TVector3(pto.x(), pto.y(), pto.z()));
+	    auto refraction = new IRT2::RefractionPoint(rfrom, rto, //vto->GetCopyNo(), 
+							TVector3(xx.x(), xx.y(), xx.z()), 
+							TVector3(pfrom.x(), pfrom.y(), pfrom.z()),
+							TVector3(pto.x(), pto.y(), pto.z()));
 	    
 	    photon->AddRefractionPoint(refraction);
 	  } else {
@@ -302,7 +306,7 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 	  if (rfrom && !rfrom->OpticalPhotonGenerationEnabled())
 	    strack->SetTrackStatus(fStopAndKill);
 	  else {
-	    auto photon = new OpticalPhoton();
+	    auto photon = new IRT2::OpticalPhoton();
 	    {
 	      G4ThreeVector pparent = xto->GetMomentum();
 	      
@@ -316,7 +320,7 @@ void CherenkovSteppingAction::UserSteppingAction(const G4Step* step)
 	  if (sdef->GetPDGCharge()) {
 	    //if (sdef->GetPDGEncoding() > 100000)//!= 11)
 	      //printf("%d\n", sdef->GetPDGEncoding());
-	    auto particle = new ChargedParticle(sdef->GetPDGEncoding(), false);
+	    auto particle = new IRT2::ChargedParticle(sdef->GetPDGEncoding(), false);
 	    AttachUserInfo(strack, particle, info->Myself());
 
 	    m_EventPtr->AddChargedParticle(particle);

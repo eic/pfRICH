@@ -1,17 +1,17 @@
-
-// ? export LD_LIBRARY_PATH=/home/ayk/eic/EicSandbox/build/lib:${LD_LIBRARY_PATH}
-//   export LD_LIBRARY_PATH=/home/ayk/eic/irt/build/lib:${LD_LIBRARY_PATH}
 //
-//   root -l './hit-map-cern-2x2.C("pfrich.root")'
+//   export SANDBOX=/home/eic/CERN-2026
+//   export LD_LIBRARY_PATH=${SANDBOX}/lib:${LD_LIBRARY_PATH}
+//
+//   root -l './scripts/pfrich-cern-hit-map-2x2.C("pfrich-cern-events.root")'
 //
 
-void hit_map_cern_2x2(const char *dfname, const char *cfname = 0)
+void pfrich_cern_hit_map_2x2(const char *dfname, const char *cfname = 0)
 {
   auto fcfg  = new TFile(cfname ? cfname : dfname);
-  auto geometry = dynamic_cast<CherenkovDetectorCollection*>(fcfg->Get("CherenkovDetectorCollection"));
+  auto geometry = dynamic_cast<IRT2::CherenkovDetectorCollection*>(fcfg->Get("CherenkovDetectorCollection"));
   auto fdata = new TFile(dfname);
   TTree *t = dynamic_cast<TTree*>(fdata->Get("t")); 
-  auto event = new CherenkovEvent();
+  auto event = new IRT2::CherenkovEvent();
   t->SetBranchAddress("e", &event);
 
   int nEvents = t->GetEntries();
@@ -50,4 +50,4 @@ void hit_map_cern_2x2(const char *dfname, const char *cfname = 0)
   hxy->Draw("COLZ");
 
   gPad->SetGrid();
-} // hit_map_cern_2x2()
+} // pfrich_cern_hit_map_2x2()

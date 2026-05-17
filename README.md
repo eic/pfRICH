@@ -246,17 +246,20 @@ root -l 'scripts/reco-ftbf.C("pfrich-ftbf.root")'
 #
 # A CERN 2026 mockup of a pfRICH detector
 #
-./build/pfrich-cern -m macro/vis-cern.mac
+${SANDBOX}/bin/pfrich-cern-geant -m macro/pfrich-cern-vis.mac
 
-# Will take quite some time because of the optical photon tracing in the lens radiator;
-./build/pfrich-cern -o pfrich-cern.root -s 1000
+# Generate 1000 events;
+${SANDBOX}/bin/pfrich-cern-geant -o pfrich-cern-events.root -s 1000
 
-root -l 'scripts/hit-map-cern-1x1.C("pfrich-cern.root")'
-root -l 'scripts/hit-map-cern-2x2.C("pfrich-cern.root")'
+# See a hit map;
+#root -l 'scripts/pfrich-hit-map-cern-1x1.C("pfrich-cern-events.root")'
+root -l 'scripts/pfrich-cern-hit-map-2x2.C("pfrich-cern-events.root")'
 
-# This one is also time consuming; comment "#define _ZCOORD_ASPHERIC_LENS_" in cern.default.h", 
-# recompile and re-run ./build/pfrich-cern if the lens is of no interest;
-root -l 'scripts/reco-cern.C("pfrich-cern.root")'
+# Runs calibration (optional; once);
+root -l './scripts/pfrich-cern-calibration.C("pfrich-cern-events.root", "calibration/pfrich-cern-calibration.json")'
+
+# Run reconstruction;
+root -l 'scripts/pfrich-cern-reco.C("pfrich-cern-events.root")'
 ```
 
 Environment customization

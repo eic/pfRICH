@@ -4,24 +4,23 @@
 #include "G4PVPlacement.hh"
 
 #define _GEANT_SOURCE_CODE_
-#include <G4Object.h>
+#include <IRT2/G4Object.h>
 
-//#include <share.h>
 #include <hrppd.h>
 #include <cern.h>
 
 #include "CERNDetectorConstruction.h"
 
-#include <CherenkovDetectorCollection.h>
-#include <CherenkovRadiator.h>
+#include <IRT2/CherenkovDetectorCollection.h>
+#include <IRT2/CherenkovRadiator.h>
 #include <G4RadiatorMaterial.h>
-#include <CherenkovMirror.h>
-#include <CherenkovPhotonDetector.h>
+#include <IRT2/CherenkovMirror.h>
+#include <IRT2/CherenkovPhotonDetector.h>
 #include <AsphericLens.h>
 
 // -------------------------------------------------------------------------------------
 
-CERNDetectorConstruction::CERNDetectorConstruction(CherenkovDetectorCollection *geometry): 
+CERNDetectorConstruction::CERNDetectorConstruction(IRT2::CherenkovDetectorCollection *geometry): 
   DetectorConstruction(geometry)
 {
 } // CERNDetectorConstruction::CERNDetectorConstruction()
@@ -74,7 +73,7 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 
     {
       // FIXME: Z-location does not really matter here, right?;
-      auto boundary = new FlatSurface(TVector3(0,0,0), sign*TVector3(1,0,0), TVector3(0,-1,0));
+      auto boundary = new IRT2::FlatSurface(TVector3(0,0,0), sign*TVector3(1,0,0), TVector3(0,-1,0));
       
       m_Geometry->SetContainerVolume(cdet, "GasVolume", 0, gas_volume_log, _GAS_RADIATOR_, boundary)
 #ifdef _DISABLE_GAS_VOLUME_PHOTONS_
@@ -120,9 +119,9 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 	  {
 	    TVector3 nx(1*sign,0,0), ny(0,-1,0);
 	    
-	    auto surface = new FlatSurface(sign*(1/mm)*TVector3(0, 0, fvOffset + 
+	    auto surface = new IRT2::FlatSurface(sign*(1/mm)*TVector3(0, 0, fvOffset + 
 								gas_volume_offset + gzOffset), nx, ny);
-	    auto radiator = m_Geometry->AddFlatRadiator(cdet, aerogel->GetName(), CherenkovDetector::Upstream, 
+	    auto radiator = m_Geometry->AddFlatRadiator(cdet, aerogel->GetName(), IRT2::CherenkovDetector::Upstream, 
 							0, ag_log, aerogel, surface, agthick/mm);
 #ifdef _DISABLE_AEROGEL_PHOTONS_
 	    radiator->DisableOpticalPhotonGeneration();
@@ -149,9 +148,9 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 	{
 	  TVector3 nx(1*sign,0,0), ny(0,-1,0);
 	  
-	  auto surface = new FlatSurface(sign*(1/mm)*TVector3(0, 0, fvOffset + 
+	  auto surface = new IRT2::FlatSurface(sign*(1/mm)*TVector3(0, 0, fvOffset + 
 							      gas_volume_offset + gzOffset), nx, ny);
-	  m_Geometry->AddFlatRadiator(cdet, "Acrylic", CherenkovDetector::Upstream, 
+	  m_Geometry->AddFlatRadiator(cdet, "Acrylic", IRT2::CherenkovDetector::Upstream, 
 				      0, ac_log, m_Acrylic, surface, acthick/mm)
 #ifdef _DISABLE_ACRYLIC_PHOTONS_
 	    ->DisableOpticalPhotonGeneration()

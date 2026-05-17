@@ -1,4 +1,5 @@
 
+#define _GEANT_SOURCE_CODE_
 #include "G4Element.hh"
 #include "G4Material.hh"
 #include "G4NistManager.hh"

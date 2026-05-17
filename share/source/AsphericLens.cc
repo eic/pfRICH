@@ -7,7 +7,7 @@
 #include <TMath.h>
 
 #define _GEANT_SOURCE_CODE_
-#include <CherenkovDetectorCollection.h>
+#include <IRT2/CherenkovDetectorCollection.h>
 #include <DetectorConstruction.h>
 
 #include <AsphericLens.h>
@@ -16,8 +16,8 @@
 
 // -------------------------------------------------------------------------------------
 
-void AsphericLens::Install(CherenkovDetectorCollection *geometry, 
-			   DetectorConstruction *detector, CherenkovDetector *cdet, 
+void AsphericLens::Install(IRT2::CherenkovDetectorCollection *geometry, 
+			   DetectorConstruction *detector, IRT2::CherenkovDetector *cdet, 
 			   DarkBox *dbox,
 			   double zOffset, bool flip)
 {

@@ -12,11 +12,11 @@
 #include <G4SubtractionSolid.hh>
 #include <G4UnionSolid.hh>
 
-//#include <tuning.h>
-
 #define _GEANT_SOURCE_CODE_
-#include <G4Object.h>
+#include <IRT2/G4Object.h>
 
+namespace IRT2 {
+  
 // -------------------------------------------------------------------------------------
 
 void G4Object::DefineIntersectionCut(G4VSolid *cut, G4RotationMatrix *rotation, 
@@ -145,3 +145,5 @@ void G4Object::DefineLogicalVolume( void )
 } // G4Object::DefineLogicalVolume()
 
 // -------------------------------------------------------------------------------------
+
+}

@@ -1,5 +1,5 @@
 
-
+#define _GEANT_SOURCE_CODE_
 #include "G4Event.hh"
 #include "G4ParticleTable.hh"
 

@@ -1,4 +1,5 @@
 
+#define _GEANT_SOURCE_CODE_
 #include <G4RadiatorMaterial.h>
 
 // FIXME: it seems one needs to renormalize this coefficient in order to obtain a proper effective 

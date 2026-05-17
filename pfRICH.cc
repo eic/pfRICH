@@ -8,7 +8,7 @@
 
 #define _GEANT_SOURCE_CODE_
 #include "RunAction.h"
-#include "CherenkovEvent.h"
+#include <IRT2/CherenkovEvent.h>
 #include "CherenkovSteppingAction.h"
 #include "CherenkovStackingAction.h"
 
@@ -29,7 +29,7 @@ namespace {
 #include <TFile.h>
 #include <TTree.h>
 
-#include <CherenkovDetectorCollection.h>
+#include <IRT2/CherenkovDetectorCollection.h>
 
 // -------------------------------------------------------------------------------------
 
@@ -69,11 +69,11 @@ int main(int argc, char** argv)
 
   auto outputFile = TFile::Open(outfile, "RECREATE");
 
-  auto geometry = new CherenkovDetectorCollection();
-  auto event    = new CherenkovEvent();
+  auto geometry = new IRT2::CherenkovDetectorCollection();
+  auto event    = new IRT2::CherenkovEvent();
 
   auto TT = new TTree("t", "My tree");
-  TT->Branch("e", "CherenkovEvent", &event, 16000, 2);
+  TT->Branch("e", "IRT2::CherenkovEvent", &event, 16000, 2);
 
   // Choose the Random engine
   G4Random::setTheEngine(new CLHEP::RanecuEngine);

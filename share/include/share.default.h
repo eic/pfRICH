@@ -38,8 +38,8 @@ static const bool flip = true;
 static const double sign = flip ? -1.0 : 1.0;
 
 class G4RunManager;
-class CherenkovDetectorCollection;
+#include <IRT2/CherenkovDetectorCollection.h>
 
-void setup(G4RunManager *runManager, CherenkovDetectorCollection *geometry, const char *infile);
+void setup(G4RunManager *runManager, IRT2::CherenkovDetectorCollection *geometry, const char *infile);
 
 #endif

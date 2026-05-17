@@ -13,10 +13,10 @@ class G4PVPlacement;
 class G4Box;
 class G4OpticalSurface;
 
-class CherenkovDetector;
-class CherenkovDetectorCollection;
-class OpticalBoundary;
-class CherenkovPhotonDetector;
+#include <IRT2/CherenkovDetector.h>
+#include <IRT2/CherenkovDetectorCollection.h>
+#include <IRT2/OpticalBoundary.h>
+#include <IRT2/CherenkovPhotonDetector.h>
 
 struct MisalignedLocation2D {
 public:
@@ -46,7 +46,7 @@ DarkBox(bool pyramids, bool poptics, bool cmoptics):
   G4PVPlacement *m_fiducial_volume_phys, *m_gas_volume_phys;
   double m_gas_volume_length;
 
-  OpticalBoundary *m_mboundaries[2];
+  IRT2::OpticalBoundary *m_mboundaries[2];
 
   void DefinePyramidMirrorGeometry(double width, double height) { 
     m_PyramidMirrorWidth  = width; 
@@ -59,7 +59,7 @@ DarkBox(bool pyramids, bool poptics, bool cmoptics):
 class DetectorConstruction : public Materials, public G4VUserDetectorConstruction
 {
 public:
-  DetectorConstruction(CherenkovDetectorCollection *geometry);
+  DetectorConstruction(IRT2::CherenkovDetectorCollection *geometry);
   virtual ~DetectorConstruction() {};
 
  protected:
@@ -70,15 +70,15 @@ public:
 
   void SetColor(G4LogicalVolume *lvol, const G4Colour &color, bool visible = true, bool solid = true);
   
-  CherenkovDetectorCollection *m_Geometry;
+  IRT2::CherenkovDetectorCollection *m_Geometry;
 
-  void BuildPhotonDetectorMatrix(CherenkovDetector *cdet, DarkBox *dbox, double fvzOffset, double wzOffset, 
+  void BuildPhotonDetectorMatrix(IRT2::CherenkovDetector *cdet, DarkBox *dbox, double fvzOffset, double wzOffset, 
 				 const std::vector<MisalignedLocation2D> &xycoord);
 
   std::vector<DarkBox*> m_DarkBoxes;
 
  private:
-  G4LogicalVolume *BuildHRPPD(G4LogicalVolume *wnd_log, G4Box *pd_box, CherenkovPhotonDetector *pd);
+  G4LogicalVolume *BuildHRPPD(G4LogicalVolume *wnd_log, G4Box *pd_box, IRT2::CherenkovPhotonDetector *pd);
 };
 
 #endif

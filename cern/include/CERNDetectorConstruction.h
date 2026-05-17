@@ -4,13 +4,13 @@
 
 #include "DetectorConstruction.h"
 
-class CherenkovDetector;
-class CherenkovDetectorCollection;
+#include <IRT2/CherenkovDetector.h>
+#include <IRT2/CherenkovDetectorCollection.h>
 
 class CERNDetectorConstruction : public DetectorConstruction
 {
 public:
-  CERNDetectorConstruction(CherenkovDetectorCollection *geometry);
+  CERNDetectorConstruction(IRT2::CherenkovDetectorCollection *geometry);
   virtual ~CERNDetectorConstruction() {};
 
   G4VPhysicalVolume* Construct( void );

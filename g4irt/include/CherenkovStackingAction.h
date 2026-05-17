@@ -4,20 +4,20 @@
 
 #include "G4UserStackingAction.hh"
 
-class CherenkovEvent;
+#include <IRT2/CherenkovEvent.h>
 class TTree;
 
 class CherenkovStackingAction : public G4UserStackingAction
 {
   public:
-  CherenkovStackingAction(CherenkovEvent *event, TTree *tree);
+  CherenkovStackingAction(IRT2::CherenkovEvent *event, TTree *tree);
   ~CherenkovStackingAction() {};
 
   void NewStage();
   void PrepareNewEvent();
 
  private:
-  CherenkovEvent *m_EventPtr;
+  IRT2::CherenkovEvent *m_EventPtr;
   TTree *m_Tree;
 };
 

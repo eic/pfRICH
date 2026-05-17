@@ -1,16 +1,16 @@
 
+#define _GEANT_SOURCE_CODE_
 #include "G4RunManager.hh"
 #include "G4PVPlacement.hh"
 
 #include "CERNDetectorConstruction.h"
 #include "CERNPrimaryGeneratorAction.h"
 
-#define _GEANT_SOURCE_CODE_
-#include <CherenkovDetectorCollection.h>
+#include <IRT2/CherenkovDetectorCollection.h>
 
 // -------------------------------------------------------------------------------------
 
-void setup(G4RunManager *runManager, CherenkovDetectorCollection *geometry, const char *infile) 
+void setup(G4RunManager *runManager, IRT2::CherenkovDetectorCollection *geometry, const char *infile) 
 {
   // Detector construction
   auto construction = new CERNDetectorConstruction(geometry);

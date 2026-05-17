@@ -1,0 +1,31 @@
+{
+    "Calibration": "calibration/pfrich-cern-calibration.json",
+
+    "UsePoissonTermInChiSquare"         : "no",
+    "UseTimingInChiSquare"              : "yes",
+    "DefaultSinglePhotonThetaResolution": 0.005,
+    "SensorActiveAreaPixellation"       : 32,
+    "UseMcTruthPhotonDirectionSeed"     : "no",
+    "MinHitCountCutoff"                 : 3,
+    "IdentifiedParticles"               : ["pi+", "K+"], 
+    
+    "CombinedEvaluationPlots"        : "display",
+    "CombinedEvaluationPlotsGeometry": [1265,  10,  625, 800],
+	    
+    "Radiators": {
+	"BelleIIAerogel3": {
+	    "imaging"    : "yes",
+	    "acts-planes": 5,
+	    
+	    "evaluation-plots"         : "display",
+	    "evaluation-plots-geometry": [-10,  10, 1250, 540],
+	    "refractive-index-range"   : [1.035, 1.045],
+	    "photon-vertex-range"      : [-1275, -1240],
+	    "cherenkov-angle-range"    : [270, 290]
+	},
+	"Acrylic": {
+	    "imaging"    : "no",
+	    "acts-planes": 5
+	}
+    }
+}

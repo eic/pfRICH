@@ -3,11 +3,11 @@
 
 #include <TTree.h>
 
-#include <CherenkovEvent.h>
+#include <IRT2/CherenkovEvent.h>
 
 // -------------------------------------------------------------------------------------
 
-CherenkovStackingAction::CherenkovStackingAction(CherenkovEvent *event, TTree *tree): 
+CherenkovStackingAction::CherenkovStackingAction(IRT2::CherenkovEvent *event, TTree *tree): 
   G4UserStackingAction(), m_EventPtr(event), m_Tree(tree)
 {
 } //CherenkovStackingAction::CherenkovStackingAction()

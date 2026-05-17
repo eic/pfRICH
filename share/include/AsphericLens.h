@@ -2,8 +2,8 @@
 
 class G4Material;
 class DetectorConstruction;
-class CherenkovDetector;
-class CherenkovDetectorCollection;
+#include <IRT2/CherenkovDetector.h>
+#include <IRT2/CherenkovDetectorCollection.h>
 
 #ifndef _ASPHERIC_LENS_
 #define _ASPHERIC_LENS_
@@ -36,8 +36,8 @@ class AsphericLens {
       mD*pow(Y,2) + mE*pow(Y,4) + mF*pow(Y,6) + mG*pow(Y,8) + mH*pow(Y,10) + mJ*pow(Y,12) + mL*pow(Y,14);
   };
 
-  void Install(CherenkovDetectorCollection *geometry,
-	       DetectorConstruction *detector, CherenkovDetector *cdet, DarkBox *dbox,
+  void Install(IRT2::CherenkovDetectorCollection *geometry,
+	       DetectorConstruction *detector, IRT2::CherenkovDetector *cdet, DarkBox *dbox,
 	       double zOffset, bool flip = true);
 
   G4Material *mMaterial;

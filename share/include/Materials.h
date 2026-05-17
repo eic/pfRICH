@@ -10,7 +10,7 @@ class G4Element;
 class G4Material;
 class G4RadiatorMaterial;
 
-#include <CherenkovWaveLengthRange.h>
+#include <IRT2/CherenkovWaveLengthRange.h>
   
 // Uncomment to disable Rayleigh scattering and / or absorption by hand; 
 //#define _DISABLE_RAYLEIGH_SCATTERING_
@@ -94,7 +94,7 @@ class G4RadiatorMaterial;
 // impact (creation) point;   
 #define _BIALKALI_REFRACTIVE_INDEX_           (2.80)//(1.47)
 
-class Materials: public CherenkovWaveLengthRange {
+class Materials: public IRT2::CherenkovWaveLengthRange {
 public:
   Materials();
   virtual ~Materials() {};

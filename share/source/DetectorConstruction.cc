@@ -7,20 +7,19 @@
 #include <G4LogicalBorderSurface.hh>
 
 #define _GEANT_SOURCE_CODE_
-//#include <G4Object.h>
 
 #include <hrppd.h>
 #include <share.h>
 
 #include "DetectorConstruction.h"
 
-#include <CherenkovDetectorCollection.h>
+#include <IRT2/CherenkovDetectorCollection.h>
 #include <G4RadiatorMaterial.h>
-#include <CherenkovMirror.h>
+#include <IRT2/CherenkovMirror.h>
 
 // -------------------------------------------------------------------------------------
 
-DetectorConstruction::DetectorConstruction(CherenkovDetectorCollection *geometry): 
+DetectorConstruction::DetectorConstruction(IRT2::CherenkovDetectorCollection *geometry): 
   G4VUserDetectorConstruction(),
   m_Geometry(geometry)
 {
@@ -67,13 +66,13 @@ G4OpticalSurface *DetectorConstruction::CreateLambertianMirrorSurface(const char
 
 // -------------------------------------------------------------------------------------
 
-void DetectorConstruction::BuildPhotonDetectorMatrix(CherenkovDetector *cdet, DarkBox *dbox, 
+void DetectorConstruction::BuildPhotonDetectorMatrix(IRT2::CherenkovDetector *cdet, DarkBox *dbox, 
 						     double fvzOffset, double wzOffset, 
 						      const std::vector<MisalignedLocation2D> &xycoord)
 {
   double pdthick = 0.01*mm, zpdc = wzOffset + _HRPPD_WINDOW_THICKNESS_ + pdthick/2;
   G4Box *pd_box  = new G4Box("PhotoDetector", _HRPPD_ACTIVE_AREA_SIZE_/2, _HRPPD_ACTIVE_AREA_SIZE_/2, pdthick/2);
-  auto pd = new CherenkovPhotonDetector(pd_box, m_Bialkali);
+  auto pd = new IRT2::CherenkovPhotonDetector(pd_box, m_Bialkali);
 
   // Full size quartz window; FIXME: Sapphire, here and in all other places;
   auto wnd_box = new G4Box("QuartzWindow", _HRPPD_TILE_SIZE_/2, _HRPPD_TILE_SIZE_/2, _HRPPD_WINDOW_THICKNESS_/2);
@@ -85,9 +84,9 @@ void DetectorConstruction::BuildPhotonDetectorMatrix(CherenkovDetector *cdet, Da
     
     // A single entry; this assumes of course that all the windows are at the same Z, and parallel to each other;
     auto surface = 
-      new FlatSurface(sign*(1/mm)*TVector3(0,0,fvzOffset + wzOffset + _HRPPD_WINDOW_THICKNESS_/2), nx, ny);
+      new IRT2::FlatSurface(sign*(1/mm)*TVector3(0,0,fvzOffset + wzOffset + _HRPPD_WINDOW_THICKNESS_/2), nx, ny);
 
-    m_Geometry->AddFlatRadiator(cdet, "QuartzWindow", CherenkovDetector::Downstream, 
+    m_Geometry->AddFlatRadiator(cdet, "QuartzWindow", IRT2::CherenkovDetector::Downstream, 
 				0, wnd_log, m_FusedSilica, surface, _HRPPD_WINDOW_THICKNESS_/mm)
 #ifdef _DISABLE_HRPPD_WINDOW_PHOTONS_
       ->DisableOpticalPhotonGeneration()
@@ -95,7 +94,7 @@ void DetectorConstruction::BuildPhotonDetectorMatrix(CherenkovDetector *cdet, Da
       ;
   }	
 
-  CherenkovMirror *pyramid = 0;
+  IRT2::CherenkovMirror *pyramid = 0;
   if (dbox->m_UsePyramids) {
 #if 0
     // Debugging stuff (not sunchronized with optics description); 
@@ -116,7 +115,7 @@ void DetectorConstruction::BuildPhotonDetectorMatrix(CherenkovDetector *cdet, Da
 #endif
     auto *pyra_shape = new G4SubtractionSolid("MirrorPyramid", pyra_box, pyra_cut);
     // NB: geometry will be saved in [mm] throughout the code;
-    pyramid = new CherenkovMirror(pyra_shape, m_Absorber);
+    pyramid = new IRT2::CherenkovMirror(pyra_shape, m_Absorber);
     
     pyramid->SetColor(G4Colour(0, 1, 1, 0.5));
     pyramid->SetReflectivity(_MIRROR_REFLECTIVITY_, this);
@@ -136,8 +135,8 @@ void DetectorConstruction::BuildPhotonDetectorMatrix(CherenkovDetector *cdet, Da
 			hrppd_log, "HRPPD", dbox->m_fiducial_volume_phys->GetLogicalVolume(), false, counter);
       
       // Photocathode surface;
-      auto surface = new FlatSurface((1/mm)*TVector3(sign*xyptr.m_X, xyptr.m_Y,sign*(fvzOffset + zpdc)), 
-				     TVector3(1*sign,0,0), TVector3(0,-1,0));
+      auto surface = new IRT2::FlatSurface((1/mm)*TVector3(sign*xyptr.m_X, xyptr.m_Y,sign*(fvzOffset + zpdc)), 
+					   TVector3(1*sign,0,0), TVector3(0,-1,0));
       
       // FIXME: just remove four pyrapid assemblies around the beam pipe completely;
       // this is suboptimal -> do it better later;
@@ -153,7 +152,7 @@ void DetectorConstruction::BuildPhotonDetectorMatrix(CherenkovDetector *cdet, Da
       
       {
 	// Calculate and store the pyramid mirror flat surfaces; 
-	OpticalBoundary *pboundaries[4] = {0, 0, 0, 0,};
+	IRT2::OpticalBoundary *pboundaries[4] = {0, 0, 0, 0,};
 	if (dbox->m_UsePyramids && dbox->m_UsePyramidOptics) 
 	  for(unsigned iq=0; iq<4; iq++)
 	    switch (iq) {
@@ -178,10 +177,10 @@ void DetectorConstruction::BuildPhotonDetectorMatrix(CherenkovDetector *cdet, Da
 		  nx.Rotate(M_PI, nv);
 		  ny.Rotate(M_PI, nv);
 		} //if
-		auto qsurface = new FlatSurface((1/mm)*center, nx, ny);
+		auto qsurface = new IRT2::FlatSurface((1/mm)*center, nx, ny);
 		
 		auto boundary = 
-		  new OpticalBoundary(m_Geometry->FindRadiator(dbox->m_gas_volume_phys->GetLogicalVolume()), qsurface, false);
+		  new IRT2::OpticalBoundary(m_Geometry->FindRadiator(dbox->m_gas_volume_phys->GetLogicalVolume()), qsurface, false);
 		pboundaries[iq] = boundary;
 		cdet->StoreOpticalBoundary(boundary);
 	      }
@@ -204,9 +203,9 @@ void DetectorConstruction::BuildPhotonDetectorMatrix(CherenkovDetector *cdet, Da
 	    auto irt = pd->AllocateIRT(sector, icopy);
 	    
 	    // Aerogel and acrylic;
-	    if (cdet->m_OpticalBoundaries[CherenkovDetector::Upstream].find(sector) != 
-		cdet->m_OpticalBoundaries[CherenkovDetector::Upstream].end())
-	      for(auto boundary: cdet->m_OpticalBoundaries[CherenkovDetector::Upstream][sector])
+	    if (cdet->m_OpticalBoundaries[IRT2::CherenkovDetector::Upstream].find(sector) != 
+		cdet->m_OpticalBoundaries[IRT2::CherenkovDetector::Upstream].end())
+	      for(auto boundary: cdet->m_OpticalBoundaries[IRT2::CherenkovDetector::Upstream][sector])
 		irt->AddOpticalBoundary(boundary);
 	    
 	    // FIXME: will the gas-quartz boundary be described correctly in this sequence?;
@@ -241,9 +240,9 @@ void DetectorConstruction::BuildPhotonDetectorMatrix(CherenkovDetector *cdet, Da
 	      } //if .. switch
 	    
 	    // Fused silica windows;
-	    if (cdet->m_OpticalBoundaries[CherenkovDetector::Downstream].find(sector) != 
-		cdet->m_OpticalBoundaries[CherenkovDetector::Downstream].end())
-	      for(auto boundary: cdet->m_OpticalBoundaries[CherenkovDetector::Downstream][sector])
+	    if (cdet->m_OpticalBoundaries[IRT2::CherenkovDetector::Downstream].find(sector) != 
+		cdet->m_OpticalBoundaries[IRT2::CherenkovDetector::Downstream].end())
+	      for(auto boundary: cdet->m_OpticalBoundaries[IRT2::CherenkovDetector::Downstream][sector])
 		irt->AddOpticalBoundary(boundary);
 	    
 	    // Terminate the optical path;
@@ -259,7 +258,7 @@ void DetectorConstruction::BuildPhotonDetectorMatrix(CherenkovDetector *cdet, Da
   if (dbox->m_UseConicalMirrorOptics)
     for(unsigned im=0; im<2; im++)
       // FIXME: they are not really upstream (just need to store them);
-      cdet->AddOpticalBoundary(CherenkovDetector::Upstream, 0, dbox->m_mboundaries[im]);
+      cdet->AddOpticalBoundary(IRT2::CherenkovDetector::Upstream, 0, dbox->m_mboundaries[im]);
 
   for(auto radiator: cdet->Radiators())
     radiator.second->SetReferenceRefractiveIndex(radiator.second->GetMaterial()->RefractiveIndex(eV*_MAGIC_CFF_/_LAMBDA_NOMINAL_));
