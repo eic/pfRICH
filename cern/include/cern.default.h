@@ -91,7 +91,7 @@
 // -- Acrylic filter --------------------------------------------------------------------------
 //
 // If _ACRYLIC_THICKNESS_ is defined, a single layer right after the aerogel is installed; 
-//#define _ACRYLIC_THICKNESS_                 (3.0*mm)
+#define _ACRYLIC_THICKNESS_              (3.0*mm)
 // --------------------------------------------------------------------------------------------
 
 // -- Borosillicate UV filter -----------------------------------------------------------------

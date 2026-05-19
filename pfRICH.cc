@@ -23,7 +23,7 @@ namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
     G4cerr << " pfrich [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-i <input HEPMC3 file>] [-o <output ROOT file>] << G4endl"<< G4endl;
-    G4cerr << " pfrich-cern [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-o <output ROOT file>] [-i input.hepmc] [-mom <momentum in GeV/c>] [-part <pi+ or kaon+>] [-agel <agel tile>] [-uv <LP330 or LP285>]" << G4endl;
+    G4cerr << " pfrich-cern [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-o <output ROOT file>] [-i input.hepmc] [-mom <momentum in GeV/c>] [-part <pi+ or kaon+>] [-agel <agel tile>] [-uv <acrylic, LP330 or LP285>]" << G4endl;
   }
 }
 
@@ -75,8 +75,8 @@ int main(int argc, char** argv)
     }
     else if ( isCERN && G4String(argv[i]) == "-uv" ) {
       gBorosilicate = argv[i+1];
-      if (gBorosilicate!="LP330" && gBorosilicate!="LP285") {
-	G4cerr<<"Available uv filter options: LP330 or LP285"<<G4endl;
+      if (gBorosilicate!="LP330" && gBorosilicate!="LP285" && gBorosilicate!="acrylic") {
+	G4cerr<<"Available uv filter options: acrylic, LP330 or LP285"<<G4endl;
 	return 1;
       }
     }

@@ -9,10 +9,10 @@
 #define _DISABLE_SECONDARIES_
 
 // May want to disable parasitic sources of photons during G4 stepping;
-#define _DISABLE_GAS_VOLUME_PHOTONS_
+//#define _DISABLE_GAS_VOLUME_PHOTONS_
 //#define _DISABLE_AEROGEL_PHOTONS_
-#define _DISABLE_ACRYLIC_PHOTONS_
-#define _DISABLE_HRPPD_WINDOW_PHOTONS_
+//#define _DISABLE_ACRYLIC_PHOTONS_
+//#define _DISABLE_HRPPD_WINDOW_PHOTONS_
 
 // Call /geometry/test/run if uncommented; activated in '-m' (visualization) mode only;
 //#define _GEOMETRY_CHECK_

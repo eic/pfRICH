@@ -157,56 +157,57 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
       //----------------------------
       // Acrylic filter;
       //----------------------------
-#ifdef _ACRYLIC_THICKNESS_
-      {
-	double acthick = _ACRYLIC_THICKNESS_;
-	gzOffset += acthick/2;
-	
-	auto ac_box  = new G4Box("Acrylic", 100.0/2, 100.0*mm/2, acthick/2);
-	auto ac_log = new G4LogicalVolume(ac_box, m_Acrylic,  "Acrylic", 0, 0, 0);
+      //#ifdef _ACRYLIC_THICKNESS_
+      if ( _UVFILTER_=="acrylic")
 	{
-	  TVector3 nx(1*sign,0,0), ny(0,-1,0);
+#ifdef _ACRYLIC_THICKNESS_
+	  double acthick = _ACRYLIC_THICKNESS_;
+	  gzOffset += acthick/2;
 	  
-	  auto surface = new FlatSurface(sign*(1/mm)*TVector3(0, 0, fvOffset + 
-							      gas_volume_offset + gzOffset), nx, ny);
-	  m_Geometry->AddFlatRadiator(cdet, "Acrylic", CherenkovDetector::Upstream, 
-				      0, ac_log, m_Acrylic, surface, acthick/mm)
+	  auto ac_box  = new G4Box("Acrylic", 100.0/2, 100.0*mm/2, acthick/2);
+	  auto ac_log = new G4LogicalVolume(ac_box, m_Acrylic,  "Acrylic", 0, 0, 0);
+	  {
+	    TVector3 nx(1*sign,0,0), ny(0,-1,0);
+	    
+	    auto surface = new FlatSurface(sign*(1/mm)*TVector3(0, 0, fvOffset + 
+								gas_volume_offset + gzOffset), nx, ny);
+	    m_Geometry->AddFlatRadiator(cdet, "Acrylic", CherenkovDetector::Upstream, 
+					0, ac_log, m_Acrylic, surface, acthick/mm)
 #ifdef _DISABLE_ACRYLIC_PHOTONS_
-	    ->DisableOpticalPhotonGeneration()
+	      ->DisableOpticalPhotonGeneration()
 #endif
-	    ;
+	      ;
+	  }
+	  
+	  new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gzOffset), ac_log, "Acrylic", gas_volume_log, false, 0);
+	  std::cout<<"built "<<ac_log->GetName()<<" UV filter"<<std::endl;
+	  
+	  gzOffset += acthick/2 + _BUILDING_BLOCK_CLEARANCE_;
+#endif
 	}
-	
-	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gzOffset), ac_log, "Acrylic", gas_volume_log, false, 0);
-	
-	gzOffset += acthick/2 + _BUILDING_BLOCK_CLEARANCE_;
-      }
-#endif
-
-      //----------------------------
-      // borosillicate filter
-      //---------------------------- 
-#ifdef _UVFILTER_
-      {
+      else if (_UVFILTER_=="LP285" || _UVFILTER_=="LP330") {
+	//----------------------------
+	// borosillicate filter
+	//---------------------------- 
 	double boroThick[2]={1.854, 2.007}; //mm;   [LP330, LP285]
-
+	
 	int boroID=UVfilterID[_UVFILTER_];
 	
 	gzOffset += boroThick[boroID]/2;
-
+	
 	const double activeXY=100.0*mm;
 	
 	auto boro_box  = new G4Box("Borosilicate", activeXY/2.,activeXY/2., boroThick[boroID]/2);
 	auto boro_log = new G4LogicalVolume(boro_box, m_BorosilicateFilter[boroID],  "Borosilicate", 0, 0, 0);
 	//auto boro_log = new G4LogicalVolume(boro_box, m_Aerogel[GetAerogelId("tsa120_1")],  "Borosilicate", 0, 0, 0);
-
+	
 	if (m_BorosilicateFilter[boroID]) std::cout<<"Borosilicate UV filter material: "<<m_BorosilicateFilter[boroID]->GetName()<<std::endl;
 	else std::cout<<"No Borosilicate material"<<std::endl;
-
+	
 	// Blackhole frame around the active area.
 	const double frameW   = 0.5*mm;   // blackhole border width
 	const double filterXY = activeXY + 2.0*frameW;
-
+	
 	auto frame_outer = new G4Box("UVFilterFrameOuter",filterXY/2, filterXY/2, boroThick[boroID]/2);
 	
 	// Slightly larger in z so the subtraction punches through cleanly.
@@ -216,7 +217,7 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 					     m_BlackBox,   // or your absorber material
 					     "UVFilterFrame", 0, 0, 0);
 	//frame_log->SetVisAttributes(G4VisAttributes::GetInvisible());
-
+	
 	{//Requires refractive index definition in Materials.cc
           TVector3 nx(1*sign,0,0), ny(0,-1,0);
 	  
@@ -225,22 +226,25 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
           m_Geometry->AddFlatRadiator(cdet, "Borosilicate", CherenkovDetector::Upstream,
 				      0, boro_log, m_BorosilicateFilter[boroID], surface, boroThick[boroID]/mm);//->DisableOpticalPhotonGeneration();
 	}
-	 
+	
 	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gzOffset),frame_log, "UVFilterFrame", gas_volume_log, false, 0);
 	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gzOffset), boro_log, "Borosilicate", gas_volume_log, false, 0);
-
+	
         gzOffset += boroThick[boroID]/2 + _BUILDING_BLOCK_CLEARANCE_;
       }
-#endif 
       
       //+DefineMirrors(det, flange);
     } //if
 
     //----------------------------
-    // Photon detectors;
-    //----------------------------
+    // Mirrors
+    //---------------------------- 
     //dbox->DefinePyramidMirrorGeometry(_HRPPD_TILE_SIZE_ + _HRPPD_INSTALLATION_GAP_, _PYRAMID_MIRROR_HEIGHT_);
     dbox->DefinePyramidMirrorGeometry(_HRPPD_INSTALLATION_PITCH_, _PYRAMID_MIRROR_HEIGHT_);
+
+    //----------------------------
+    // Photon detectors;
+    //----------------------------
     {
       std::vector<MisalignedLocation2D> xycoord;
     
