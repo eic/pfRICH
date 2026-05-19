@@ -170,7 +170,7 @@ public:
   G4Material *m_HalfInch_CF_HoneyComb, *m_QuarterInch_CF_HoneyComb;  
 
   // FR4 imitation with appropriate rad. length;
-  G4Material *m_FR4, *m_Water, *m_Copper, *m_Silicon, *m_Delrin, *m_PEEK;
+  G4Material *m_FR4, *m_Water, *m_Copper, *m_Silicon, *m_Delrin, *m_PEEK, *m_BlackBox;
 
   G4RadiatorMaterial *m_Nitrogen, *m_Acrylic, *m_FusedSilica, *m_C2F6, *m_Sapphire;
 

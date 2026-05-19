@@ -2,6 +2,7 @@
 #include "G4Box.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
+#include "G4SubtractionSolid.hh"
 
 #define _GEANT_SOURCE_CODE_
 #include <G4Object.h>
@@ -192,29 +193,45 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 	int boroID=UVfilterID[_UVFILTER_];
 	
 	gzOffset += boroThick[boroID]/2;
+
+	const double activeXY=100.0*mm;
 	
-	auto boro_box  = new G4Box("Borosilicate", 100.0/2, 100.0*mm/2, boroThick[boroID]/2);
+	auto boro_box  = new G4Box("Borosilicate", activeXY/2.,activeXY/2., boroThick[boroID]/2);
 	auto boro_log = new G4LogicalVolume(boro_box, m_BorosilicateFilter[boroID],  "Borosilicate", 0, 0, 0);
+	//auto boro_log = new G4LogicalVolume(boro_box, m_Aerogel[GetAerogelId("tsa120_1")],  "Borosilicate", 0, 0, 0);
 
 	if (m_BorosilicateFilter[boroID]) std::cout<<"Borosilicate UV filter material: "<<m_BorosilicateFilter[boroID]->GetName()<<std::endl;
 	else std::cout<<"No Borosilicate material"<<std::endl;
-	  
-	{
+
+	// Blackhole frame around the active area.
+	const double frameW   = 0.5*mm;   // blackhole border width
+	const double filterXY = activeXY + 2.0*frameW;
+
+	auto frame_outer = new G4Box("UVFilterFrameOuter",filterXY/2, filterXY/2, boroThick[boroID]/2);
+	
+	// Slightly larger in z so the subtraction punches through cleanly.
+	auto frame_inner = new G4Box("UVFilterFrameInner",activeXY/2, activeXY/2,boroThick[boroID]/2 + 0.1*mm);
+	auto frame_solid = new G4SubtractionSolid("UVFilterFrameSolid",frame_outer, frame_inner);
+	auto frame_log = new G4LogicalVolume(frame_solid,
+					     m_BlackBox,   // or your absorber material
+					     "UVFilterFrame", 0, 0, 0);
+	//frame_log->SetVisAttributes(G4VisAttributes::GetInvisible());
+
+	{//Requires refractive index definition in Materials.cc
           TVector3 nx(1*sign,0,0), ny(0,-1,0);
 	  
           auto surface = new FlatSurface(sign*(1/mm)*TVector3(0, 0, fvOffset +
                                                               gas_volume_offset + gzOffset), nx, ny);
           m_Geometry->AddFlatRadiator(cdet, "Borosilicate", CherenkovDetector::Upstream,
-				      0, boro_log, m_BorosilicateFilter[boroID], surface, boroThick[boroID]/mm)->DisableOpticalPhotonGeneration();
-
-	  //radiatorBoro->DisableOpticalPhotonGeneration(); 
+				      0, boro_log, m_BorosilicateFilter[boroID], surface, boroThick[boroID]/mm);//->DisableOpticalPhotonGeneration();
 	}
-
+	 
+	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gzOffset),frame_log, "UVFilterFrame", gas_volume_log, false, 0);
 	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gzOffset), boro_log, "Borosilicate", gas_volume_log, false, 0);
-	
+
         gzOffset += boroThick[boroID]/2 + _BUILDING_BLOCK_CLEARANCE_;
       }
-#endif
+#endif 
       
       //+DefineMirrors(det, flange);
     } //if
@@ -237,7 +254,8 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 	  for(unsigned iy=0; iy<hdim; iy++) {
 	    double yOffset = _HRPPD_INSTALLATION_PITCH_*(iy - (hdim-1)/2.); 
 
-	    if (!((ix+iy)%2)) continue;
+	    //if (!((ix+iy)%2)) continue;
+	    if (ix==1 && iy==1) continue;
 	    
 	    xycoord.push_back(MisalignedLocation2D(xOffset, yOffset, 0.0, 0.0, 0.0, true));
 	  } //for iy
@@ -275,6 +293,7 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
     } //if
 
     m_DarkBoxes.push_back(dbox);
+
   } //for idt
 
   return expHall_phys;

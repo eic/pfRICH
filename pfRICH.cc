@@ -54,7 +54,7 @@ int main(int argc, char** argv)
   unsigned stat = _STATISTICS_DEFAULT_;
   G4String outfile = "pfrich.root";
 
-  G4long myseed = 345354;
+  G4long myseed = -1;
   for ( G4int i=1; i<argc; i=i+2 ) {
     if      ( G4String(argv[i]) == "-m" )              macro                = argv[i+1];
     else if ( G4String(argv[i]) == "-u" )              session              = argv[i+1];
@@ -101,7 +101,8 @@ int main(int argc, char** argv)
   G4RunManager * runManager = new G4RunManager;
 
   // Seed the random number generator manually
-  G4Random::setTheSeed(myseed);
+  if (myseed) G4Random::setTheSeed(myseed);
+  else G4Random::setTheSeed(time(nullptr));
 
   // Set mandatory initialization classes
   //

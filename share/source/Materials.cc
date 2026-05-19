@@ -186,7 +186,7 @@ Materials::Materials( void ): CherenkovWaveLengthRange(_WLDIM_, _NU_MIN_, _NU_ST
   for (std::size_t i=0;i<nUVFilter;i++) m_BorosilicateFilter[i] = 0;
 
   m_FakeCarbon_1_g_cm3 = m_HalfInch_CF_HoneyComb = m_QuarterInch_CF_HoneyComb = 0;  
-  m_FR4 = m_Water = m_Copper = m_Silicon = m_Delrin = m_PEEK = 0;
+  m_FR4 = m_Water = m_Copper = m_Silicon = m_Delrin = m_PEEK = m_BlackBox = 0;
 
 } // Materials::Materials()
 
@@ -633,25 +633,25 @@ void Materials::DefineMaterials(const G4String &aerogelTag, double ri3, double r
   //---------------------
   {
     //Ping: make sure the order in the arrays match UVfilterID in cern.default.h !!!
-    
-    std::string UVfilterName[nUVFilter]={"LP330","LP285"};
-    
-    double boroDensity[nUVFilter]={2.2 ,2.23};   // g/cm^3
+
+    std::string UVfilterName[nUVFilter]={"LP330","LP285"};    
+    double boroDensity[nUVFilter]={2.2*g/cm3 ,2.23*g/cm3};   // g/cm^3
     const int nE_boro[nUVFilter]={28,31};
     
     double EboroAbs[nUVFilter][31]={
-      {1.55, 1.59, 1.63, 1.68, 1.72, 1.77, 1.83, 1.88, 1.94, 2.00,
-       2.07, 2.14, 2.22, 2.31, 2.39, 2.49, 2.60, 2.71, 2.84, 2.97,
-       3.13, 3.29, 3.48, 3.69, 3.92, 4.19, 4.85, 6.36},//, 0.00, 0.00},
-      {1.55, 1.59, 1.63, 1.68, 1.72, 1.77, 1.83, 1.88, 1.94, 2.00,
-       2.07, 2.14, 2.22, 2.31, 2.39, 2.49, 2.60, 2.71, 2.84, 2.97,
-       3.13, 3.29, 3.48, 3.69, 3.92, 4.19, 4.50, 4.85, 5.27, 5.76,
-       6.36}};
+      {1.55*eV, 1.59*eV, 1.63*eV, 1.68*eV, 1.72*eV, 1.77*eV, 1.83*eV, 1.88*eV, 1.94*eV, 2.00*eV,
+       2.07*eV, 2.14*eV, 2.22*eV, 2.31*eV, 2.39*eV, 2.49*eV, 2.60*eV, 2.71*eV, 2.84*eV, 2.97*eV,
+       3.13*eV, 3.29*eV, 3.48*eV, 3.69*eV, 3.92*eV, 4.19*eV, 4.85*eV, 6.36*eV, 100.00*eV, 100.00},
+      {1.55*eV, 1.59*eV, 1.63*eV, 1.68*eV, 1.72*eV, 1.77*eV, 1.83*eV, 1.88*eV, 1.94*eV, 2.00*eV,
+       2.07*eV, 2.14*eV, 2.22*eV, 2.31*eV, 2.39*eV, 2.49*eV, 2.60*eV, 2.71*eV, 2.84*eV, 2.97*eV,
+       3.13*eV, 3.29*eV, 3.48*eV, 3.69*eV, 3.92*eV, 4.19*eV, 4.50*eV, 4.85*eV, 5.27*eV, 5.76*eV,
+       6.36*eV}};
     
     double absLengthBoro[nUVFilter][31]={
       {1.39*cm, 1.51*cm, 1.49*cm, 1.53*cm, 1.58*cm, 1.60*cm, 1.64*cm, 1.68*cm, 1.71*cm, 1.72*cm,
        1.79*cm, 1.81*cm, 1.87*cm, 1.90*cm, 1.88*cm, 1.81*cm, 1.72*cm, 1.71*cm, 1.64*cm, 1.59*cm,
-       1.59*cm, 1.33*cm, 1.21*cm, 0.54*cm, 0.13*cm, 0.03*cm, 0.02*cm, 0.03*cm},//, 0.00, 0.00},
+       1.59*cm, 1.33*cm, 1.21*cm, 0.54*cm, 0.13*cm, 0.03*cm, 0.02*cm, 0.03*cm, 0.00,    0.00,
+       0.00},
       {10.28*cm, 21.32*cm, 17.68*cm, 13.81*cm, 41.33*cm, 16.27*cm, 24.19*cm, 18.66*cm, 14.41*cm, 10.33*cm,
        7.12*cm, 6.27*cm, 5.95*cm, 5.95*cm, 5.49*cm, 4.94*cm, 4.30*cm, 4.14*cm, 3.72*cm, 3.57*cm,
        3.93*cm, 3.40*cm, 1.40*cm, 0.58*cm, 0.33*cm, 0.21*cm, 0.13*cm, 0.05*cm, 0.02*cm, 0.03*cm,
@@ -659,12 +659,11 @@ void Materials::DefineMaterials(const G4String &aerogelTag, double ri3, double r
 
     const int nEboroRindex=46;
     double EboroRindex[nEboroRindex]=
-      {1.5895, 1.6531, 1.7857, 1.8330, 1.8505, 1.8891, 1.9074, 1.9160, 1.9258, 1.9525,
-       1.9593, 1.9743, 2.0262, 2.0869, 2.1039, 2.1100, 2.1443, 2.2704, 2.2812, 2.3305,
-       2.4098, 2.4282, 2.4713, 2.4972, 2.5407, 2.5506, 2.5830, 2.6020, 2.6229, 2.6617,
-       2.7077, 2.8076, 2.8450, 2.9804, 3.0636, 3.4080, 3.4955, 3.5313, 3.5323, 3.6780,
-       3.8149, 4.0255, 4.6611, 4.8243, 4.9994, 5.0813};
-    
+      {1.5895*eV, 1.6531*eV, 1.7857*eV, 1.8330*eV, 1.8505*eV, 1.8891*eV, 1.9074*eV, 1.9160*eV, 1.9258*eV, 1.9525*eV,
+       1.9593*eV, 1.9743*eV, 2.0262*eV, 2.0869*eV, 2.1039*eV, 2.1100*eV, 2.1443*eV, 2.2704*eV, 2.2812*eV, 2.3305*eV,
+       2.4098*eV, 2.4282*eV, 2.4713*eV, 2.4972*eV, 2.5407*eV, 2.5506*eV, 2.5830*eV, 2.6020*eV, 2.6229*eV, 2.6617*eV,
+       2.7077*eV, 2.8076*eV, 2.8450*eV, 2.9804*eV, 3.0636*eV, 3.4080*eV, 3.4955*eV, 3.5313*eV, 3.5323*eV, 3.6780*eV,
+       3.8149*eV, 4.0255*eV, 4.6611*eV, 4.8243*eV, 4.9994*eV, 5.0813*eV};
     
     double RIndexBoro[nEboroRindex]=
       {1.4537, 1.4542, 1.4554, 1.4559, 1.4560, 1.4564, 1.4565, 1.4566, 1.4567, 1.4569,
@@ -673,7 +672,6 @@ void Materials::DefineMaterials(const G4String &aerogelTag, double ri3, double r
        1.4650, 1.4662, 1.4667, 1.4685, 1.4696, 1.4747, 1.4761, 1.4767, 1.4767, 1.4792,
        1.4816, 1.4856, 1.4997, 1.5038, 1.5086, 1.5109};
     
-    //G4Material* m_BorosilicateFilter[nUVFilter];
     G4MaterialPropertiesTable* borosilicateFilterMPT[nUVFilter];
     for (std::size_t iUV=0 ; iUV < nUVFilter ; iUV++) {
       m_BorosilicateFilter[iUV] = new G4RadiatorMaterial(Form("BorosilicateFilter_%s",UVfilterName[iUV].c_str()), boroDensity[iUV], 5);
@@ -682,11 +680,10 @@ void Materials::DefineMaterials(const G4String &aerogelTag, double ri3, double r
       m_BorosilicateFilter[iUV]->AddElement(m_B , 0.040); // from B2O3
       m_BorosilicateFilter[iUV]->AddElement(m_Na, 0.028); // from Na2O
       m_BorosilicateFilter[iUV]->AddElement(m_Al, 0.020); // from Al2O3
-      
+
       borosilicateFilterMPT[iUV] = new G4MaterialPropertiesTable();
       borosilicateFilterMPT[iUV]->AddProperty("RINDEX", EboroRindex, RIndexBoro, nEboroRindex);
       borosilicateFilterMPT[iUV]->AddProperty("ABSLENGTH", EboroAbs[iUV], absLengthBoro[iUV], nE_boro[iUV]);
-
       m_BorosilicateFilter[iUV]->SetMaterialPropertiesTable(borosilicateFilterMPT[iUV]);
 
       std::cout<<"*** built "<<m_BorosilicateFilter[iUV]->GetName()<<std::endl;
@@ -836,6 +833,20 @@ void Materials::DefineMaterials(const G4String &aerogelTag, double ri3, double r
   }
 
   //---------------------
+  // Black box
+  //---------------------
+  {
+    m_BlackBox=new G4Material("BlackBox",0,1);
+    m_BlackBox->AddMaterial(m_Air,1.);
+
+    double eBlackBox[2]={0,10};
+    double absLengthBlackBox[2]={0*cm, 0*cm};
+    
+    G4MaterialPropertiesTable* BlackBoxMPT=new G4MaterialPropertiesTable();
+    BlackBoxMPT->AddProperty("ABSLENGTH", eBlackBox,absLengthBlackBox,2);
+    m_BlackBox->SetMaterialPropertiesTable(BlackBoxMPT);
+  }
+  
   {
     // Manage readable printout;
     auto half = m_HalfInch_CF_HoneyComb, quarter = m_QuarterInch_CF_HoneyComb;

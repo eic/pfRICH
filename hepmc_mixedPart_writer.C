@@ -23,7 +23,7 @@
 
 using namespace HepMC3;
 
-void hepmc_mixedPart_writer(const char *out_fname, int npart, Double_t thMin, Double_t thMax, Double_t pMin, Double_t pMax, int n_events)
+void hepmc_mixedPart_writer(const char *out_fname, Double_t thMin, Double_t thMax, Double_t pMin, Double_t pMax, int n_events)
 {
   auto *DatabasePDG = new TDatabasePDG();
   auto *pion = DatabasePDG->GetParticle(211); //
@@ -52,28 +52,26 @@ void hepmc_mixedPart_writer(const char *out_fname, int npart, Double_t thMin, Do
     v1->add_particle_in(p1);
     v1->add_particle_in(p2);
 
-    for (int i=0;i<npart;i++) {
-      // Set Kinematics
-      //Double_t eta   = rdmn_gen->Uniform(etaMin, etaMax);
-      //Double_t th    = 2*std::atan(exp(-eta));
-      Double_t th    = rdmn_gen->Uniform(thMin, thMax);
-      Double_t p     = rdmn_gen->Uniform(pMin, pMax);
-      Double_t phi   = rdmn_gen->Uniform(0.0*M_PI/180.0, 360.0*M_PI/180.);
-      //Double_t phi   = rdmn_gen->Uniform(85.0*M_PI/180.0, 95.0*M_PI/180.);
-      
-      Double_t px    = p * std::cos(phi) * std::sin(th);
-      Double_t py    = p * std::sin(phi) * std::sin(th);
-      Double_t pz    = p * std::cos(th);
-
-      TParticlePDG *particle = pion;
-      if (rdmn_gen->Uniform(0,1)<KaonToPion) particle = kaon;
+    // Set Kinematics
+    //Double_t eta   = rdmn_gen->Uniform(etaMin, etaMax);
+    //Double_t th    = 2*std::atan(exp(-eta));
+    Double_t th    = rdmn_gen->Uniform(thMin, thMax);
+    Double_t p     = rdmn_gen->Uniform(pMin, pMax);
+    Double_t phi   = rdmn_gen->Uniform(0.0*M_PI/180.0, 360.0*M_PI/180.);
+    //Double_t phi   = rdmn_gen->Uniform(85.0*M_PI/180.0, 95.0*M_PI/180.);
     
-      GenParticlePtr pq = std::make_shared<GenParticle>(FourVector(
-								   px, py, pz,
-								   sqrt(p*p + pow(particle->Mass(), 2))),
-							particle->PdgCode(), 1);
-      v1->add_particle_out(pq);
-    }
+    Double_t px    = p * std::cos(phi) * std::sin(th);
+    Double_t py    = p * std::sin(phi) * std::sin(th);
+    Double_t pz    = p * std::cos(th);
+    
+    TParticlePDG *particle = pion;
+    if (rdmn_gen->Uniform(0,1)<KaonToPion) particle = kaon;
+    
+    GenParticlePtr pq = std::make_shared<GenParticle>(FourVector(
+								 px, py, pz,
+								 sqrt(p*p + pow(particle->Mass(), 2))),
+						      particle->PdgCode(), 1);
+    v1->add_particle_out(pq);
     evt.add_vertex(v1);
 
     if (events_parsed == 0) {
