@@ -176,12 +176,11 @@ mkdir hepmc
 root 'hepmc_mixedPart_writer.C("hepmc/singelPiK_1kevt.hepmc",0,0.035,-7,-5, 1000)'
 ./build/pfrich-cern -i hepmc/singelPiK_1kevt.hepmc -o pfrich-cern.root -s 1000
 
-#Other options
+#Other options for running ./build/pfrich-cern
 # -agel: tsa114_3, tsa120_1, or tsa120_2
 # -uv  : LP330 or LP285
 
 root -l 'scripts/hit-map-cern-2x2-ver1.C("pfrich-cern.root")'
-root -l 'scripts/hit-map-cern-2x2-ver2.C("pfrich-cern.root")'
 root -l 'scripts/hit-map-cern-2x2-ver2.C("pfrich-cern.root")'
 
 # This one is also time consuming; comment "#define _ZCOORD_ASPHERIC_LENS_" in cern.default.h", 
