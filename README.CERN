@@ -128,6 +128,19 @@ make -j8 install
 
 ```
 #
+# Install HepMC3 (optional, only needed for a full ePIC pfRICH simulation);
+#
+cd ${SANDBOX}
+
+git clone https://gitlab.cern.ch/hepmc/HepMC3.git
+cd HepMC3 && mkdir build && cd build
+cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -DHEPMC3_ENABLE_ROOTIO=ON -DHEPMC3_ENABLE_PYTHON=OFF ..
+make -j8 install
+```
+
+
+```
+#
 # Install pfRICH simulation codes themselves
 #
 cd ${SANDBOX}/pfRICH
@@ -140,81 +153,13 @@ pushd cern/include   && ln -s cern.default.h   cern.h && popd
 pushd tstand/include && ln -s tstand.default.h tstand.h && popd
 
 mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -DIRT=${SANDBOX} -DXERCES=${SANDBOX} -Wno-dev ..
+cmake -DCMAKE_INSTALL_PREFIX=${SANDBOX} -DIRT=${SANDBOX} -DHEPMC3=${SANDBOX} -DXERCES=${SANDBOX} -Wno-dev ..
 
 make -j8 install
 ```
 
 Example scripts 
 ---------------
-
-```
-#
-# A full ePIC pfRICH detector
-#
-cd ${SANDBOX}/pfRICH
-# FIXME: may need to click on "Useful tips", then on "viewer-0" in a Qt display;
-./build/pfrich-epic -m macro/vis-epic.mac
-```
-
-A GEANT Qt display will appear with a picture similar to the image below. Use a green button 
-in the Qt display controls to generate more events.  
- 
-![](pics/epic-geant-qt.png)
-
-
-```
-# Generate a file *pfrich-epic.root* with 1000 7 GeV/c pions at eta = -2.5
-./build/pfrich-epic -o pfrich-epic.root -s 1000
-
-# See a hit map in the sensor plane;
-root -l 'scripts/hit-map-epic.C("pfrich-epic.root")'
-```
-
-![](pics/epic-hit-map.png)
-
-Consider to uncomment *#define PRIMARY_PARTICLE_PHI* in [epic/include/epic.default.h](epic/include/epic.default.h), 
-recompile and rerun both commands, in order to see a clear ring. 
-
-```
-# Run IRT reconstruction; 
-root -l 'scripts/reco-epic.C("pfrich-epic.root")'
-```
-
-![](pics/epic-reco.png)
-
-Top row of plots: reconstructed single photon Cherenkov angle distribution, its equivalent representation as a 
-cumulative chi^2 distribution with one degree of freedom, track-level cumulative chi^2 distribution with N degrees 
-of freedom (over N photons associated with a given track), event-level cumulative chi^2 distribution which is of 
-course identical to the track-level one because there was only one track per events generated. *Cumulative chi^2
-distributions are expected to be reasonably uniform, otherwise something must be fundamentally wrong with the 
-reconstruction procedure*.
-
-Middle row of plots: Cherenkov photon hit count associated with a given track (should look like a 
-Poissonian distribution), pion/kaon (mis)identification rate, the same plot, Cherenkov photon timing resolution 
-(ignore).
-
-Bottom row of plots: Track-level reconstructed Cherenkov angle distribution, wavelength distribution of detected
-photons (a convolution of several effects), empty panel, truth refractive index in aerogel for the detected photons.
-
-
-```
-#
-# A Fermilab mockup of a pfRICH detector
-#
-./build/pfrich-ftbf -m macro/vis-ftbf.mac
-
-# Will take quite some time because of the optical photon tracing in the lens radiator;
-./build/pfrich-ftbf -o pfrich-ftbf.root -s 1000
-
-root -l 'scripts/hit-map-ftbf-1x1.C("pfrich-ftbf.root")'
-root -l 'scripts/hit-map-ftbf-2x2.C("pfrich-ftbf.root")'
-
-# This one is also time consuming; comment "#define _ZCOORD_ASPHERIC_LENS_" in ftbf.default.h", 
-# recompile and re-run ./build/pfrich-ftbf if the lens is of no interest;
-root -l 'scripts/reco-ftbf.C("pfrich-ftbf.root")'
-```
-
 ```
 #
 # A CERN 2026 mockup of a pfRICH detector
@@ -222,10 +167,18 @@ root -l 'scripts/reco-ftbf.C("pfrich-ftbf.root")'
 ./build/pfrich-cern -m macro/vis-cern.mac
 
 # Will take quite some time because of the optical photon tracing in the lens radiator;
-./build/pfrich-cern -mom 7 -part pi+ -agel tsa120_1 -s 1000
 
-root -l 'scripts/hit-map-cern-1x1.C("pfrich-cern.root")'
-root -l 'scripts/hit-map-cern-2x2.C("pfrich-cern.root")'
+#Run 1000 events of single pi- at 5 GeV/c (available particles: pi-, pi-, K+, K-)
+./build/pfrich-cern -o pfrich-cern.root -part pi- -mom 5 -s 1000
+
+#Run 1000 HepMC events of single pion or kaon
+mkdir hepmc
+root 'hepmc_mixedPart_writer.C("hepmc/singelPiK_1kevt.hepmc",0,0.035,-7,-5, 1000)'
+./build/pfrich-cern -i hepmc/singelPiK_1kevt.hepmc -o pfrich-cern.root -s 1000
+
+root -l 'scripts/hit-map-cern-2x2-ver1.C("pfrich-cern.root")'
+root -l 'scripts/hit-map-cern-2x2-ver2.C("pfrich-cern.root")'
+root -l 'scripts/hit-map-cern-2x2-ver2.C("pfrich-cern.root")'
 
 # This one is also time consuming; comment "#define _ZCOORD_ASPHERIC_LENS_" in cern.default.h", 
 # recompile and re-run ./build/pfrich-cern if the lens is of no interest;
