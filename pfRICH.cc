@@ -75,8 +75,8 @@ int main(int argc, char** argv)
     }
     else if ( isCERN && G4String(argv[i]) == "-uv" ) {
       gBorosilicate = argv[i+1];
-      if (gBorosilicate!="LP330" && gBorosilicate!="LP285" && gBorosilicate!="acrylic") {
-	G4cerr<<"Available uv filter options: acrylic, LP330 or LP285"<<G4endl;
+      if (gBorosilicate!="LP330" && gBorosilicate!="LP285" && gBorosilicate!="acrylic" && gBorosilicate!="noFilter") {
+	G4cerr<<"Available uv filter options: acrylic, LP330, LP285 or noFilter"<<G4endl;
 	return 1;
       }
     }

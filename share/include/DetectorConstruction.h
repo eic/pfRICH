@@ -20,8 +20,8 @@ class CherenkovPhotonDetector;
 
 struct MisalignedLocation2D {
 public:
-MisalignedLocation2D(double x, double y, double dx, double dy, double phi, bool pyramid): 
-  m_X(x), m_Y(y), m_dX(dx), m_dY(dy), m_Phi(phi), m_Pyramid(pyramid) {};
+  MisalignedLocation2D(double x, double y, double dx, double dy, double phi, bool pyramid): 
+    m_X(x), m_Y(y), m_dX(dx), m_dY(dy), m_Phi(phi), m_Pyramid(pyramid) {};
 
   // Nominal HRPPD location in the sensor plane (the one which defines a pyramid mirror 
   // set location), as well as small XY-offsets and a Z-rotation;
@@ -33,14 +33,14 @@ MisalignedLocation2D(double x, double y, double dx, double dy, double phi, bool 
 
 struct DarkBox {
 public:
-DarkBox(bool pyramids, bool poptics, bool cmoptics): 
-  m_fiducial_volume_phys(0), m_gas_volume_phys(0), m_gas_volume_length(0.0), 
+  DarkBox(bool pyramids, bool poptics, bool cmoptics): 
+    m_fiducial_volume_phys(0), m_gas_volume_phys(0), m_gas_volume_length(0.0), 
     m_PyramidMirrorWidth(0.0), m_PyramidMirrorHeight(0.0), 
     m_UsePyramids(pyramids), m_UsePyramidOptics(poptics), m_UseConicalMirrorOptics(cmoptics) {
-  // Optical boundaries of the inner and outer conical mirrors; do not want to spoil the 
-  // central area (mirro-less) optical path (would happen if define them in situ);
-  m_mboundaries[0] = m_mboundaries[1] = 0;
-};
+    // Optical boundaries of the inner and outer conical mirrors; do not want to spoil the 
+    // central area (mirro-less) optical path (would happen if define them in situ);
+    m_mboundaries[0] = m_mboundaries[1] = 0;
+  };
   ~DarkBox() {};
 
   G4PVPlacement *m_fiducial_volume_phys, *m_gas_volume_phys;
@@ -62,7 +62,7 @@ public:
   DetectorConstruction(CherenkovDetectorCollection *geometry,const std::string &aerogelTag);
   virtual ~DetectorConstruction() {};
 
- protected:
+protected:
   //virtual G4VPhysicalVolume* Construct( void );
 
   G4OpticalSurface *CreateLambertianMirrorSurface(const char *name, 
@@ -78,7 +78,7 @@ public:
 
   std::vector<DarkBox*> m_DarkBoxes;
 
- private:
+private:
   G4LogicalVolume *BuildHRPPD(G4LogicalVolume *wnd_log, G4Box *pd_box, CherenkovPhotonDetector *pd);
 };
 

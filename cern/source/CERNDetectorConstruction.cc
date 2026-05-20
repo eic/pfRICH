@@ -60,8 +60,9 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
     double fvLength = idt ? _FIDUCIAL_VOLUME_LENGTH_2x2_ : _FIDUCIAL_VOLUME_LENGTH_1x1_;
     
     // Do not use any conical mirrors for now; and do not use pyramids in a 1x1 box;
-    auto dbox = new DarkBox(idt ? _USE_PYRAMIDS_ : false, idt ? _USE_PYRAMID_OPTICS_ : false, false);
-
+    auto dbox = new DarkBox(idt ? _USE_PYRAMIDS_ : false,  idt ? _USE_PYRAMID_OPTICS_ : false, false);
+    //auto dbox = new DarkBox(false, idt ? _USE_CENTERPYRAMIDS_ : false, idt ? _USE_PYRAMID_OPTICS_ : false, false);
+    
     // Fiducial volume (air); has to be called "PFRICH";
     auto *fiducial_volume_box = new G4Box("PFRICH", 400.0*mm/2, 400.0*mm/2, fvLength/2);
     auto fiducial_volume_log = new G4LogicalVolume(fiducial_volume_box, m_Air,  "PFRICH", 0, 0, 0);
@@ -189,7 +190,7 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 	//----------------------------
 	// borosillicate filter
 	//---------------------------- 
-	double boroThick[2]={1.854, 2.007}; //mm;   [LP330, LP285]
+	double boroThick[2]={1.854*mm, 2.007*mm}; //mm;   [LP330, LP285]
 	
 	int boroID=UVfilterID[_UVFILTER_];
 	
@@ -242,6 +243,14 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
     //dbox->DefinePyramidMirrorGeometry(_HRPPD_TILE_SIZE_ + _HRPPD_INSTALLATION_GAP_, _PYRAMID_MIRROR_HEIGHT_);
     dbox->DefinePyramidMirrorGeometry(_HRPPD_INSTALLATION_PITCH_, _PYRAMID_MIRROR_HEIGHT_);
 
+    /*
+    {// flat mirror
+      auto mirror_box = new G4Box("flatMirror", 5*cm/2., 3*cm/2., 1*cm/2.);
+      auto mirror_log = new G4LogicalVolume(mirror_box, m_mirror, "flatMirror",0,0,0);
+      new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gzOffset), mirror_log, "flatMirror", gas_volume_log, false, 0);
+    }
+    */
+    
     //----------------------------
     // Photon detectors;
     //----------------------------

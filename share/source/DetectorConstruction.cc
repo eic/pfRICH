@@ -120,7 +120,8 @@ void DetectorConstruction::BuildPhotonDetectorMatrix(CherenkovDetector *cdet, Da
     pyramid = new CherenkovMirror(pyra_shape, m_Absorber);
     
     pyramid->SetColor(G4Colour(0, 1, 1, 0.5));
-    pyramid->SetReflectivity(_MIRROR_REFLECTIVITY_, this);
+    //pyramid->SetReflectivity(_MIRROR_REFLECTIVITY_, this);
+    pyramid->SetReflectivity();
     
     // Mimic the essential part of the mirror->PlaceWedgeCopies() call;
     pyramid->DefineLogicalVolume();
