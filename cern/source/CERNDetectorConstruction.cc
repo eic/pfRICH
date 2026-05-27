@@ -270,7 +270,9 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 	    //if (!((ix+iy)%2)) continue;
 	    if (ix==1 && iy==1) continue;
 	    
-	    xycoord.push_back(MisalignedLocation2D(xOffset, yOffset, 0.0, 0.0, 0.0, true));
+	    if (!((ix+iy)%2)) xycoord.push_back(MisalignedLocation2D(xOffset, yOffset, 0.0, 0.0, 0.0, false));
+	    else xycoord.push_back(MisalignedLocation2D(xOffset, yOffset, 0.0, 0.0, 0.0, true));
+	    
 	  } //for iy
 	} //for ix
       }
@@ -279,9 +281,12 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 	// a DarkBox instance (see above);
 	xycoord.push_back(MisalignedLocation2D(0.0, 0.0, 0.0, 0.0, 0.0, false));
 	
-      BuildPhotonDetectorMatrix(cdet, dbox, fvOffset, 
+      //BuildPhotonDetectorMatrix(cdet, dbox, fvOffset, 
 				// FIXME: is this offset correct?; front plate thickness?;
-				fvLength/2 - _SENSOR_AREA_LENGTH_, xycoord);
+      //			fvLength/2 - _SENSOR_AREA_LENGTH_, xycoord);
+
+      BuildPhotonDetectorMatrixCERN2026(cdet, dbox, fvOffset,fvLength/2 - _SENSOR_AREA_LENGTH_, xycoord);
+				
     }
 
     if (!idt) {
