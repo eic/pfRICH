@@ -23,7 +23,7 @@ namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
     G4cerr << " pfrich [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-i <input HEPMC3 file>] [-o <output ROOT file>] << G4endl"<< G4endl;
-    G4cerr << " pfrich-cern [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-o <output ROOT file>] [-i input.hepmc] [-mom <momentum in GeV/c>] [-part <pi+ or kaon+>] [-agel <agel tile>] [-uv <acrylic, LP330 or LP285>]" << G4endl;
+    G4cerr << " pfrich-cern [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-o <output ROOT file>] [-i input.hepmc] [-mom <momentum in GeV/c>] [-part <pi/K/p>] [-agel <agel tile>] [-uv <acrylic, LP330 or LP285>]" << G4endl;
   }
 }
 
@@ -65,7 +65,16 @@ int main(int argc, char** argv)
     else if ( G4String(argv[i]) == "-r" )              myseed               = atoi(argv[i+1]);
     else if ( G4String(argv[i]) == "-s" )              stat                 = atoi(argv[i+1]);
     else if ( isCERN && G4String(argv[i]) == "-mom" )  gPrimaryMomentumGeV  = atoi(argv[i+1]);
-    else if ( isCERN && G4String(argv[i]) == "-part" ) gPrimaryParticle     = argv[i+1];
+    else if ( isCERN && G4String(argv[i]) == "-part" ) {
+      gPrimaryParticle     = argv[i+1];
+
+      if (gPrimaryParticle!="pi+" && gPrimaryParticle!="pi-" &&
+	  gPrimaryParticle!="kaon+" && gPrimaryParticle!="kaon-" &&
+	  gPrimaryParticle!="proton" && gPrimaryParticle!="anti_proton") {
+	G4cerr<<"Available particle options: pi+, pi-, kaon+, kaon-, proton and anti_proton"<<G4endl;
+	return 1;
+      }
+    }
     else if ( isCERN && G4String(argv[i]) == "-agel" ) {
       gAerogel1=argv[i+1];
       if (gAerogel1!= "tsa114_3" && gAerogel1!= "tsa120_1" &&  gAerogel1!= "tsa120_2") {

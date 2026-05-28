@@ -115,7 +115,9 @@ CERNPrimaryGeneratorAction::CERNPrimaryGeneratorAction(const char *hepmc)
     G4ParticleTable *particleTable = G4ParticleTable::GetParticleTable();
 
     G4String primaryName = gPrimaryParticle;
-    if (primaryName != "pi+" && primaryName != "kaon+") {
+    if (primaryName != "pi+"   && primaryName != "pi-" &&
+	primaryName != "kaon+" && primaryName != "kaon-" &&
+	primaryName != "proton"&& primaryName != "anti_proton") {
       G4cout << "Invalid particle '" << gPrimaryParticle.c_str()
              << "'. Falling back to pi+." << G4endl;
       primaryName = "pi+";

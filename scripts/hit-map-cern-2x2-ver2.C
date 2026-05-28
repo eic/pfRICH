@@ -5,12 +5,16 @@
 //   root -l './hit-map-cern-2x2.C("pfrich.root")'
 //
 void SetHisto(TH1* h);
+void SetHisto2(TH1* h, int s=24, int c=1);
 bool CheckPhotoPos(TVector3 pos);
+
 //----------------------------------------------------------------------------------------
-void hit_map_cern_2x2_ver2(const char *dfname, const char *cfname = 0)
+void hit_map_cern_2x2_ver2(const char *dfname, const char* outfilename, const char *cfname = 0)
 {
   gStyle->SetPalette(1);
   gStyle->SetOptStat(0);
+  gStyle->SetLegendBorderSize(0);
+  TH1::SetDefaultSumw2();
 
   auto fcfg  = new TFile(cfname ? cfname : dfname);
   auto geometry = dynamic_cast<CherenkovDetectorCollection*>(fcfg->Get("CherenkovDetectorCollection"));
@@ -25,15 +29,22 @@ void hit_map_cern_2x2_ver2(const char *dfname, const char *cfname = 0)
   double pitch = 3.25, size = dim*pitch;
   auto hxyAll = new TH2D("hxyAll", "", dim, -size/2, size/2, dim, -size/2, size/2);
   auto hxy = new TH2D("hxy", "", dim, -size/2, size/2, dim, -size/2, size/2);
-
+  auto hAllPhoton = new TH1D("hAllPhoton", ";Hits per track;",21 ,-0.5,20.5);
+  auto hPhoton = new TH1D("hPhoton", ";Hits per track;", 21 ,-0.5,20.5);
+  auto hAccept = new TH1D("hAccept", ";Accepted hits / all hits;", 20,0,1);
+  auto hGoodEvt = new TH1D("hGoodEvt", ";;", 1,0,1);
+  
+  double nGood=0;
   for(unsigned ev=0; ev<nEvents; ev++) {
     t->GetEntry(ev);
 
     for(auto particle: event->ChargedParticles()) {
-
+      //cout<<"part: "<<particle->GetPDG()<<endl;
+      
       for(auto rhistory: particle->GetRadiatorHistory()) {
 	auto history  = particle->GetHistory (rhistory);
-
+	
+	double nAcceptHit=0, nAllHit=0;
 	for(auto photon: history->Photons()) {
 	  if (!photon->WasDetected() ) continue;
 
@@ -47,13 +58,27 @@ void hit_map_cern_2x2_ver2(const char *dfname, const char *cfname = 0)
 	  if (CheckPhotoPos(phx)) fillActive=true;
 
 	  phx.RotateZ(TMath::Pi()/4.);
-	  if (fillActive) hxy->Fill(phx.X(), phx.Y());
-	  if (fillAll) hxyAll->Fill(phx.X(), phx.Y());
+	  if (fillActive) {
+	    hxy->Fill(phx.X(), phx.Y());
+	    nAcceptHit++;
+	  }
+	  if (fillAll) {
+	    hxyAll->Fill(phx.X(), phx.Y());
+	    nAllHit++;
+	  }
 	} //for photon
+
+	if (!nAllHit) continue;
+	hAllPhoton->Fill(nAllHit);
+	hPhoton->Fill(nAcceptHit);
+	hAccept->Fill(nAcceptHit/nAllHit);
+	if (nAcceptHit>0) nGood++;
       } //for rhistory
     } //for particle
   } //for ev
 
+  hGoodEvt->SetBinContent(1,nGood/nEvents);
+  
   auto cv = new TCanvas("cv", "", 1000, 1000);
   cv->Range(0,0,1,1);
   gPad->SetGrid();
@@ -83,6 +108,51 @@ void hit_map_cern_2x2_ver2(const char *dfname, const char *cfname = 0)
     pline[j]->SetLineColor(1);
     pline[j]->Draw();
   }
+
+
+  auto cCnt= new TCanvas("cCnt", "hit cnt", 1200, 500);
+  cCnt->Range(0,0,1,1);
+  cCnt->Divide(2);
+
+  cCnt->cd(1);
+  gPad->SetTopMargin(0.01);
+  gPad->SetBottomMargin(0.12);
+  gPad->SetLeftMargin(0.12);
+  gPad->SetRightMargin(0.01);
+  gPad->SetGrid();
+  SetHisto2(hAllPhoton, 24, kAzure);
+  SetHisto2(hPhoton, 25, kPink);
+  hAllPhoton->SetMaximum(1.2*max(hAllPhoton->GetMaximum(),hPhoton->GetMaximum()));
+  hAllPhoton->Draw();
+  hPhoton->SetMaximum(1.2*max(hAllPhoton->GetMaximum(),hPhoton->GetMaximum()));
+  hPhoton->Draw("same");
+
+  TLegend* legCnt=new TLegend(0.5,0.8,0.95,0.95);
+  legCnt->SetFillStyle(0);
+  legCnt->SetTextFont(43);
+  legCnt->SetTextSize(20);
+  legCnt->AddEntry(hAllPhoton,Form("All hits, mean=%.1f",hAllPhoton->GetMean()),"p");
+  legCnt->AddEntry(hPhoton,Form("Accepted hits, mean=%.1f",hPhoton->GetMean()),"p");
+  legCnt->Draw();
+  
+  cCnt->cd(2);
+  gPad->SetTopMargin(0.01);
+  gPad->SetBottomMargin(0.12);
+  gPad->SetLeftMargin(0.12);
+  gPad->SetRightMargin(0.01);
+  gPad->SetGrid();
+  SetHisto2(hAccept,24,1);
+  hAccept->Draw();
+
+  TFile* fout=new TFile(outfilename,"recreate");
+  fout->cd();
+  hxyAll->Write();
+  hxy->Write();
+  hAllPhoton->Write();
+  hPhoton->Write();
+  hAccept->Write();
+  hGoodEvt->Write();
+  fout->Close();
   
 } // hit_map_cern_2x2()
 //----------------------------------------------------------------------------------------
@@ -108,4 +178,26 @@ void SetHisto(TH1* h)
   h->GetYaxis()->SetTitle("Sensor plane Y, [mm]");
   h->GetXaxis()->SetTitleOffset(1.20);
   h->GetYaxis()->SetTitleOffset(1.40);
+}
+//----------------------------------------------------------------------------------------
+void SetHisto2(TH1* h, int s=24, int c=1)
+{
+  h->SetStats(0);
+  h->SetMarkerStyle(s);
+  h->SetMarkerColor(c);
+  h->SetLineColor(c);
+
+  h->GetXaxis()->SetNdivisions(505);
+  h->GetXaxis()->SetTitleFont(43);
+  h->GetXaxis()->SetTitleSize(20);
+  h->GetXaxis()->SetLabelFont(43);
+  h->GetXaxis()->SetLabelSize(20);
+  //h->GetXaxis()->SetTitleOffset(1.20);
+
+  h->GetYaxis()->SetNdivisions(505);
+  h->GetYaxis()->SetTitleFont(43);
+  h->GetYaxis()->SetTitleSize(20);
+  h->GetYaxis()->SetLabelFont(43);
+  h->GetYaxis()->SetLabelSize(20);
+  //h->GetYaxis()->SetTitleOffset(1.40);
 }
