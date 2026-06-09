@@ -75,7 +75,7 @@
 //+#define _QE_DOWNSCALING_FACTOR_          (30.0/34.3)
 #define _QE_DOWNSCALING_FACTOR_          (30.0/34.3)
 #else
-#define _QE_DOWNSCALING_FACTOR_          (30.0/37.0)
+#define _QE_DOWNSCALING_FACTOR_          (1.00) //(30.0/37.0)
 #endif
 
 

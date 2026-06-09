@@ -45,7 +45,6 @@ const AerogelConfig &Materials::GetAerogelConfig(const std::string &tag)
       name,
       thickness (mm),
       density,
-      refractive index,
       photon energy for absorption length,
       absorption length (cm),
       photon energy for refractive index,
@@ -53,6 +52,18 @@ const AerogelConfig &Materials::GetAerogelConfig(const std::string &tag)
       }
       },
     */
+    {"BelleIIAerogel3",
+     AerogelConfig{
+       _AEROGEL_BELLE_II_SMALL_REFRACTIVE_INDEX_,
+       "BelleIIAerogel3",
+       25,
+       0,
+       {0},
+       {0},
+       {0},
+       {0}
+     }
+    },
     {"tsa114_3",
      AerogelConfig{
        _AEROGEL_TSA114_3,   
@@ -127,6 +138,7 @@ const AerogelConfig &Materials::GetAerogelConfig(const std::string &tag)
     }
   };
 
+  
   auto it = cfg.find(tag);
   if (it == cfg.end())throw std::runtime_error("Unknown aerogel tag: " + tag);
 
@@ -144,19 +156,19 @@ void Materials::BuildAerogel(const AerogelConfig &cfg)
   
   std::vector<G4double> photonE_abs = cfg.photon_energies_abs;
   std::reverse(photonE_abs.begin(), photonE_abs.end());
-
+  
   std::vector<G4double> absorption = cfg.absorption_lengths_cm;
   std::reverse(absorption.begin(), absorption.end());
   
   std::vector<G4double> photonE_ref = cfg.photon_energies_ref;
   std::vector<G4double> rindex = cfg.refractive_index;
-    //std::vector<G4double> rindex(photonE.size(), cfg.refractive_index);
+  //std::vector<G4double> rindex(photonE.size(), cfg.refractive_index);
   
   auto *mpt = new G4MaterialPropertiesTable();
   mpt->AddProperty("RINDEX", photonE_ref.data(), rindex.data(), photonE_ref.size());
   mpt->AddProperty("ABSLENGTH", photonE_abs.data(), absorption.data(), photonE_abs.size());
   aerogel->SetMaterialPropertiesTable(mpt);
-
+  
   m_Aerogel[cfg.id] = aerogel;
   m_AerogelThicknessMM[cfg.id] = cfg.thickness_mm;
 }
@@ -403,11 +415,13 @@ void Materials::CreateBelleIIAerogel(bool native, unsigned aid, const char *anam
       if (native) {
 	aerogel->SetMaterialPropertiesTable(mpt);
 	m_Aerogel[id[im]] = aerogel;
+	m_AerogelThicknessMM[id[im]] = 2.5*cm;
       } //if
       if (im) {
 	a1040->SetMaterialPropertiesTable(mpt1040);
 	//+m_Aerogel[_AEROGEL_BELLE_II_REFRACTIVE_INDEX_1_04_] = a1040;
 	m_Aerogel[aid] = a1040;
+	m_AerogelThicknessMM[aid] = 2.5*cm;
       } //if
     } //for mat
     //printf("%s\n", mat->GetName());
@@ -589,11 +603,12 @@ void Materials::DefineMaterials(const G4String &aerogelTag, double ri3, double r
   } 
 
   // FIXME: keep track of #define's and actual values; do it better later;
-  if (!aerogelTag.empty()) BuildAerogel(GetAerogelConfig(aerogelTag));
-  else {
-    CreateBelleIIAerogel(true,  _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag3_, "BelleIIAerogel3", ri3);//1.014);
-    CreateBelleIIAerogel(false, _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag4_, "BelleIIAerogel4", ri4);//1.014);
-  }
+  //if (!aerogelTag.empty()) BuildAerogel(GetAerogelConfig(aerogelTag));
+  
+  if (aerogelTag!="BelleIIAerogel3") BuildAerogel(GetAerogelConfig(aerogelTag));
+
+  CreateBelleIIAerogel(true,  _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag3_, "BelleIIAerogel3", ri3);//1.014);
+  CreateBelleIIAerogel(false, _AEROGEL_BELLE_II_REFRACTIVE_INDEX_Ag4_, "BelleIIAerogel4", ri4);//1.014);
   
   //---------------------
   // UV filter

@@ -1,7 +1,7 @@
 #include <map>
 #include <string>
 
-
+extern int gValidate;
 extern double gPrimaryMomentumGeV;
 extern std::string gPrimaryParticle;
 extern std::string gAerogel1;

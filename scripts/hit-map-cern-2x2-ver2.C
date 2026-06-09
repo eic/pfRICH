@@ -31,8 +31,11 @@ void hit_map_cern_2x2_ver2(const char *dfname, const char* outfilename, const ch
   auto hxy = new TH2D("hxy", "", dim, -size/2, size/2, dim, -size/2, size/2);
   auto hAllPhoton = new TH1D("hAllPhoton", ";Hits per track;",21 ,-0.5,20.5);
   auto hPhoton = new TH1D("hPhoton", ";Hits per track;", 21 ,-0.5,20.5);
+  auto hPhotonE = new TH1D("hPhotonE", ";E_{#gamma} (eV);", 60 ,0.5,5.5);
+  auto hPhotonWL = new TH1D("hPhotonWL", ";#lambda_{#gamma} (nm);", 31 ,300-5,600+5);
   auto hAccept = new TH1D("hAccept", ";Accepted hits / all hits;", 20,0,1);
   auto hGoodEvt = new TH1D("hGoodEvt", ";;", 1,0,1);
+  
   
   double nGood=0;
   for(unsigned ev=0; ev<nEvents; ev++) {
@@ -59,7 +62,12 @@ void hit_map_cern_2x2_ver2(const char *dfname, const char* outfilename, const ch
 
 	  phx.RotateZ(TMath::Pi()/4.);
 	  if (fillActive) {
+	    TVector3 v = photon->GetVertexMomentum();
+	    double energy_eV = v.Mag();
+	    
 	    hxy->Fill(phx.X(), phx.Y());
+	    hPhotonE->Fill(energy_eV);
+	    hPhotonWL->Fill(1239.84/energy_eV);
 	    nAcceptHit++;
 	  }
 	  if (fillAll) {
@@ -77,6 +85,7 @@ void hit_map_cern_2x2_ver2(const char *dfname, const char* outfilename, const ch
     } //for particle
   } //for ev
 
+  /*
   hGoodEvt->SetBinContent(1,nGood/nEvents);
   
   auto cv = new TCanvas("cv", "", 1000, 1000);
@@ -143,6 +152,7 @@ void hit_map_cern_2x2_ver2(const char *dfname, const char* outfilename, const ch
   gPad->SetGrid();
   SetHisto2(hAccept,24,1);
   hAccept->Draw();
+  */
 
   TFile* fout=new TFile(outfilename,"recreate");
   fout->cd();
@@ -152,6 +162,8 @@ void hit_map_cern_2x2_ver2(const char *dfname, const char* outfilename, const ch
   hPhoton->Write();
   hAccept->Write();
   hGoodEvt->Write();
+  hPhotonE->Write();
+  hPhotonWL->Write();
   fout->Close();
   
 } // hit_map_cern_2x2()

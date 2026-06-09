@@ -284,9 +284,9 @@ void DetectorConstruction::SetColor(G4LogicalVolume *lvol, const G4Colour &color
 } // DetectorConstruction::SetColor()
 
 // -------------------------------------------------------------------------------------
-void DetectorConstruction::BuildPhotonDetectorMatrixCERN2026(CherenkovDetector *cdet, DarkBox *dbox,
-							     double fvzOffset, double wzOffset,
-							     const std::vector<MisalignedLocation2D> &xycoord)
+CherenkovPhotonDetector* DetectorConstruction::BuildPhotonDetectorMatrixCERN2026(CherenkovDetector *cdet, DarkBox *dbox,
+										 double fvzOffset, double wzOffset,
+										 const std::vector<MisalignedLocation2D> &xycoord)
 {
   double pdthick = 0.01*mm, zpdc = wzOffset + _HRPPD_WINDOW_THICKNESS_ + pdthick/2;
   G4Box *pd_box  = new G4Box("PhotoDetector", _HRPPD_ACTIVE_AREA_SIZE_/2, _HRPPD_ACTIVE_AREA_SIZE_/2, pdthick/2);
@@ -470,6 +470,8 @@ void DetectorConstruction::BuildPhotonDetectorMatrixCERN2026(CherenkovDetector *
    
    for(auto radiator: cdet->Radiators())
      radiator.second->SetReferenceRefractiveIndex(radiator.second->GetMaterial()->RefractiveIndex(eV*_MAGIC_CFF_/_LAMBDA_NOMINAL_));
+
+   return pd;
 }// DetectorConstruction::BuildPhotonDetectorMatrixCERN2026()  
 
 // ------------------------------------------------------------------------------------- 

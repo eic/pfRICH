@@ -23,7 +23,18 @@ namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
     G4cerr << " pfrich [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-i <input HEPMC3 file>] [-o <output ROOT file>] << G4endl"<< G4endl;
-    G4cerr << " pfrich-cern [-m macro ] [-u UIsession] [-r seed] [-s statistics] [-o <output ROOT file>] [-i input.hepmc] [-mom <momentum in GeV/c>] [-part <pi/K/p>] [-agel <agel tile>] [-uv <acrylic, LP330 or LP285>]" << G4endl;
+    G4cerr << " pfrich-cern \n" 
+	   << " [-m macro ] \n"
+	   << " [-u UIsession] \n"
+	   << " [-r seed] \n"
+	   << " [-s statistics] \n"
+	   << " [-o <output ROOT file>] \n"
+	   << " [-i input.hepmc] \n"
+	   << " [-mom <momentum in GeV/c>] \n"
+	   << " [-part <pi/K/p>] \n"
+	   << " [-agel <agel tile>] \n"
+	   << " [-uv <acrylic, LP330, LP285 or noFilter>] \n"
+	   << " [-v]"<< G4endl;
   }
 }
 
@@ -64,6 +75,7 @@ int main(int argc, char** argv)
     else if ( G4String(argv[i]) == "-o" )              outfile              = argv[i+1];
     else if ( G4String(argv[i]) == "-r" )              myseed               = atoi(argv[i+1]);
     else if ( G4String(argv[i]) == "-s" )              stat                 = atoi(argv[i+1]);
+    else if ( G4String(argv[i]) == "-v" )              { gValidate            = 1; i--; }
     else if ( isCERN && G4String(argv[i]) == "-mom" )  gPrimaryMomentumGeV  = atoi(argv[i+1]);
     else if ( isCERN && G4String(argv[i]) == "-part" ) {
       gPrimaryParticle     = argv[i+1];
@@ -77,8 +89,8 @@ int main(int argc, char** argv)
     }
     else if ( isCERN && G4String(argv[i]) == "-agel" ) {
       gAerogel1=argv[i+1];
-      if (gAerogel1!= "tsa114_3" && gAerogel1!= "tsa120_1" &&  gAerogel1!= "tsa120_2") {
-	G4cerr<<"Available aerogel options: tsa114_3, tsa120_1 or tsa120_2"<<G4endl;     
+      if (gAerogel1!= "tsa114_3" && gAerogel1!= "tsa120_1" &&  gAerogel1!= "tsa120_2" && gAerogel1!= "BelleIIAerogel3") {
+	G4cerr<<"Available aerogel options: tsa114_3, tsa120_1, tsa120_2 or BelleIIAerogel3"<<G4endl;     
 	return 1;
       }
     }

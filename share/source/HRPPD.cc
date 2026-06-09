@@ -175,7 +175,7 @@ G4LogicalVolume *DetectorConstruction::BuildHRPPD(G4LogicalVolume *wnd_log, G4Bo
                             0.130, 0.119, 0.109, 0.099, 0.091, 0.083, 0.076, 0.070, 0.064, 0.058,
                             0.053, 0.048, 0.044, 0.040};
 #elifdef _USE_HRPPD_AVERAGE_DATA_
-    std::cout<<"*** HRPPD QE from Chandra dn Ping ***"<<std::endl;
+    std::cout<<"*** HRPPD QE from Chandra and Ping ***"<<std::endl;
     
     const G4int qeEntries = 31;
 
@@ -205,6 +205,8 @@ G4LogicalVolume *DetectorConstruction::BuildHRPPD(G4LogicalVolume *wnd_log, G4Bo
       qeData        [iq] =                     QE[qeEntries - iq - 1] * _QE_DOWNSCALING_FACTOR_;
       
       if (qeData[iq] > qemax) qemax = qeData[iq];
+
+      G4cout<<"HRPPD.cc:: qePhotonEnergy["<<iq<<"]="<<qePhotonEnergy[iq]<<", eq="<<qeData[iq]<<G4endl;
     } //for iq
     
     pd->SetQE(eV * _MAGIC_CFF_ / WL[qeEntries-1], eV * _MAGIC_CFF_ / WL[0], 

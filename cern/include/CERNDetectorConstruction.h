@@ -14,7 +14,8 @@ public:
   virtual ~CERNDetectorConstruction() {};
 
   G4VPhysicalVolume* Construct( void );
-
+  void PrintProperty(CherenkovPhotonDetector* cdet);
+  
 private:
   std::string aerogelTag;
 };

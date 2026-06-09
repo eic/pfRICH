@@ -21,6 +21,7 @@ void setup(G4RunManager *runManager, CherenkovDetectorCollection *geometry, cons
     geometry->AddNewDetector("pfRICH-2x2");
 
     runManager->SetUserInitialization(construction);
+
   }
 
   // User action;

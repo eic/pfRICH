@@ -1,4 +1,3 @@
-
 #include <vector>
 
 #ifndef _PFRICH_DETECTOR_CONSTRUCTION_
@@ -76,9 +75,9 @@ protected:
   void BuildPhotonDetectorMatrix(CherenkovDetector *cdet, DarkBox *dbox, double fvzOffset, double wzOffset, 
 				 const std::vector<MisalignedLocation2D> &xycoord);
   
-  void BuildPhotonDetectorMatrixCERN2026(CherenkovDetector *cdet, DarkBox *dbox,
-					 double fvzOffset, double wzOffset,
-					 const std::vector<MisalignedLocation2D> &xycoord);
+  CherenkovPhotonDetector* BuildPhotonDetectorMatrixCERN2026(CherenkovDetector *cdet, DarkBox *dbox,
+							     double fvzOffset, double wzOffset,
+							     const std::vector<MisalignedLocation2D> &xycoord);
     
   std::vector<DarkBox*> m_DarkBoxes;
 
