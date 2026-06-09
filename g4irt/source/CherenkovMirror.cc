@@ -28,7 +28,7 @@ void CherenkovMirror::SetReflectivity(double reflectivity, CherenkovWaveLengthRa
 } // CherenkovMirror::SetReflectivity()
 
 // -------------------------------------------------------------------------------------
-void CherenkovMirror::SetReflectivity()
+G4MaterialPropertiesTable* CherenkovMirror::SetReflectivity()
 {
   std::cout<<"Set up reflectivity curve for the pyramid mirrors"<<std::endl;
   // Mirror surface; assume a metal one with a constant reflectivity;
@@ -39,7 +39,7 @@ void CherenkovMirror::SetReflectivity()
   m_MirrorSurface->SetFinish(polished);
   m_MirrorSurface->SetModel(unified);
 
-  int WLDim=121;
+  const int WLDim=121;
 
   double E[WLDim]={
     1.392, 1.401, 1.409, 1.418, 1.428, 1.437, 1.446, 1.456, 1.465, 1.475, 
@@ -74,4 +74,6 @@ void CherenkovMirror::SetReflectivity()
   G4MaterialPropertiesTable *mirrorST = new G4MaterialPropertiesTable();
   mirrorST->AddProperty("REFLECTIVITY", E, reflectivity, WLDim);
   m_MirrorSurface->SetMaterialPropertiesTable(mirrorST);
+
+  return mirrorST;
 }

@@ -71,7 +71,7 @@ G4OpticalSurface *DetectorConstruction::CreateLambertianMirrorSurface(const char
 
 void DetectorConstruction::BuildPhotonDetectorMatrix(CherenkovDetector *cdet, DarkBox *dbox, 
 						     double fvzOffset, double wzOffset, 
-						      const std::vector<MisalignedLocation2D> &xycoord)
+						     const std::vector<MisalignedLocation2D> &xycoord)
 {
   double pdthick = 0.01*mm, zpdc = wzOffset + _HRPPD_WINDOW_THICKNESS_ + pdthick/2;
   G4Box *pd_box  = new G4Box("PhotoDetector", _HRPPD_ACTIVE_AREA_SIZE_/2, _HRPPD_ACTIVE_AREA_SIZE_/2, pdthick/2);
@@ -286,7 +286,8 @@ void DetectorConstruction::SetColor(G4LogicalVolume *lvol, const G4Colour &color
 // -------------------------------------------------------------------------------------
 CherenkovPhotonDetector* DetectorConstruction::BuildPhotonDetectorMatrixCERN2026(CherenkovDetector *cdet, DarkBox *dbox,
 										 double fvzOffset, double wzOffset,
-										 const std::vector<MisalignedLocation2D> &xycoord)
+										 const std::vector<MisalignedLocation2D> &xycoord,
+										 G4MaterialPropertiesTable*& mirrorMPT)
 {
   double pdthick = 0.01*mm, zpdc = wzOffset + _HRPPD_WINDOW_THICKNESS_ + pdthick/2;
   G4Box *pd_box  = new G4Box("PhotoDetector", _HRPPD_ACTIVE_AREA_SIZE_/2, _HRPPD_ACTIVE_AREA_SIZE_/2, pdthick/2);
@@ -325,7 +326,7 @@ CherenkovPhotonDetector* DetectorConstruction::BuildPhotonDetectorMatrixCERN2026
     pyramid = new CherenkovMirror(pyra_trap, m_Absorber);
 
     pyramid->SetColor(G4Colour(0, 1, 1, 0.5));
-    pyramid->SetReflectivity();
+    mirrorMPT=pyramid->SetReflectivity();
     pyramid->DefineLogicalVolume();
     m_Geometry->AddMirrorLookupEntry(pyramid->GetLogicalVolume(), pyramid);
   }

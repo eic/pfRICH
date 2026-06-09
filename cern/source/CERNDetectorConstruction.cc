@@ -7,6 +7,9 @@
 #include "G4SubtractionSolid.hh"
 #include "G4PhysicalVolumeStore.hh"
 #include "G4DataInterpolation.hh"
+#include "G4LogicalSurface.hh"
+#include "G4OpticalSurface.hh"
+#include "G4LogicalBorderSurface.hh"
 
 #define _GEANT_SOURCE_CODE_
 #include <G4Object.h>
@@ -52,6 +55,7 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
     
   //G4RotationMatrix *rX = new G4RotationMatrix(CLHEP::HepRotationX(TMath::Pi()));
   CherenkovPhotonDetector* pd;
+  G4MaterialPropertiesTable* mirrorMPT=0;
   
   //----------------------------
   // box
@@ -185,11 +189,8 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 #endif
 	      ;
 	  }
-
 	  
-	  
-	  new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gzOffset), ac_log, "AcrylicFilter", gas_volume_log, false, 0);
-	  std::cout<<"built "<<ac_log->GetName()<<" UV filter: z="<<G4BestUnit(gzOffset, "Length")<<std::endl;
+       	  new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gzOffset), ac_log, "AcrylicFilter", gas_volume_log, false, 0);
 	  
 	  gzOffset += acthick/2 + _BUILDING_BLOCK_CLEARANCE_;
 #endif
@@ -238,7 +239,6 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 	
 	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gzOffset),frame_log, "UVFilterFrame", gas_volume_log, false, 0);
 	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, gzOffset), boro_log, "BorosilicateFilter", gas_volume_log, false, 0);
-	std::cout<<"built "<<boro_log->GetName()<<" UV filter: z="<<G4BestUnit(gzOffset, "Length")<<std::endl;
 	
         gzOffset += boroThick[boroID]/2 + _BUILDING_BLOCK_CLEARANCE_;
       }
@@ -294,7 +294,7 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
       // FIXME: is this offset correct?; front plate thickness?;
       //			fvLength/2 - _SENSOR_AREA_LENGTH_, xycoord);
 
-      pd=BuildPhotonDetectorMatrixCERN2026(cdet, dbox, fvOffset,fvLength/2 - _SENSOR_AREA_LENGTH_, xycoord);
+      pd=BuildPhotonDetectorMatrixCERN2026(cdet, dbox, fvOffset,fvLength/2 - _SENSOR_AREA_LENGTH_, xycoord,mirrorMPT);
     }
     
     if (!idt) {
@@ -314,7 +314,6 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
 	
 	new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, dbox->m_gas_volume_length/2 - _ACRYLIC_THICKNESS_/2 - 1.0*mm), 
 			  ac_log, "Acrylic", gas_volume_log, false, 0);
-	G4cout<<"acrylic2 z="<<G4BestUnit(dbox->m_gas_volume_length/2 - _ACRYLIC_THICKNESS_/2 - 1.0*mm, "Length")<<G4endl;
       }
 #endif
     } //if
@@ -324,14 +323,14 @@ G4VPhysicalVolume *CERNDetectorConstruction::Construct( void )
   } //for idt
 
 #ifdef _VALIDATE_
-  PrintProperty(pd);//expHall_phys);
+  PrintProperty(pd,mirrorMPT);
 #endif
   
   return expHall_phys;
 } // CERNDetectorConstruction::Construct()
 
 // -------------------------------------------------------------------------------------
-void CERNDetectorConstruction::PrintProperty(CherenkovPhotonDetector* pd)
+void CERNDetectorConstruction::PrintProperty(CherenkovPhotonDetector* pd,G4MaterialPropertiesTable* mirrorMPT)
 {
   FILE* fprop=fopen("property.txt","w");
   if (fprop==NULL) {
@@ -340,6 +339,8 @@ void CERNDetectorConstruction::PrintProperty(CherenkovPhotonDetector* pd)
   }
 
   //---------------------------------------
+  // HRPPD QE
+  //--------------------------------------- 
 #ifdef _USE_HRPPD_AVERAGE_DATA_
   const int qeEntries=31;
   double WL[qeEntries] = {
@@ -374,18 +375,16 @@ void CERNDetectorConstruction::PrintProperty(CherenkovPhotonDetector* pd)
     fprintf(fprop,"Scaling down factor %f\n",_QE_DOWNSCALING_FACTOR_);
     fprintf(fprop,"-------------------------------------------------\n");
     
-    double dY=0;
     for (int i=0;i<qeEntries;i++) {
       double e=1240./WL[i];  //eV
-      //double qe=qeTable->PolynomInterpolation(e*1e-6,dY);
-      double qe=qeTable->CubicSplineInterpolation(e*1e-6);//eph)
+      double qe=qeTable->CubicSplineInterpolation(e*1e-6);  //MeV
       fprintf(fprop, "WL = %.0f nm\tE = %.2f eV\tqe = %.3f\n",WL[i],e,qe);
     }
   }
   
-  //---------------------------------------  
-
-  
+  //---------------------------------------
+  // Aerogel & UV filter
+  //--------------------------------------- 
   for (auto* pv : *G4PhysicalVolumeStore::GetInstance()) {
     if (pv->GetName().find("Aerogel") != std::string::npos ||
 	pv->GetName().find("BorosilicateFilter") != std::string::npos ||
@@ -396,51 +395,73 @@ void CERNDetectorConstruction::PrintProperty(CherenkovPhotonDetector* pd)
       G4Material* mat = opt_log->GetMaterial();
       if (!mat) {
 	G4cout << pv->GetName()<<"CERNDetectorConstruction::PrintProperty():: logical vol has no material assigned!" << G4endl;
+	continue;
       }
-      else {
-	G4VSolid* solid = opt_log->GetSolid();
-	G4Box* box = dynamic_cast<G4Box*>(solid);
-	G4MaterialPropertiesTable* mpt = mat->GetMaterialPropertiesTable();
-	if (!mpt) {
+      
+      G4VSolid* solid = opt_log->GetSolid();
+      G4Box* box = dynamic_cast<G4Box*>(solid);
+      G4MaterialPropertiesTable* mpt = mat->GetMaterialPropertiesTable();
+      if (!mpt) {
 	  G4cout << "CERNDetectorConstruction::PrintProperty()::" << pv->GetName() << " has no MaterialPropertiesTable!" << G4endl;
+	  continue;
+      }
+      if (!box) {
+	G4cout << "CERNDetectorConstruction::PrintProperty()::" << pv->GetName() << " has no solid" << G4endl;
+	continue;
+      }
+
+      fprintf(fprop,"=================================================\n");
+      fprintf(fprop,"%s\n",pv->GetName().c_str());
+      fprintf(fprop,"-------------------------------------------------\n");
+      fprintf(fprop,"Material Name: %s\n",mat->GetName().c_str());
+      fprintf(fprop,"thickness=%s\n",G4String(G4BestUnit(2.0*box->GetZHalfLength(),"Length")).c_str());
+      fprintf(fprop,"density=%.2f g/cm3\n",mat->GetDensity()/(g/cm3));
+      
+      // Refractive index
+      if (auto rindex = mpt->GetProperty("RINDEX")) {
+	fprintf(fprop,"\n--- RINDEX ---\n");
+	
+	for (size_t i = 0; i < rindex->GetVectorLength(); ++i) {
+	  G4double energy = rindex->Energy(i);
+	  G4double value  = (*rindex)[i];
+	  
+	  fprintf(fprop, "E = %.3f eV\tn = %.3f\n",energy/eV,value);
 	}
-	else if (!box) {
-	  G4cout << "CERNDetectorConstruction::PrintProperty()::" << pv->GetName() << " has no solid" << G4endl;
-	}
-	else {
-	  fprintf(fprop,"=================================================\n");
-	  fprintf(fprop,"%s\n",pv->GetName().c_str());
-	  fprintf(fprop,"-------------------------------------------------\n");
-	  fprintf(fprop,"Material Name: %s\n",mat->GetName().c_str());
-	  fprintf(fprop,"thickness=%s\n",G4String(G4BestUnit(2.0*box->GetZHalfLength(),"Length")).c_str());
-	  fprintf(fprop,"density=%.2f g/cm3\n",mat->GetDensity()/(g/cm3));
-
-	  // Refractive index
-	  if (auto rindex = mpt->GetProperty("RINDEX")) {
-	    fprintf(fprop,"\n--- RINDEX ---\n");
-
-	    for (size_t i = 0; i < rindex->GetVectorLength(); ++i) {
-	      G4double energy = rindex->Energy(i);
-	      G4double value  = (*rindex)[i];
-
-	      fprintf(fprop, "E = %.3f eV\tn = %.3f\n",energy/eV,value);
-	    }
-	  }
-
-	  if (auto abslen = mpt->GetProperty("ABSLENGTH")) {
-	    fprintf(fprop, "\n--- ABSLENGTH ---\n");
-
-	    for (size_t i = 0; i < abslen->GetVectorLength(); ++i) {
-	      G4double energy = abslen->Energy(i);
-	      G4double value  = (*abslen)[i];
-
-	      fprintf(fprop, "E = %.3f eV\tabslen = %s\n",energy/eV,G4String(G4BestUnit(value, "Length")).c_str());
-	    }
-	  }
+      }
+      
+      if (auto abslen = mpt->GetProperty("ABSLENGTH")) {
+	fprintf(fprop, "\n--- ABSLENGTH ---\n");
+	
+	for (size_t i = 0; i < abslen->GetVectorLength(); ++i) {
+	  G4double energy = abslen->Energy(i);
+	  G4double value  = (*abslen)[i];
+	  
+	  fprintf(fprop, "E = %.3f eV\tabslen = %s\n",energy/eV,G4String(G4BestUnit(value, "Length")).c_str());
 	}
       }
     }// agel & filter
   }
+
+  //---------------------------------------
+  // mirror reflectivity
+  //--------------------------------------- 
+  if (!mirrorMPT) {
+    G4cout << "CERNDetectorConstruction::PrintProperty():: mirror surface has no MaterialPropertiesTable!" << G4endl;
+  }
+  else {
+    fprintf(fprop,"=================================================\n");
+    fprintf(fprop,"Mirror Reflectivity\n");
+    fprintf(fprop,"-------------------------------------------------\n");
+    if (auto reflect = mirrorMPT->GetProperty("REFLECTIVITY")) {
+      for (size_t i = 0; i < reflect->GetVectorLength(); ++i) {
+	G4double energy = reflect->Energy(i);
+	G4double value  = (*reflect)[i];
+	
+	fprintf(fprop, "E = %.3f eV\treflectivity = %.3f\n",energy,value);
+      }
+    }// mirror
+  }
+  
   
   fclose(fprop);
 }

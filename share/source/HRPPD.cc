@@ -206,7 +206,7 @@ G4LogicalVolume *DetectorConstruction::BuildHRPPD(G4LogicalVolume *wnd_log, G4Bo
       
       if (qeData[iq] > qemax) qemax = qeData[iq];
 
-      G4cout<<"HRPPD.cc:: qePhotonEnergy["<<iq<<"]="<<qePhotonEnergy[iq]<<", eq="<<qeData[iq]<<G4endl;
+      //G4cout<<"HRPPD.cc:: qePhotonEnergy["<<iq<<"]="<<qePhotonEnergy[iq]<<", eq="<<qeData[iq]<<G4endl;
     } //for iq
     
     pd->SetQE(eV * _MAGIC_CFF_ / WL[qeEntries-1], eV * _MAGIC_CFF_ / WL[0], 

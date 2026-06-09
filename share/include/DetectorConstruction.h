@@ -4,6 +4,7 @@
 #define _PFRICH_DETECTOR_CONSTRUCTION_
 
 #include "G4VUserDetectorConstruction.hh"
+#include "G4MaterialPropertiesTable.hh"
 
 #include "Materials.h"
 
@@ -77,7 +78,8 @@ protected:
   
   CherenkovPhotonDetector* BuildPhotonDetectorMatrixCERN2026(CherenkovDetector *cdet, DarkBox *dbox,
 							     double fvzOffset, double wzOffset,
-							     const std::vector<MisalignedLocation2D> &xycoord);
+							     const std::vector<MisalignedLocation2D> &xycoord,
+							     G4MaterialPropertiesTable*& mirrorMPT);
     
   std::vector<DarkBox*> m_DarkBoxes;
 
